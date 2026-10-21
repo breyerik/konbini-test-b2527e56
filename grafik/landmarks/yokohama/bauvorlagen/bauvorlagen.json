@@ -1,0 +1,1237 @@
+{
+ "version": 1,
+ "status": "Entwurf – wartet auf Whitebeard-Prüfung und Eriks Freigabe",
+ "einheit": "Felder (1 Stock = 0,20)",
+ "koordinaten": "x=Ost, y=Süd, z=Höhe; relativ zur NW-Ecke der Grundfläche; z=0 = Blockplatte",
+ "shading": {
+  "oben": 1.0,
+  "front": 0.92,
+  "seite": 0.72
+ },
+ "kontur": "#3A3C4A",
+ "wahrzeichen": [
+  {
+   "id": "yokohama-station",
+   "name": "Bahnhof Yokohama",
+   "position": [
+    9,
+    9
+   ],
+   "grundflaeche": [
+    6,
+    3
+   ],
+   "hoehe": 1.8,
+   "referenz_real": "JR Yokohama Tower 135 m; Bahnhofshalle ~4 Stock",
+   "blick": "süd",
+   "farben": {
+    "Halle": "#DBD8CA",
+    "Glas": "#7FB3C8",
+    "Turm": "#6E8BAA",
+    "Dach": "#4A4D52",
+    "Gleisdach": "#9A9DA2"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Halle",
+     "x": 0.2,
+     "y": 1.2,
+     "z": 0,
+     "b": 5.6,
+     "t": 1.6,
+     "h": 0.6,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quader",
+     "name": "Glasband",
+     "x": 0.2,
+     "y": 2.75,
+     "z": 0.15,
+     "b": 5.6,
+     "t": 0.06,
+     "h": 0.35,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "quader",
+     "name": "Gleisdach",
+     "x": 0.0,
+     "y": 0.15,
+     "z": 0,
+     "b": 6.0,
+     "t": 0.95,
+     "h": 0.35,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "quader",
+     "name": "Turm",
+     "x": 3.9,
+     "y": 1.4,
+     "z": 0.6,
+     "b": 1.6,
+     "t": 1.2,
+     "h": 1.2,
+     "farbe": "#6E8BAA"
+    },
+    {
+     "form": "quader",
+     "name": "Turm-Attika",
+     "x": 3.9,
+     "y": 1.4,
+     "z": 1.8,
+     "b": 1.6,
+     "t": 1.2,
+     "h": 0.0,
+     "farbe": "#4A4D52"
+    },
+    {
+     "form": "quader",
+     "name": "Vordach",
+     "x": 1.2,
+     "y": 2.8,
+     "z": 0.3,
+     "b": 2.4,
+     "t": 0.2,
+     "h": 0.05,
+     "farbe": "#4A4D52"
+    }
+   ],
+   "hinweis": "Flachdach ohne Heliport. Nord = Gleise."
+  },
+  {
+   "id": "landmark-tower",
+   "name": "Landmark Tower",
+   "position": [
+    23,
+    21
+   ],
+   "grundflaeche": [
+    3,
+    3
+   ],
+   "hoehe": 3.6,
+   "referenz_real": "296 m, 70 Stock",
+   "blick": "süd",
+   "farben": {
+    "Fassade": [
+     "#DBD8CA",
+     "#E8DCC4",
+     "#C1BBAA"
+    ],
+    "Fensterbänder": "#9A9DA2",
+    "Sockel": "#A85E48"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Sockel (Dockyard)",
+     "x": 0.2,
+     "y": 0.2,
+     "z": 0,
+     "b": 2.6,
+     "t": 2.6,
+     "h": 0.4,
+     "farbe": "#A85E48"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Schaft (verjüngt)",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.4,
+     "b": 1.4,
+     "t": 1.4,
+     "b_oben": 1.1,
+     "t_oben": 1.1,
+     "h": 2.5,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quader",
+     "name": "Krone Stufe 1",
+     "x": 1.0,
+     "y": 1.0,
+     "z": 2.9,
+     "b": 1.0,
+     "t": 1.0,
+     "h": 0.3,
+     "farbe": "#E8DCC4"
+    },
+    {
+     "form": "quader",
+     "name": "Krone Stufe 2",
+     "x": 1.075,
+     "y": 1.075,
+     "z": 3.2,
+     "b": 0.85,
+     "t": 0.85,
+     "h": 0.22,
+     "farbe": "#C1BBAA"
+    },
+    {
+     "form": "quader",
+     "name": "Krone Stufe 3 (Flachdach)",
+     "x": 1.15,
+     "y": 1.15,
+     "z": 3.42,
+     "b": 0.7,
+     "t": 0.7,
+     "h": 0.18,
+     "farbe": "#E8DCC4"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 1",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.7,
+     "h": 0.03,
+     "b": 1.374,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 2",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.9,
+     "h": 0.03,
+     "b": 1.35,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 3",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.1,
+     "h": 0.03,
+     "b": 1.326,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 4",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.3,
+     "h": 0.03,
+     "b": 1.302,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 5",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.5,
+     "h": 0.03,
+     "b": 1.278,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 6",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.7,
+     "h": 0.03,
+     "b": 1.254,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 7",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.9,
+     "h": 0.03,
+     "b": 1.23,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 8",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 2.1,
+     "h": 0.03,
+     "b": 1.206,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 9",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 2.3,
+     "h": 0.03,
+     "b": 1.182,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 10",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 2.5,
+     "h": 0.03,
+     "b": 1.158,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 11",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 2.7,
+     "h": 0.03,
+     "b": 1.134,
+     "farbe": "#9A9DA2"
+    }
+   ],
+   "hinweis": "Schlanker Schaft, glatt verjüngt (quaderstumpf 1,4→1,1, keine Stufen), dünne dunklere Fensterbänder alle 0,2; Krone im oberen Fünftel (2,9–3,6) in 3 kleinen Stufen; schlichtes Flachdach, KEIN Heliport."
+  },
+  {
+   "id": "queens-square",
+   "name": "Queen's Square",
+   "position": [
+    30,
+    14
+   ],
+   "grundflaeche": [
+    3,
+    3
+   ],
+   "hoehe": 2.4,
+   "referenz_real": "Tower A 172 m, B 138 m, C 110 m",
+   "blick": "süd",
+   "farben": {
+    "Glas": "#7FB3C8",
+    "Rahmen": "#DCE3EA",
+    "Sockel": "#DBD8CA",
+    "Platz": "#E8DCC4"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Platz (helles Pflaster)",
+     "x": 0.0,
+     "y": 0.0,
+     "z": 0,
+     "b": 3.0,
+     "t": 3.0,
+     "h": 0.03,
+     "farbe": "#E8DCC4"
+    },
+    {
+     "form": "quader",
+     "name": "Sockel",
+     "x": 0.15,
+     "y": 0.3,
+     "z": 0,
+     "b": 2.7,
+     "t": 1.6,
+     "h": 0.4,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quader",
+     "name": "Tower A",
+     "x": 0.2,
+     "y": 0.4,
+     "z": 0.4,
+     "b": 0.8,
+     "t": 1.0,
+     "h": 2.0,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "quader",
+     "name": "Tower B",
+     "x": 1.1,
+     "y": 0.6,
+     "z": 0.4,
+     "b": 0.8,
+     "t": 1.0,
+     "h": 1.6,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "quader",
+     "name": "Tower C",
+     "x": 2.0,
+     "y": 0.8,
+     "z": 0.4,
+     "b": 0.8,
+     "t": 1.0,
+     "h": 1.2,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "keil",
+     "name": "Dachschräge A",
+     "x": 0.2,
+     "y": 0.4,
+     "z": 2.4,
+     "b": 0.8,
+     "t": 1.0,
+     "h": 0.0,
+     "farbe": "#DCE3EA",
+     "steigt_nach": "nord"
+    },
+    {
+     "form": "quader",
+     "name": "Rahmenband",
+     "x": 0.2,
+     "y": 1.38,
+     "z": 0.4,
+     "b": 2.6,
+     "t": 0.04,
+     "h": 0.08,
+     "farbe": "#DCE3EA"
+    }
+   ],
+   "hinweis": "Drei gestaffelte Glastürme (Segel-Look), fallen von West nach Ost ab; flache Dächer. Freie Flächen = helles Pflaster, kein Grau."
+  },
+  {
+   "id": "cosmo-clock",
+   "name": "Cosmo Clock 21 (Riesenrad)",
+   "position": [
+    38,
+    14
+   ],
+   "grundflaeche": [
+    3,
+    3
+   ],
+   "hoehe": 2.0,
+   "referenz_real": "112,5 m, Ø 100 m",
+   "blick": "süd (Radebene Ost-West)",
+   "farben": {
+    "Ring": "#F7F5EF",
+    "Speichen": "#DCE3EA",
+    "Gondeln": [
+     "#E94F4F",
+     "#FFC93C",
+     "#5DBB73",
+     "#3D7BD9"
+    ],
+    "Uhr": "#2B2D42",
+    "Station": "#E94F4F"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Station",
+     "x": 0.7,
+     "y": 1.1,
+     "z": 0,
+     "b": 1.6,
+     "t": 0.8,
+     "h": 0.25,
+     "farbe": "#E94F4F"
+    },
+    {
+     "form": "quader",
+     "name": "Stütze links",
+     "x": 1.05,
+     "y": 1.4,
+     "z": 0,
+     "b": 0.1,
+     "t": 0.2,
+     "h": 1.1,
+     "farbe": "#DCE3EA"
+    },
+    {
+     "form": "quader",
+     "name": "Stütze rechts",
+     "x": 1.85,
+     "y": 1.4,
+     "z": 0,
+     "b": 0.1,
+     "t": 0.2,
+     "h": 1.1,
+     "farbe": "#DCE3EA"
+    },
+    {
+     "form": "ring",
+     "name": "Rad",
+     "cx": 1.5,
+     "cy": 1.5,
+     "cz": 1.1,
+     "R": 0.9,
+     "r": 0.05,
+     "achse": "y",
+     "farbe": "#F7F5EF",
+     "segmente": 16
+    },
+    {
+     "form": "zylinder",
+     "name": "Nabe/Uhr",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.05,
+     "r": 0.18,
+     "h": 0.1,
+     "farbe": "#2B2D42",
+     "segmente": 8
+    },
+    {
+     "form": "gondeln",
+     "anzahl": 16,
+     "radius": 0.9,
+     "groesse": 0.12,
+     "farben": [
+      "#E94F4F",
+      "#FFC93C",
+      "#5DBB73",
+      "#3D7BD9"
+     ],
+     "name": "Gondeln"
+    }
+   ],
+   "hinweis": "Steht direkt an der Uferkante (Ostseite = Wasser). Rad steht in Ost-West-Ebene (Achse Nord-Süd), damit die feste Kamera es offen sieht. Speichen: 16 dünne Quader 0,02."
+  },
+  {
+   "id": "akarenga",
+   "name": "Red Brick Warehouses (Akarenga)",
+   "position": [
+    46,
+    30
+   ],
+   "grundflaeche": [
+    4,
+    2
+   ],
+   "hoehe": 0.7,
+   "referenz_real": "ca. 18 m, 3 Stock",
+   "blick": "süd",
+   "farben": {
+    "Ziegel": "#A85E48",
+    "Dach": "#4A4D52",
+    "Fenster": "#F2E3A8",
+    "Sockel": "#9C4A3C"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Lagerhaus 1",
+     "x": 0.1,
+     "y": 0.25,
+     "z": 0,
+     "b": 1.7,
+     "t": 0.9,
+     "h": 0.6,
+     "farbe": "#A85E48"
+    },
+    {
+     "form": "quader",
+     "name": "Lagerhaus 2",
+     "x": 2.2,
+     "y": 0.25,
+     "z": 0,
+     "b": 1.7,
+     "t": 0.9,
+     "h": 0.6,
+     "farbe": "#A85E48"
+    },
+    {
+     "form": "keil",
+     "name": "Dach 1",
+     "x": 0.1,
+     "y": 0.25,
+     "z": 0.6,
+     "b": 1.7,
+     "t": 0.9,
+     "h": 0.1,
+     "farbe": "#4A4D52",
+     "steigt_nach": "giebel"
+    },
+    {
+     "form": "keil",
+     "name": "Dach 2",
+     "x": 2.2,
+     "y": 0.25,
+     "z": 0.6,
+     "b": 1.7,
+     "t": 0.9,
+     "h": 0.1,
+     "farbe": "#4A4D52",
+     "steigt_nach": "giebel"
+    },
+    {
+     "form": "quader",
+     "name": "Platz",
+     "x": 0,
+     "y": 1.25,
+     "z": 0,
+     "b": 4,
+     "t": 0.75,
+     "h": 0.02,
+     "farbe": "#E8DCC4"
+    }
+   ],
+   "hinweis": "Zwei lange Hallen, flaches Satteldach; Fenster 6 je Stock auf Front; Fensterbögen weglassen (kantig)."
+  },
+  {
+   "id": "osanbashi",
+   "name": "Ōsanbashi-Pier",
+   "position": [
+    50,
+    38
+   ],
+   "grundflaeche": [
+    4,
+    5
+   ],
+   "hoehe": 0.35,
+   "referenz_real": "Terminaldach ~15 m über Wasser",
+   "blick": "nord (Landseite)",
+   "farben": {
+    "Deck": "#C1BBAA",
+    "Holz": "#7A5A48",
+    "Gras": "#BFD271",
+    "Kante": "#DBD8CA"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Pier-Körper",
+     "x": 0.2,
+     "y": 0,
+     "z": 0,
+     "b": 3.6,
+     "t": 5,
+     "h": 0.25,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quader",
+     "name": "Holzdeck",
+     "x": 0.4,
+     "y": 0.4,
+     "z": 0.25,
+     "b": 3.2,
+     "t": 4.2,
+     "h": 0.03,
+     "farbe": "#7A5A48"
+    },
+    {
+     "form": "keil",
+     "name": "Dachwelle 1",
+     "x": 0.6,
+     "y": 1.0,
+     "z": 0.25,
+     "b": 1.2,
+     "t": 1.5,
+     "h": 0.1,
+     "farbe": "#BFD271",
+     "steigt_nach": "nord"
+    },
+    {
+     "form": "keil",
+     "name": "Dachwelle 2",
+     "x": 2.2,
+     "y": 2.6,
+     "z": 0.25,
+     "b": 1.2,
+     "t": 1.5,
+     "h": 0.1,
+     "farbe": "#BFD271",
+     "steigt_nach": "süd"
+    },
+    {
+     "form": "quader",
+     "name": "Poller-Reihe",
+     "x": 0.2,
+     "y": 4.8,
+     "z": 0.25,
+     "b": 3.6,
+     "t": 0.1,
+     "h": 0.04,
+     "farbe": "#3A3C4A"
+    }
+   ],
+   "hinweis": "Flaches Welldach in Stufen (keine Rundungen). Liegt technisch auf Landfeldern."
+  },
+  {
+   "id": "yamashita-park",
+   "name": "Yamashita-Park",
+   "position": [
+    41,
+    45
+   ],
+   "grundflaeche": [
+    5,
+    2
+   ],
+   "hoehe": 0.5,
+   "referenz_real": "Park, Bäume ~10 m",
+   "blick": "süd (Wasser)",
+   "farben": {
+    "Gras": "#BFD271",
+    "Weg": "#E8DCC4",
+    "Bäume": "#5DBB73",
+    "Brunnen": "#7FB3C8",
+    "Kai": "#DBD8CA"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Rasen",
+     "x": 0,
+     "y": 0,
+     "z": 0,
+     "b": 5,
+     "t": 2,
+     "h": 0.02,
+     "farbe": "#BFD271"
+    },
+    {
+     "form": "quader",
+     "name": "Promenade",
+     "x": 0,
+     "y": 1.6,
+     "z": 0,
+     "b": 5,
+     "t": 0.4,
+     "h": 0.03,
+     "farbe": "#E8DCC4"
+    },
+    {
+     "form": "zylinder",
+     "name": "Brunnen",
+     "cx": 2.5,
+     "cy": 0.8,
+     "z": 0,
+     "r": 0.3,
+     "h": 0.06,
+     "farbe": "#7FB3C8",
+     "segmente": 8
+    },
+    {
+     "form": "kegelstumpf",
+     "name": "Statue",
+     "cx": 2.5,
+     "cy": 0.8,
+     "z": 0.06,
+     "r": 0.05,
+     "r_oben": 0.03,
+     "h": 0.25,
+     "farbe": "#9A9DA2",
+     "segmente": 6
+    },
+    {
+     "form": "baeume",
+     "name": "Bäume",
+     "positionen": [
+      [
+       0.5,
+       0.5
+      ],
+      [
+       1.3,
+       0.6
+      ],
+      [
+       3.7,
+       0.6
+      ],
+      [
+       4.5,
+       0.5
+      ],
+      [
+       0.9,
+       1.2
+      ],
+      [
+       4.1,
+       1.2
+      ]
+     ],
+     "stamm_h": 0.12,
+     "krone_r": 0.25,
+     "krone_h": 0.35,
+     "farbe": "#5DBB73"
+    }
+   ],
+   "hinweis": "Bäume als achteckige Kegel/Prismen, keine Kugeln."
+  },
+  {
+   "id": "hikawa-maru",
+   "name": "Hikawa Maru",
+   "position": [
+    48,
+    50
+   ],
+   "grundflaeche": [
+    2,
+    2
+   ],
+   "hoehe": 0.95,
+   "referenz_real": "Schiff 163 m lang, Mast ~35 m",
+   "blick": "ost (Bug)",
+   "farben": {
+    "Rumpf": "#2B2D42",
+    "Wasserlinie": "#E94F4F",
+    "Aufbau": "#F7F5EF",
+    "Schornstein": [
+     "#E94F4F",
+     "#2B2D42"
+    ],
+    "Deck": "#7A5A48"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Rumpf",
+     "x": 0.05,
+     "y": 0.7,
+     "z": 0,
+     "b": 1.9,
+     "t": 0.6,
+     "h": 0.3,
+     "farbe": "#2B2D42"
+    },
+    {
+     "form": "quader",
+     "name": "Wasserlinie",
+     "x": 0.05,
+     "y": 0.7,
+     "z": 0,
+     "b": 1.9,
+     "t": 0.6,
+     "h": 0.05,
+     "farbe": "#E94F4F"
+    },
+    {
+     "form": "keil",
+     "name": "Bug",
+     "x": 1.75,
+     "y": 0.7,
+     "z": 0,
+     "b": 0.2,
+     "t": 0.6,
+     "h": 0.3,
+     "farbe": "#2B2D42",
+     "steigt_nach": "ost"
+    },
+    {
+     "form": "quader",
+     "name": "Deck",
+     "x": 0.1,
+     "y": 0.72,
+     "z": 0.3,
+     "b": 1.75,
+     "t": 0.56,
+     "h": 0.02,
+     "farbe": "#7A5A48"
+    },
+    {
+     "form": "quader",
+     "name": "Aufbau",
+     "x": 0.6,
+     "y": 0.8,
+     "z": 0.32,
+     "b": 0.7,
+     "t": 0.4,
+     "h": 0.18,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "zylinder",
+     "name": "Schornstein",
+     "cx": 0.95,
+     "cy": 1.0,
+     "z": 0.5,
+     "r": 0.08,
+     "h": 0.2,
+     "farbe": "#E94F4F",
+     "segmente": 8
+    },
+    {
+     "form": "zylinder",
+     "name": "Schornsteinkappe",
+     "cx": 0.95,
+     "cy": 1.0,
+     "z": 0.66,
+     "r": 0.085,
+     "h": 0.04,
+     "farbe": "#2B2D42",
+     "segmente": 8
+    },
+    {
+     "form": "quader",
+     "name": "Mast vorn",
+     "x": 1.45,
+     "y": 0.98,
+     "z": 0.32,
+     "b": 0.03,
+     "t": 0.03,
+     "h": 0.6,
+     "farbe": "#4A4D52"
+    },
+    {
+     "form": "quader",
+     "name": "Mast hinten",
+     "x": 0.3,
+     "y": 0.98,
+     "z": 0.32,
+     "b": 0.03,
+     "t": 0.03,
+     "h": 0.5,
+     "farbe": "#4A4D52"
+    }
+   ],
+   "hinweis": "Liegt IM Wasser direkt östlich am Yamashita-Kai (Plan: im_wasser=true, Felder bleiben wasser, Kai im Westen). z=0 = Wasserlinie; Rumpf bis 0,3. Länge 1,9 statt maßstäblich ~9 — stark gestaucht."
+  },
+  {
+   "id": "marine-tower",
+   "name": "Marine Tower",
+   "position": [
+    39,
+    50
+   ],
+   "grundflaeche": [
+    2,
+    2
+   ],
+   "hoehe": 2.0,
+   "referenz_real": "106 m",
+   "blick": "süd",
+   "farben": {
+    "Gitter": "#E94F4F",
+    "Weiß": "#F7F5EF",
+    "Aussicht": "#7FB3C8",
+    "Sockel": "#DBD8CA"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Sockel",
+     "x": 0.4,
+     "y": 0.4,
+     "z": 0,
+     "b": 1.2,
+     "t": 1.2,
+     "h": 0.2,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "kegelstumpf",
+     "name": "Schaft (10-eckig)",
+     "cx": 1,
+     "cy": 1,
+     "z": 0.2,
+     "r": 0.45,
+     "r_oben": 0.18,
+     "h": 1.3,
+     "farbe": "#E94F4F",
+     "segmente": 10
+    },
+    {
+     "form": "zylinder",
+     "name": "Aussichtsdeck",
+     "cx": 1,
+     "cy": 1,
+     "z": 1.5,
+     "r": 0.32,
+     "h": 0.18,
+     "farbe": "#7FB3C8",
+     "segmente": 10
+    },
+    {
+     "form": "zylinder",
+     "name": "Deckrand",
+     "cx": 1,
+     "cy": 1,
+     "z": 1.68,
+     "r": 0.34,
+     "h": 0.04,
+     "farbe": "#F7F5EF",
+     "segmente": 10
+    },
+    {
+     "form": "kegelstumpf",
+     "name": "Spitze",
+     "cx": 1,
+     "cy": 1,
+     "z": 1.72,
+     "r": 0.12,
+     "r_oben": 0.03,
+     "h": 0.28,
+     "farbe": "#E94F4F",
+     "segmente": 10
+    },
+    {
+     "form": "streifen",
+     "name": "Weiße Ringe",
+     "an": "Schaft",
+     "hoehen": [
+      0.55,
+      0.95,
+      1.3
+     ],
+     "dicke": 0.04,
+     "farbe": "#F7F5EF"
+    }
+   ],
+   "hinweis": "Gitter nur als Farbe/Streifen, keine echten Streben."
+  },
+  {
+   "id": "chukagai-tor",
+   "name": "Chinatown-Tor (Zenrinmon)",
+   "position": [
+    30,
+    44
+   ],
+   "grundflaeche": [
+    3,
+    3
+   ],
+   "hoehe": 0.75,
+   "referenz_real": "ca. 15 m",
+   "blick": "süd (Straße durchs Tor N-S)",
+   "farben": {
+    "Säulen": "#E94F4F",
+    "Dach": "#2F3F66",
+    "Ziegelkante": "#5DBB73",
+    "Gold": "#FFC93C",
+    "Platz": "#E8DCC4"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Platz",
+     "x": 0,
+     "y": 0,
+     "z": 0,
+     "b": 3,
+     "t": 3,
+     "h": 0.02,
+     "farbe": "#E8DCC4"
+    },
+    {
+     "form": "quader",
+     "name": "Säule links",
+     "x": 0.6,
+     "y": 1.35,
+     "z": 0,
+     "b": 0.14,
+     "t": 0.3,
+     "h": 0.5,
+     "farbe": "#E94F4F"
+    },
+    {
+     "form": "quader",
+     "name": "Säule rechts",
+     "x": 2.26,
+     "y": 1.35,
+     "z": 0,
+     "b": 0.14,
+     "t": 0.3,
+     "h": 0.5,
+     "farbe": "#E94F4F"
+    },
+    {
+     "form": "quader",
+     "name": "Säule innen L",
+     "x": 1.15,
+     "y": 1.35,
+     "z": 0,
+     "b": 0.1,
+     "t": 0.3,
+     "h": 0.45,
+     "farbe": "#E94F4F"
+    },
+    {
+     "form": "quader",
+     "name": "Säule innen R",
+     "x": 1.75,
+     "y": 1.35,
+     "z": 0,
+     "b": 0.1,
+     "t": 0.3,
+     "h": 0.45,
+     "farbe": "#E94F4F"
+    },
+    {
+     "form": "quader",
+     "name": "Querbalken",
+     "x": 0.5,
+     "y": 1.25,
+     "z": 0.4,
+     "b": 2.0,
+     "t": 0.5,
+     "h": 0.08,
+     "farbe": "#E94F4F"
+    },
+    {
+     "form": "quader",
+     "name": "Schild (ohne Schrift)",
+     "x": 1.3,
+     "y": 1.23,
+     "z": 0.48,
+     "b": 0.4,
+     "t": 0.04,
+     "h": 0.1,
+     "farbe": "#FFC93C"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Dach",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.58,
+     "b": 2.5,
+     "t": 0.5,
+     "b_oben": 2.0,
+     "t_oben": 0.3,
+     "h": 0.17,
+     "farbe": "#2F3F66"
+    },
+    {
+     "form": "quader",
+     "name": "Dachkante",
+     "x": 0.25,
+     "y": 1.25,
+     "z": 0.55,
+     "b": 2.5,
+     "t": 0.5,
+     "h": 0.03,
+     "farbe": "#5DBB73"
+    }
+   ],
+   "hinweis": "Kein Schriftzug, Schild leer gold. Tor ist schmal: Dach/Balken 0,5 tief, Säulen 0,3 tief, mittig (y 1,25–1,75); Dach als quaderstumpf 2,5×0,5 → 2,0×0,3."
+  },
+  {
+   "id": "bay-bridge",
+   "name": "Yokohama Bay Bridge",
+   "position": [
+    42,
+    58
+   ],
+   "grundflaeche": [
+    17,
+    2
+   ],
+   "hoehe": 2.2,
+   "referenz_real": "Pylone 172 m, Fahrbahn ~55 m über Wasser",
+   "blick": "Verlauf West–Ost",
+   "farben": {
+    "Stahl": "#F7F5EF",
+    "Fahrbahn": "#565859",
+    "Seile": "#DCE3EA",
+    "Unterseite": "#9A9DA2"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Fahrbahnträger",
+     "x": 0,
+     "y": 0.4,
+     "z": 0.6,
+     "b": 17,
+     "t": 1.2,
+     "h": 0.22,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Fahrbahn",
+     "x": 0,
+     "y": 0.45,
+     "z": 0.82,
+     "b": 17,
+     "t": 1.1,
+     "h": 0.02,
+     "farbe": "#565859"
+    },
+    {
+     "form": "quader",
+     "name": "Pylon W links",
+     "x": 5.4,
+     "y": 0.25,
+     "z": 0,
+     "b": 0.2,
+     "t": 0.2,
+     "h": 2.2,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Pylon W rechts",
+     "x": 5.4,
+     "y": 1.55,
+     "z": 0,
+     "b": 0.2,
+     "t": 0.2,
+     "h": 2.2,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Pylon W Riegel",
+     "x": 5.4,
+     "y": 0.25,
+     "z": 1.9,
+     "b": 0.2,
+     "t": 1.5,
+     "h": 0.15,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Pylon O links",
+     "x": 11.4,
+     "y": 0.25,
+     "z": 0,
+     "b": 0.2,
+     "t": 0.2,
+     "h": 2.2,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Pylon O rechts",
+     "x": 11.4,
+     "y": 1.55,
+     "z": 0,
+     "b": 0.2,
+     "t": 0.2,
+     "h": 2.2,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Pylon O Riegel",
+     "x": 11.4,
+     "y": 0.25,
+     "z": 1.9,
+     "b": 0.2,
+     "t": 1.5,
+     "h": 0.15,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "seilfaecher",
+     "name": "Schrägseile",
+     "an_pylonen": [
+      5.5,
+      11.5
+     ],
+     "je_seite": 6,
+     "spannweite": 2.5,
+     "farbe": "#DCE3EA",
+     "dicke": 0.015
+    }
+   ],
+   "hinweis": "Schrägseilbrücke (im Plan art='haengebruecke' – technisch falsch, Form bitte als Schrägseil). Fahrbahn 2-stöckig vereinfacht zu einem Träger."
+  }
+ ]
+}

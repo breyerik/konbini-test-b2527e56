@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="610" height="150" viewBox="0 0 610 150"><rect width="100%" height="100%" fill="#F2EFE6"/>
+<rect x="30" y="110" width="346.6666666666667" height="6" fill="#565859"/>
+<rect x="38.7" y="58.0" width="147.3" height="52.0" fill="#9A5642" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="220.7" y="58.0" width="147.3" height="52.0" fill="#9A5642" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="38.7" y="49.3" width="147.3" height="8.7" fill="#44464B" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="220.7" y="49.3" width="147.3" height="8.7" fill="#44464B" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="30.0" y="108.3" width="346.7" height="1.7" fill="#D5CAB4" stroke="#3A3C4A" stroke-width="1"/>
+<text x="30" y="134" font-family="sans-serif" font-size="12" fill="#3A3C4A">Front (Süd) · 4 Felder</text>
+<rect x="406.6666666666667" y="110" width="173.33333333333334" height="6" fill="#565859"/>
+<rect x="428.3" y="58.0" width="78.0" height="52.0" fill="#784333" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="428.3" y="58.0" width="78.0" height="52.0" fill="#784333" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="428.3,58.0 467.3,49.3 506.3,58.0" fill="#35373B" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="428.3,58.0 467.3,49.3 506.3,58.0" fill="#35373B" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="515.0" y="108.3" width="65.0" height="1.7" fill="#A79E8D" stroke="#3A3C4A" stroke-width="1"/>
+<text x="406.6666666666667" y="134" font-family="sans-serif" font-size="12" fill="#3A3C4A">Seite (Ost) · 2 Felder</text>
+<line x1="14" y1="110" x2="14" y2="49.333333333333336" stroke="#E94F4F" stroke-width="2"/><text x="4" y="43.333333333333336" font-family="sans-serif" font-size="12" fill="#E94F4F">0,7</text></svg>

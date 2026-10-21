@@ -1,0 +1,474 @@
+{
+  "_info": "Spieltexte für Konbini Empire von Ito. figur = kobo | kobo-besorgt | kobo-jubelnd (Dateien in grafik/maskottchen/).",
+  "tutorial": [
+    {
+      "id": "start",
+      "figur": "kobo",
+      "text": "Das hier ist jetzt dein Laden. Bevor wir an Expansion denken, bringen wir Omas Konbini auf Vordermann: Sortiment, Filialleitung und frische Ware."
+    },
+    {
+      "id": "sortiment",
+      "figur": "kobo",
+      "text": "Onigiri, Bentō und Getränke sind unser Brot und Butter. Achte auf die Marge, aber übertreib es nicht mit den Preisen, sonst ziehen die Kunden zu Eight weiter."
+    },
+    {
+      "id": "frische",
+      "figur": "kobo",
+      "text": "Frischware hält nur kurz. Bestellst du zu viel, landet sie im Müll. Bestellst du zu wenig, sind die Regale leer. Das richtige Maß ist die Kunst."
+    },
+    {
+      "id": "personal",
+      "figur": "kobo",
+      "text": "Jeder Laden braucht eine Filialleitung. Sie kümmert sich um das Team und den Alltag im Laden. Achte auf ihre Fähigkeiten: Wer gut mit Menschen kann, sorgt für zufriedene Kunden, und wer gut im Marketing ist, bringt mehr Kundschaft."
+    },
+    {
+      "id": "services",
+      "figur": "kobo",
+      "text": "Paketannahme mit Shironeko Express, Geldautomat oder Ticketverkauf bringen Provision und locken Leute in den Laden, die oft noch einen Kaffee mitnehmen."
+    },
+    {
+      "id": "marketing",
+      "figur": "kobo",
+      "text": "Im Marketing-Reiter buchst du Kampagnen, von Flyern im Viertel bis zu großen Plakaten in der Stadt. Fang klein an und schau, was wirkt."
+    },
+    {
+      "id": "buuhuu",
+      "figur": "kobo",
+      "text": "Das hier sind die BuuHuu-Bewertungen. Je mehr Geister, desto mehr Kunden. Sauberkeit, Frische, Wartezeit und Preise zählen alle mit."
+    },
+    {
+      "id": "eroeffnung",
+      "figur": "kobo-jubelnd",
+      "text": "Die ersten Kunden kommen wieder in Omas Laden. Ab jetzt bekommst du jede Woche deine Ergebnisse und die neueste Konbini Shimbun."
+    },
+    {
+      "id": "verlust",
+      "figur": "kobo-besorgt",
+      "text": "Oh je, diese Woche haben wir Verlust gemacht. Das ist am Anfang normal. Prüf Filialleitung, Preise und Bestellmengen, dann wird es besser."
+    },
+    {
+      "id": "zweiter_laden",
+      "figur": "kobo-jubelnd",
+      "text": "Wir haben genug Geld für einen zweiten Laden! Aus Omas kleinem Konbini wird eine echte Kette."
+    },
+    {
+      "id": "karte",
+      "figur": "kobo",
+      "text": "Omas Laden läuft! Zeit für die zweite Filiale. Siehst du die Pins „Zu vermieten“ auf der Karte? Tipp einen an, dann schauen wir ihn uns an. Aber beeil dich, die Konkurrenz schläft nicht."
+    },
+    {
+      "id": "miete",
+      "figur": "kobo",
+      "text": "Für deinen zweiten Laden siehst du hier Wochenmiete, Kaution und wie viele Leute pro Woche vorbeilaufen. Viele Passanten bedeuten viel Kundschaft, aber auch höhere Miete."
+    },
+    {
+      "id": "bauen",
+      "figur": "kobo",
+      "text": "Jetzt richten wir den zweiten Laden ein: Fassade, Einrichtung und Geräte. Kühlregal und Kaffeeautomat sind Pflicht, der Oden-Topf lohnt sich vor allem im Winter. Am Ende siehst du alle Kosten."
+    },
+    {
+      "id": "bauphase",
+      "figur": "kobo",
+      "text": "Die Handwerker legen los! In ein paar Wochen eröffnet deine zweite Filiale. Bis dahin läuft Omas Laden weiter und verdient das Geld."
+    },
+    {
+      "id": "ende",
+      "figur": "kobo",
+      "text": "Das war's von mir fürs Erste. Ich bin immer da, wenn du mich brauchst. Gambatte!"
+    }
+  ],
+  "buuhuu_stimmen": {
+    "5": [
+      "Onigiri um 3 Uhr nachts noch frisch, 5 Geister!",
+      "Schneller als jeder Eight, super freundlich!",
+      "Der beste Oden der ganzen Straße.",
+      "Sauber, hell und immer alles da. Mein Stamm-Konbini!"
+    ],
+    "4": [
+      "Toller Laden, nur der Kaffee könnte günstiger sein.",
+      "Gute Auswahl, abends manchmal etwas voll.",
+      "Paket abgeholt und Bentō mitgenommen, praktisch!"
+    ],
+    "3": [
+      "Ganz okay, nichts Besonderes.",
+      "Das Sortiment ist in Ordnung, aber die Saisonware fehlt.",
+      "Freundlich, aber die Schlange an der Kasse war lang."
+    ],
+    "2": [
+      "Kasse ewig besetzt, nur 2 Geister.",
+      "Die Sandwiches waren schon fast abgelaufen.",
+      "Zu teuer für das, was man bekommt."
+    ],
+    "1": [
+      "Leere Regale und niemand an der Kasse. Buuuh!",
+      "Der Boden klebte, ich komme nicht wieder.",
+      "Mein Onigiri war nicht mehr frisch. Gruselig, und nicht im guten Sinne."
+    ]
+  },
+  "shimbun": {
+    "titel": "Konbini Shimbun",
+    "eigene": [
+      "{kette} eröffnet ersten Laden in {stadtteil}",
+      "{kette} wächst weiter: Filiale Nr. {anzahl} eröffnet",
+      "BuuHuu-Ranking: {kette} in {stadtteil} erreicht {geister} Geister",
+      "Rekordwoche für {kette}: Umsatz so hoch wie nie",
+      "Kunden lieben die Saisonaktion von {kette}"
+    ],
+    "konkurrenz": [
+      "Eight eröffnet neue Filiale in {stadtteil}",
+      "Lawsun startet Rabattwoche auf alle Bentō",
+      "Familia setzt auf frittiertes Hähnchen und gewinnt Kundschaft",
+      "Minihalt kämpft mit Personalmangel in der Nachtschicht",
+      "Preiskampf: Eight senkt den Kaffeepreis",
+      "Neue Kette aus Polen: Żabu eröffnet ersten Laden ohne Personal",
+      "Żabu Nano: Einkaufen ohne Kasse und ohne Mitarbeiter, {stadt} staunt"
+    ],
+    "saison": {
+      "fruehling": [
+        "Hanami-Saison: Bentō-Verkäufe in Parknähe verdoppeln sich",
+        "Sakura-Limonade ist der Hit des Frühlings"
+      ],
+      "golden_week": [
+        "Golden Week: {stadt} hat frei, Läden in Ausflugsvierteln boomen"
+      ],
+      "sommer": [
+        "Hitzewelle: Eis und kalte Getränke ausverkauft",
+        "Obon: Viele Städter fahren aufs Land"
+      ],
+      "herbst": [
+        "Herbstzeit ist Oden-Zeit: Die Töpfe werden wieder angeheizt",
+        "Kastanien-Desserts erobern die Kühlregale"
+      ],
+      "winter": [
+        "Weihnachtskuchen vorbestellen: Konbinis melden Rekordbestellungen",
+        "Neujahr: Glückstüten sorgen für lange Schlangen"
+      ]
+    },
+    "wirtschaft": [
+      "Mindestlohn in {stadt} steigt",
+      "Shironeko Express meldet Paket-Rekord",
+      "Touristenzahlen in Asakusa so hoch wie nie",
+      "Strompreise steigen, Kühlregale werden teurer"
+    ]
+  },
+  "buuhuu_stimmen_services": {
+    "_info": "Stimmen, die nur erscheinen, wenn der Laden den Service hat (positiv) oder er fehlt bzw. schlecht läuft (negativ).",
+    "paket": {
+      "positiv": [
+        "Paket bei Shironeko Express abgegeben und gleich ein Onigiri mitgenommen, top!",
+        "Abholung ging in 30 Sekunden, super praktisch."
+      ],
+      "negativ": [
+        "Keine Paketannahme? Dann geh ich halt zu Eight.",
+        "Mein Paket war nicht auffindbar, Buuuh!"
+      ]
+    },
+    "geldautomat": {
+      "positiv": [
+        "Endlich ein Geldautomat, der auch nachts funktioniert.",
+        "Geld abheben und Kaffee holen in einem, perfekt."
+      ],
+      "negativ": [
+        "Kein Geldautomat, und ich hatte kein Bargeld dabei.",
+        "Der Automat war schon wieder leer."
+      ]
+    },
+    "kaffeemaschine": {
+      "positiv": [
+        "Frisch gemahlener Kaffee für wenig Geld, besser als im Café!",
+        "Der Iced Latte ist mein Morgenritual."
+      ],
+      "negativ": [
+        "Die Kaffeemaschine war kaputt, so fängt kein guter Tag an.",
+        "Lange Schlange am Kaffeeautomaten."
+      ]
+    },
+    "smoothie": {
+      "positiv": [
+        "Der Smoothie aus der Maschine ist richtig frisch, mein neues Lieblingsfrühstück.",
+        "Mango-Smoothie im Konbini? Genial!"
+      ],
+      "negativ": [
+        "Die Smoothie-Maschine war schon wieder außer Betrieb.",
+        "Keine Becher für die Smoothies mehr da."
+      ]
+    },
+    "warme_getraenke": {
+      "positiv": [
+        "Warmer Grüntee aus der Flasche im Winter, herrlich!",
+        "Die Heiß-Vitrine mit Tee und Kaffeedosen rettet meinen Arbeitsweg."
+      ],
+      "negativ": [
+        "Im Winter keine warmen Getränke? Unverständlich.",
+        "Der Flaschentee war nur lauwarm."
+      ]
+    },
+    "selbstkasse": {
+      "positiv": [
+        "Selbstbedienungskasse, rein, raus, fertig!",
+        "Kein Anstehen dank Selbstkasse."
+      ],
+      "negativ": [
+        "Die Selbstkasse hat meinen Bentō dreimal nicht erkannt.",
+        "Nur eine Kasse offen und keine Selbstkasse, viel zu lange gewartet."
+      ]
+    },
+    "oden_nikuman": {
+      "positiv": [
+        "Ein Nikuman aus dem Dampfgarer an einem kalten Abend, was will man mehr?"
+      ],
+      "negativ": [
+        "Der Oden-Topf war leer, schade."
+      ]
+    }
+  },
+  "story": [
+    {
+      "id": "story1",
+      "figur": "kobo",
+      "text": "Irasshaimase! Ich bin Kobo. Dieser kleine Laden in {startviertel} hat deiner Oma gehört. Jahrzehntelang gab es hier ihre Onigiri, warmen Tee und ein freundliches Wort für jeden."
+    },
+    {
+      "id": "story2",
+      "figur": "kobo",
+      "text": "Jetzt gehört er dir. Oma hat dir außerdem 5 Millionen Yen hinterlassen. Das ist nicht viel, aber für einen guten Anfang reicht es."
+    },
+    {
+      "id": "story3",
+      "figur": "kobo-besorgt",
+      "text": "Aber pass auf: Eight, Lawsun, Familia und Minihalt wollen auch {stadt} erobern. Sie fangen genau wie du klein an, und jeder freie Standort, den sie bekommen, ist für dich weg."
+    },
+    {
+      "id": "story4",
+      "figur": "kobo",
+      "text": "Im Moment gibt es 20 freie Läden in der Stadt. Jedes Jahr kommen ein paar neue dazu, aber immer weniger. Wer zuerst kommt, verkauft zuerst."
+    },
+    {
+      "id": "story5",
+      "figur": "kobo-jubelnd",
+      "text": "Machen wir aus Omas Laden die größte Konbini-Kette {stadt_gen}! Ich bin an deiner Seite. Gambatte!"
+    }
+  ],
+  "hinweise": [
+    {
+      "id": "warnung_kasse",
+      "figur": "kobo-besorgt",
+      "text": "Oh nein, deine Kasse schrumpft schon seit 4 Wochen! Schau dir Sortiment, Preise und Filialleitung an. Vielleicht hilft auch eine Werbeaktion."
+    },
+    {
+      "id": "warnung_minus",
+      "figur": "kobo-besorgt",
+      "text": "Achtung, dein Konto ist im Minus! Bleibt es 4 Wochen lang im Minus, ist das Spiel verloren. Spar jetzt Kosten oder senke die Preise für mehr Kundschaft. Noch {wochen} Wochen!"
+    },
+    {
+      "id": "spiel_verloren",
+      "figur": "kobo-besorgt",
+      "text": "Das Konto war 4 Wochen lang im Minus, und die Kette muss schließen. Kopf hoch: Auch Oma hat einmal klein angefangen. Versuch es gleich noch einmal!"
+    },
+    {
+      "id": "rettung_preise",
+      "figur": "kobo-besorgt",
+      "text": "Deine Preise sind zu hoch, die Kundschaft bleibt weg. Senk sie ein bisschen, dann kommen die Leute wieder!"
+    },
+    {
+      "id": "rettung_sortiment",
+      "figur": "kobo-besorgt",
+      "text": "Oden, Bentō und Saisonware bringen gute Marge. Nimm sie ins Sortiment!"
+    },
+    {
+      "id": "rettung_lager",
+      "figur": "kobo-besorgt",
+      "text": "Bestell erst mal weniger Ware nach und verkauf dein Lager ab. Das bringt sofort Geld in die Kasse."
+    },
+    {
+      "id": "rettung_kampagnen",
+      "figur": "kobo-besorgt",
+      "text": "Stopp teure Werbeaktionen, bis die Kasse wieder im Plus ist."
+    },
+    {
+      "id": "rettung_reserve",
+      "figur": "kobo-besorgt",
+      "text": "Bau erst wieder, wenn du eine Reserve hast. Ein Laden zu viel kann die ganze Kette kosten."
+    },
+    {
+      "id": "rettung_gerettet",
+      "figur": "kobo-jubelnd",
+      "text": "Puh, geschafft! Die Kasse ist wieder im Plus. Oma wäre stolz auf dich!"
+    }
+  ],
+  "startbildschirm": {
+    "titel": "Konbini Empire",
+    "untertitel": "Von Omas Laden zur großen Kette",
+    "neues_spiel": "Neues Spiel starten",
+    "laden": "Spielstand laden",
+    "weiter": "Weiterspielen",
+    "kein_spielstand": "Noch kein Spielstand vorhanden.",
+    "spielstand_karte": "{datum} · Kasse {kasse} ¥ · {laeden} Läden",
+    "ueberschreiben": "Ein neues Spiel ersetzt deinen gespeicherten Spielstand. Wirklich neu anfangen?",
+    "gespeichert": "Spiel gespeichert ✓",
+    "slot_verloren": "💀 Verloren · {datum} · Neues Spiel starten?",
+    "name_eingabe": "Wie heißt du? Unter diesem Namen führst du Omas Laden weiter."
+  },
+  "events": [
+    {
+      "id": "ev_taifun",
+      "figur": "kobo-besorgt",
+      "text": "Ein Taifun zieht auf! Was machst du?",
+      "option_a": "Vorräte an Wasser und Instant-Ramen aufstocken",
+      "option_b": "Laden früher schließen und Personal schützen"
+    },
+    {
+      "id": "ev_influencer",
+      "figur": "kobo",
+      "text": "Eine bekannte Influencerin will in deinem Laden filmen.",
+      "option_a": "Gern, mit Rabatt für ihre Fans",
+      "option_b": "Lieber nicht, zu viel Trubel"
+    },
+    {
+      "id": "ev_konkurrenz_nebenan",
+      "figur": "kobo-besorgt",
+      "text": "{kette} eröffnet direkt gegenüber von {laden}!",
+      "option_a": "Preise kurz senken und dagegenhalten",
+      "option_b": "Ruhig bleiben und auf Stammkunden setzen"
+    },
+    {
+      "id": "ev_lieferant_preis",
+      "figur": "kobo-besorgt",
+      "text": "Dein Onigiri-Lieferant will mehr Geld.",
+      "option_a": "Günstigeren Lieferanten suchen",
+      "option_b": "Zahlen, die Qualität bleibt"
+    },
+    {
+      "id": "ev_hitzewelle",
+      "figur": "kobo",
+      "text": "Hitzewelle in {stadt}! Alle wollen etwas Kühles.",
+      "option_a": "Extra Eis und kalte Getränke bestellen",
+      "option_b": "Normal weitermachen"
+    },
+    {
+      "id": "ev_matsuri",
+      "figur": "kobo-jubelnd",
+      "text": "Ein Matsuri findet in {stadtteil} statt!",
+      "option_a": "Stand vor dem Laden aufbauen",
+      "option_b": "Nur das Sortiment aufstocken"
+    },
+    {
+      "id": "ev_filialleitung_urlaub",
+      "figur": "kobo",
+      "text": "Die Filialleitung von {laden} möchte eine Woche Urlaub.",
+      "option_a": "Urlaub geben, gute Laune zählt",
+      "option_b": "Bitten, später zu fahren"
+    },
+    {
+      "id": "ev_kunde_beschwerde",
+      "figur": "kobo-besorgt",
+      "text": "Ein Kunde beschwert sich laut über alte Bentō.",
+      "option_a": "Entschuldigen und Gutschein schenken",
+      "option_b": "Ware prüfen und nichts weiter tun"
+    },
+    {
+      "id": "ev_tv_bericht",
+      "figur": "kobo-jubelnd",
+      "text": "Ein TV-Sender will über Konbinis berichten.",
+      "option_a": "Mitmachen und den Laden schick machen",
+      "option_b": "Absagen und in Ruhe arbeiten"
+    },
+    {
+      "id": "ev_anime_kollab",
+      "figur": "kobo",
+      "text": "Ein Anime-Studio bietet eine Sammelsticker-Aktion an.",
+      "option_a": "Zusagen, die Fans kommen",
+      "option_b": "Zu teuer, ablehnen"
+    },
+    {
+      "id": "ev_kasse_defekt",
+      "figur": "kobo-besorgt",
+      "text": "Die Selbstkasse in {laden} ist kaputt.",
+      "option_a": "Sofort reparieren lassen",
+      "option_b": "Notkasse nutzen, bis der Techniker kommt"
+    },
+    {
+      "id": "ev_schulausflug",
+      "figur": "kobo",
+      "text": "Eine Schulklasse kommt nach dem Ausflug vorbei.",
+      "option_a": "Süßigkeiten nach vorn stellen",
+      "option_b": "Nichts ändern"
+    },
+    {
+      "id": "ev_regen",
+      "figur": "kobo",
+      "text": "Eine Woche Dauerregen ist angesagt.",
+      "option_a": "Regenschirme ins Sortiment",
+      "option_b": "Nicht nötig"
+    },
+    {
+      "id": "ev_nachbar_laerm",
+      "figur": "kobo-besorgt",
+      "text": "Nachbarn beschweren sich über Lärm vom Lieferwagen.",
+      "option_a": "Lieferzeiten ändern",
+      "option_b": "Mit einer Packung Mochi entschuldigen"
+    },
+    {
+      "id": "ev_bauarbeiten",
+      "figur": "kobo-besorgt",
+      "text": "Vor {laden} wird die Straße aufgerissen.",
+      "option_a": "Mit Schildern auf den Laden hinweisen",
+      "option_b": "Abwarten, bis es vorbei ist"
+    },
+    {
+      "id": "ev_paket_ansturm",
+      "figur": "kobo",
+      "text": "Vor den Feiertagen bringen alle Pakete zu Shironeko Express.",
+      "option_a": "Extra Hilfe für den Paketschalter",
+      "option_b": "So weitermachen, Wartezeit in Kauf nehmen"
+    },
+    {
+      "id": "ev_buuhuu_kritik",
+      "figur": "kobo-besorgt",
+      "text": "Ein Geist hat {laden} auf BuuHuu schlecht bewertet.",
+      "option_a": "Freundlich antworten und nachbessern",
+      "option_b": "Ignorieren"
+    },
+    {
+      "id": "ev_neues_produkt",
+      "figur": "kobo",
+      "text": "Ein Hersteller bietet ein neues Melonenbrot exklusiv an.",
+      "option_a": "Testen, vielleicht ein Hit",
+      "option_b": "Lieber bei Bewährtem bleiben"
+    },
+    {
+      "id": "ev_filialleitung_abwerbung",
+      "figur": "kobo-besorgt",
+      "text": "{kette} will deine Filialleitung aus {laden} abwerben.",
+      "option_a": "Mehr Gehalt anbieten",
+      "option_b": "Gehen lassen und neu einstellen"
+    },
+    {
+      "id": "ev_jubilaeum",
+      "figur": "kobo-jubelnd",
+      "text": "Omas Laden wird ein Jahr alt unter deiner Führung!",
+      "option_a": "Jubiläumsaktion mit Rabatt",
+      "option_b": "Leise feiern und Oma Blumen bringen"
+    }
+  ],
+  "uebernahme": {
+    "warnung_fremdbesitz": "Kobo: Pass auf! {kette} besitzt schon {anteil} % unserer Aktien. Behalte das im Blick.",
+    "eilmeldung_uebernahme_droht": "🚨 Eilmeldung: Übernahme droht! {kette} hält bereits {anteil} % von {laden}.",
+    "angebot_eingang": "{kette} bietet {betrag} für alle Aktien. Das sind {aufschlag} % über dem Kurs.",
+    "angebot_abgelehnt": "Kobo: Puh! Wir halten die Mehrheit und haben das Angebot von {kette} abgelehnt.",
+    "uebernahme_erfolgt": "💀 {kette} hat dein Imperium übernommen. Die Aktionäre haben verkauft.",
+    "ipo_warnung": "Achtung: Verkaufst du 50 % oder mehr, können Rivalen dich übernehmen. Auch später kannst du durch den Verkauf eigener Aktien unter 51 % fallen.",
+    "ipo_streubesitz_rot": "Mehr Geld, aber Übernahme möglich",
+    "ipo_dividende": "Nach dem Börsengang entscheidest du selbst, wie viel Dividende du an die Aktionäre ausschüttest. Dein Anteil fließt in dein Privatvermögen."
+  },
+  "vermoegen": {
+    "titel": "Mein Vermögen",
+    "dividende_erhalten": "💴 {betrag} Dividende sind in dein Privatvermögen geflossen.",
+    "einlage_frage": "Die Firmenkasse ist knapp. Möchtest du {betrag} aus deinem Privatvermögen einzahlen?",
+    "einlage_erfolgt": "Kobo: Danke, {name}! {betrag} aus deinem Privatvermögen sind jetzt in der Firmenkasse.",
+    "einlage_darlehen": "Als Darlehen: Die Firma zahlt dir 2 % Zinsen im Jahr und gibt dir das Geld vor jeder Dividende zurück.",
+    "einlage_eigenkapital": "Als Eigenkapital: Das Geld bleibt in der Firma. Nach dem Börsengang bekommst du dafür neue Aktien zum aktuellen Kurs.",
+    "gehalt_erhalten": "💼 {betrag} Gehalt als Geschäftsführung sind auf deinem Privatkonto.",
+    "dividende_steuer_hinweis": "Von deiner Dividende gehen 20 % Steuer ab."
+  }
+}

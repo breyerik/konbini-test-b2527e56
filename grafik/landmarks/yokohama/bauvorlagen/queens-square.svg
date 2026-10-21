@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="610" height="298" viewBox="0 0 610 298"><rect width="100%" height="100%" fill="#F2EFE6"/>
+<rect x="30" y="258" width="260.0" height="6" fill="#565859"/>
+<rect x="30.0" y="255.4" width="260.0" height="2.6" fill="#D5CAB4" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="43.0" y="223.3" width="234.0" height="34.7" fill="#C9C6B9" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="47.3" y="50.0" width="69.3" height="173.3" fill="#74A4B8" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="125.3" y="84.7" width="69.3" height="138.7" fill="#74A4B8" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="203.3" y="119.3" width="69.3" height="104.0" fill="#74A4B8" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="47.3" y="48.3" width="69.3" height="1.7" fill="#CAD0D7" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="47.3" y="216.4" width="225.3" height="6.9" fill="#CAD0D7" stroke="#3A3C4A" stroke-width="1"/>
+<text x="30" y="282" font-family="sans-serif" font-size="12" fill="#3A3C4A">Front (Süd) · 3 Felder</text>
+<rect x="320.0" y="258" width="260.0" height="6" fill="#565859"/>
+<rect x="320.0" y="255.4" width="260.0" height="2.6" fill="#A79E8D" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="346.0" y="223.3" width="138.7" height="34.7" fill="#9D9B91" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="354.7" y="50.0" width="86.7" height="173.3" fill="#5B8090" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="372.0" y="84.7" width="86.7" height="138.7" fill="#5B8090" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="389.3" y="119.3" width="86.7" height="104.0" fill="#5B8090" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="354.7" y="48.3" width="86.7" height="1.7" fill="#9EA3A8" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="439.6" y="216.4" width="3.5" height="6.9" fill="#9EA3A8" stroke="#3A3C4A" stroke-width="1"/>
+<text x="320.0" y="282" font-family="sans-serif" font-size="12" fill="#3A3C4A">Seite (Ost) · 3 Felder</text>
+<line x1="14" y1="258" x2="14" y2="50.0" stroke="#E94F4F" stroke-width="2"/><text x="4" y="44.0" font-family="sans-serif" font-size="12" fill="#E94F4F">2,4</text></svg>

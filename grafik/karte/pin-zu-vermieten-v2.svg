@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 156" width="128" height="156"><!-- ENTWURF v2, wartet auf Eriks Freigabe -->
+<path d="M14 8 h100 a10 10 0 0 1 10 10 v92 a10 10 0 0 1 -10 10 h-34 l-16 30 l-16 -30 h-34 a10 10 0 0 1 -10 -10 v-92 a10 10 0 0 1 10 -10z" fill="#2B2D42" stroke="#15161F" stroke-width="4" stroke-linejoin="round"/>
+<rect x="18" y="16" width="92" height="96" rx="6" fill="#E94F4F" stroke="#FFFFFF" stroke-width="4"/>
+<text x="64" y="76" text-anchor="middle" font-family="Noto Sans CJK JP, sans-serif" font-weight="900" font-size="46" fill="#FFFFFF">空き</text>
+<text x="64" y="100" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="800" font-size="14" fill="#FFFFFF">FOR LEASE</text>
+</svg>

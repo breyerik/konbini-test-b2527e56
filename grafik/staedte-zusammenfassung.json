@@ -1,0 +1,83 @@
+{
+ "osaka": {
+  "validierung": "ok: Pins auf Grundstücken, Flüsse bis Kartenrand",
+  "grundstuecke": 593,
+  "laeden": 64,
+  "wahrzeichen": [
+   "Bahnhof Osaka",
+   "Umeda Sky Building",
+   "Burg Osaka",
+   "Dōtonbori-Leuchtschild",
+   "Tsūtenkaku",
+   "Abeno Harukas"
+  ],
+  "bruecken": 22,
+  "strassennetz_komponenten": [
+   1250
+  ],
+  "felder": {
+   "wasser": 743,
+   "bebaut": 1959,
+   "hauptstrasse": 941,
+   "gasse": 93,
+   "bruecke": 108,
+   "ringstrasse": 108,
+   "park": 93,
+   "wahrzeichen": 51
+  }
+ },
+ "kyoto": {
+  "validierung": "ok: Pins auf Grundstücken, Flüsse bis Kartenrand",
+  "grundstuecke": 534,
+  "laeden": 56,
+  "wahrzeichen": [
+   "Bahnhof Kyoto",
+   "Kyoto Tower",
+   "Kiyomizu-dera",
+   "Kinkaku-ji",
+   "Fushimi Inari (Torii)",
+   "Großes Torii (Heian)"
+  ],
+  "bruecken": 18,
+  "strassennetz_komponenten": [
+   2006
+  ],
+  "felder": {
+   "bebaut": 1726,
+   "wasser": 155,
+   "hauptstrasse": 1742,
+   "bruecke": 54,
+   "gasse": 180,
+   "wahrzeichen": 50,
+   "park": 159,
+   "ringstrasse": 30
+  }
+ },
+ "nagoya": {
+  "validierung": "ok: Pins auf Grundstücken, Flüsse bis Kartenrand",
+  "grundstuecke": 652,
+  "laeden": 56,
+  "wahrzeichen": [
+   "Burg Nagoya",
+   "Nagoya TV-Turm",
+   "Oasis 21",
+   "JR Central Towers",
+   "Midland Square",
+   "Ōsu Kannon"
+  ],
+  "bruecken": 8,
+  "strassennetz_komponenten": [
+   1593
+  ],
+  "felder": {
+   "bebaut": 2154,
+   "hauptstrasse": 1283,
+   "wasser": 164,
+   "gasse": 183,
+   "ringstrasse": 86,
+   "bruecke": 41,
+   "wahrzeichen": 54,
+   "park": 131
+  }
+ }
+}

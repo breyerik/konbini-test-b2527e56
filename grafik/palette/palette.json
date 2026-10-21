@@ -1,0 +1,62 @@
+{
+  "hintergrund": {
+    "hex": "#FFF8EE",
+    "name": "Reisweiß",
+    "use": "App-Hintergrund"
+  },
+  "flaeche": {
+    "hex": "#FFFFFF",
+    "name": "Papier",
+    "use": "Karten, Panels"
+  },
+  "linie": {
+    "hex": "#ECE6DC",
+    "name": "Tatami",
+    "use": "Rahmen, Trenner"
+  },
+  "text": {
+    "hex": "#2B2D42",
+    "name": "Sumi",
+    "use": "Text, Konturen"
+  },
+  "text2": {
+    "hex": "#6B6F80",
+    "name": "Nebel",
+    "use": "Nebentext"
+  },
+  "primaer": {
+    "hex": "#E94F4F",
+    "name": "Akane",
+    "use": "Hauptaktion, eigene Kette"
+  },
+  "sekundaer": {
+    "hex": "#3D7BD9",
+    "name": "Aozora",
+    "use": "Links, Auswahl"
+  },
+  "erfolg": {
+    "hex": "#5DBB73",
+    "name": "Matcha",
+    "use": "Gewinn, OK"
+  },
+  "warnung": {
+    "hex": "#FFC93C",
+    "name": "Yuzu",
+    "use": "Hinweise, Geld"
+  },
+  "akzent": {
+    "hex": "#F7A1B5",
+    "name": "Sakura",
+    "use": "Saison, Events"
+  },
+  "nacht": {
+    "hex": "#5B4B8A",
+    "name": "Fuji",
+    "use": "Nachtschicht"
+  },
+  "himmel": {
+    "hex": "#BFE6F5",
+    "name": "Himmel",
+    "use": "3D-Himmel, leichte Flächen"
+  }
+}

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="610" height="227" viewBox="0 0 610 227"><rect width="100%" height="100%" fill="#F2EFE6"/>
+<rect x="30" y="187" width="260.0" height="6" fill="#565859"/>
+<rect x="56.0" y="161.0" width="208.0" height="26.0" fill="#B1AC9C" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="82.0" y="143.7" width="156.0" height="17.3" fill="#E3E1DB" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="69.0,143.7 251.0,143.7 238.0,139.3 82.0,139.3" fill="#397061" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="92.8" y="124.6" width="134.3" height="14.7" fill="#E3E1DB" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="79.8,124.6 240.2,124.6 227.2,120.3 92.8,120.3" fill="#397061" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="103.7" y="106.4" width="112.7" height="13.9" fill="#E3E1DB" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="90.7,106.4 229.3,106.4 216.3,102.1 103.7,102.1" fill="#397061" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="114.5" y="89.1" width="91.0" height="13.0" fill="#E3E1DB" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="101.5,89.1 218.5,89.1 205.5,84.7 114.5,84.7" fill="#397061" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="123.2" y="71.7" width="73.7" height="13.0" fill="#E3E1DB" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="110.2,71.7 209.8,71.7 196.8,67.4 123.2,67.4" fill="#397061" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="118.8,67.4 201.2,67.4 182.6,57.0 137.4,57.0" fill="#397061" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="121.0" y="44.9" width="12.1" height="12.1" fill="#EAB837" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="186.9" y="44.9" width="12.1" height="12.1" fill="#EAB837" stroke="#3A3C4A" stroke-width="1"/>
+<text x="30" y="211" font-family="sans-serif" font-size="12" fill="#3A3C4A">Front (Süd) · 3 Felder</text>
+<rect x="320.0" y="187" width="260.0" height="6" fill="#565859"/>
+<rect x="346.0" y="161.0" width="208.0" height="26.0" fill="#8A867A" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="372.0" y="143.7" width="156.0" height="17.3" fill="#B1B0AC" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="359.0,143.7 541.0,143.7 528.0,139.3 372.0,139.3" fill="#2D574C" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="382.8" y="124.6" width="134.3" height="14.7" fill="#B1B0AC" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="369.8,124.6 530.2,124.6 517.2,120.3 382.8,120.3" fill="#2D574C" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="393.7" y="106.4" width="112.7" height="13.9" fill="#B1B0AC" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="380.7,106.4 519.3,106.4 506.3,102.1 393.7,102.1" fill="#2D574C" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="404.5" y="89.1" width="91.0" height="13.0" fill="#B1B0AC" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="391.5,89.1 508.5,89.1 495.5,84.7 404.5,84.7" fill="#2D574C" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="413.2" y="71.7" width="73.7" height="13.0" fill="#B1B0AC" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="400.2,71.7 499.8,71.7 486.8,67.4 413.2,67.4" fill="#2D574C" stroke="#3A3C4A" stroke-width="1"/>
+<polygon points="408.8,67.4 491.2,67.4 472.6,57.0 427.4,57.0" fill="#2D574C" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="446.5" y="44.9" width="6.9" height="12.1" fill="#B7902B" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="446.5" y="44.9" width="6.9" height="12.1" fill="#B7902B" stroke="#3A3C4A" stroke-width="1"/>
+<text x="320.0" y="211" font-family="sans-serif" font-size="12" fill="#3A3C4A">Seite (Ost) · 3 Felder</text>
+<line x1="14" y1="187" x2="14" y2="49.19999999999999" stroke="#E94F4F" stroke-width="2"/><text x="4" y="43.19999999999999" font-family="sans-serif" font-size="12" fill="#E94F4F">1,59</text></svg>

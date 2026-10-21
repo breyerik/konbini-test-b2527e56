@@ -1,0 +1,42 @@
+{
+ "hinweis": "Ergänzung zu stadtplan.json, Felder-Koordinaten (x,y). Brücken liegen über Wasser.",
+ "bruecken": [
+  {
+   "id": "rainbow-bridge",
+   "name": "Regenbogenbrücke",
+   "vorbild": "Rainbow Bridge (Shibaura–Odaiba)",
+   "von": [
+    50,
+    47
+   ],
+   "bis": [
+    55,
+    53
+   ],
+   "breite": 2,
+   "art": "haengebruecke",
+   "pylone": 2,
+   "textur": "bruecken/rainbow-seite.svg",
+   "fahrbahn": "bruecken/fahrbahn.svg",
+   "nachtlicht": "regenbogen"
+  },
+  {
+   "id": "ariake-bruecke",
+   "name": "Ariake-Brücke",
+   "vorbild": "kleinere Kanalbrücke Richtung Shinagawa/Haneda",
+   "von": [
+    46,
+    57
+   ],
+   "bis": [
+    53,
+    57
+   ],
+   "breite": 1,
+   "art": "balkenbruecke",
+   "pylone": 0,
+   "textur": "bruecken/balken-seite.svg",
+   "fahrbahn": "bruecken/fahrbahn.svg"
+  }
+ ]
+}

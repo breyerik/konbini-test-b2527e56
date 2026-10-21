@@ -1,0 +1,855 @@
+{
+ "version": 1,
+ "stadt": "nagoya",
+ "status": "Entwurf – wartet auf Whitebeard-Prüfung und Eriks Freigabe",
+ "einheit": "Felder (1 Stock = 0,20)",
+ "koordinaten": "x=Ost, y=Süd, z=Höhe; relativ zur NW-Ecke der Grundfläche; z=0 = Blockplatte",
+ "position_hinweis": "position=null: Stadtplan fehlt noch, Franky setzt die Felder",
+ "shading": {
+  "oben": 1.0,
+  "front": 0.92,
+  "seite": 0.72
+ },
+ "kontur": "#3A3C4A",
+ "wahrzeichen": [
+  {
+   "id": "nagoya-castle",
+   "name": "Burg Nagoya",
+   "position": null,
+   "grundflaeche": [
+    3,
+    3
+   ],
+   "hoehe": 1.59,
+   "referenz_real": "Hauptturm 55 m inkl. Sockel, goldene Shachihoko",
+   "blick": "süd",
+   "farben": {
+    "Wand": "#F7F5EF",
+    "Dach (dunkles Kupfergrün)": "#3F7A6A",
+    "Shachihoko": "#FFC93C",
+    "Sockel": "#C1BBAA"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Steinsockel",
+     "x": 0.3,
+     "y": 0.3,
+     "z": 0,
+     "b": 2.4,
+     "t": 2.4,
+     "h": 0.3,
+     "farbe": "#C1BBAA"
+    },
+    {
+     "form": "quader",
+     "name": "Geschoss 1",
+     "x": 0.6,
+     "y": 0.6,
+     "z": 0.3,
+     "b": 1.8,
+     "t": 1.8,
+     "h": 0.2,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Dach 1",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.5,
+     "b": 2.1,
+     "t": 2.1,
+     "b_oben": 1.8,
+     "t_oben": 1.8,
+     "h": 0.05,
+     "farbe": "#3F7A6A"
+    },
+    {
+     "form": "quader",
+     "name": "Geschoss 2",
+     "x": 0.725,
+     "y": 0.725,
+     "z": 0.55,
+     "b": 1.55,
+     "t": 1.55,
+     "h": 0.17,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Dach 2",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.7200000000000001,
+     "b": 1.85,
+     "t": 1.85,
+     "b_oben": 1.55,
+     "t_oben": 1.55,
+     "h": 0.05,
+     "farbe": "#3F7A6A"
+    },
+    {
+     "form": "quader",
+     "name": "Geschoss 3",
+     "x": 0.85,
+     "y": 0.85,
+     "z": 0.77,
+     "b": 1.3,
+     "t": 1.3,
+     "h": 0.16,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Dach 3",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.93,
+     "b": 1.6,
+     "t": 1.6,
+     "b_oben": 1.3,
+     "t_oben": 1.3,
+     "h": 0.05,
+     "farbe": "#3F7A6A"
+    },
+    {
+     "form": "quader",
+     "name": "Geschoss 4",
+     "x": 0.975,
+     "y": 0.975,
+     "z": 0.98,
+     "b": 1.05,
+     "t": 1.05,
+     "h": 0.15,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Dach 4",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.13,
+     "b": 1.35,
+     "t": 1.35,
+     "b_oben": 1.05,
+     "t_oben": 1.05,
+     "h": 0.05,
+     "farbe": "#3F7A6A"
+    },
+    {
+     "form": "quader",
+     "name": "Geschoss 5",
+     "x": 1.075,
+     "y": 1.075,
+     "z": 1.18,
+     "b": 0.85,
+     "t": 0.85,
+     "h": 0.15,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Dach 5",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.3299999999999998,
+     "b": 1.15,
+     "t": 1.15,
+     "b_oben": 0.85,
+     "t_oben": 0.85,
+     "h": 0.05,
+     "farbe": "#3F7A6A"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Hauptdach",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.38,
+     "b": 0.95,
+     "t": 0.95,
+     "b_oben": 0.5225,
+     "t_oben": 0.5225,
+     "h": 0.12,
+     "farbe": "#3F7A6A"
+    },
+    {
+     "form": "quader",
+     "name": "Goldener Shachihoko W",
+     "x": 1.05,
+     "y": 1.46,
+     "z": 1.5,
+     "b": 0.14,
+     "t": 0.08,
+     "h": 0.14,
+     "farbe": "#FFC93C"
+    },
+    {
+     "form": "quader",
+     "name": "Goldener Shachihoko O",
+     "x": 1.81,
+     "y": 1.46,
+     "z": 1.5,
+     "b": 0.14,
+     "t": 0.08,
+     "h": 0.14,
+     "farbe": "#FFC93C"
+    }
+   ],
+   "hinweis": "Breiter und massiger als Burg Osaka; zwei goldene Shachihoko auf dem First (Erkennungsmerkmal).",
+   "erkennungsmerkmal": "Weiße Wände #F7F5EF, dunkle Kupferdächer #3F7A6A, zwei große goldene Shachihoko #FFC93C auf dem First – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  },
+  {
+   "id": "tv-tower",
+   "name": "Nagoya TV Tower (Mirai Tower)",
+   "position": null,
+   "grundflaeche": [
+    2,
+    2
+   ],
+   "hoehe": 2.2,
+   "referenz_real": "180 m, Stahlgitterturm im Hisaya-Ōdōri-Park",
+   "blick": "süd",
+   "farben": {
+    "Stahl": "#6E8BAA",
+    "Deck": "#7FB3C8",
+    "Park": "#BFD271",
+    "Akzent": "#F7F5EF"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Park",
+     "x": 0,
+     "y": 0,
+     "z": 0,
+     "b": 2,
+     "t": 2,
+     "h": 0.02,
+     "farbe": "#BFD271"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Gitterfuß (4 Beine als Stumpf)",
+     "cx": 1,
+     "cy": 1,
+     "z": 0.02,
+     "b": 1.4,
+     "t": 1.4,
+     "b_oben": 0.5,
+     "t_oben": 0.5,
+     "h": 0.6,
+     "farbe": "#6E8BAA"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Schaft",
+     "cx": 1,
+     "cy": 1,
+     "z": 0.62,
+     "b": 0.5,
+     "t": 0.5,
+     "b_oben": 0.3,
+     "t_oben": 0.3,
+     "h": 0.75,
+     "farbe": "#6E8BAA"
+    },
+    {
+     "form": "quader",
+     "name": "Aussichtsdeck",
+     "x": 0.65,
+     "y": 0.65,
+     "z": 1.37,
+     "b": 0.7,
+     "t": 0.7,
+     "h": 0.16,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "quader",
+     "name": "Deckdach",
+     "x": 0.62,
+     "y": 0.62,
+     "z": 1.53,
+     "b": 0.76,
+     "t": 0.76,
+     "h": 0.04,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Antenne",
+     "cx": 1,
+     "cy": 1,
+     "z": 1.57,
+     "b": 0.12,
+     "t": 0.12,
+     "b_oben": 0.03,
+     "t_oben": 0.03,
+     "h": 0.63,
+     "farbe": "#F7F5EF"
+    }
+   ],
+   "hinweis": "Gitter nur als Farbe; Fuß gern offen (vier Beine), sonst Stumpf.",
+   "erkennungsmerkmal": "Blaugrauer Gitterturm #6E8BAA mit Deck #7FB3C8 und weißer Antenne – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  },
+  {
+   "id": "midland-square",
+   "name": "Midland Square",
+   "position": null,
+   "grundflaeche": [
+    3,
+    3
+   ],
+   "hoehe": 3.0,
+   "referenz_real": "247 m, 47 Stock",
+   "blick": "süd",
+   "farben": {
+    "Glas": "#7FB3C8",
+    "Rahmen": "#DCE3EA",
+    "Sockel": "#DBD8CA"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Sockel",
+     "x": 0.2,
+     "y": 0.2,
+     "z": 0,
+     "b": 2.6,
+     "t": 2.6,
+     "h": 0.5,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Turm (leicht verjüngt)",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.5,
+     "b": 1.7,
+     "t": 1.7,
+     "b_oben": 1.4,
+     "t_oben": 1.4,
+     "h": 2.3,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "quader",
+     "name": "Krone (Lamellen)",
+     "x": 0.85,
+     "y": 0.85,
+     "z": 2.8,
+     "b": 1.3,
+     "t": 1.3,
+     "h": 0.2,
+     "farbe": "#DCE3EA"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 1",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.8,
+     "h": 0.03,
+     "b": 1.661,
+     "farbe": "#6E8BAA"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 2",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.1,
+     "h": 0.03,
+     "b": 1.622,
+     "farbe": "#6E8BAA"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 3",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.4,
+     "h": 0.03,
+     "b": 1.583,
+     "farbe": "#6E8BAA"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 4",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.7,
+     "h": 0.03,
+     "b": 1.543,
+     "farbe": "#6E8BAA"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 5",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 2.0,
+     "h": 0.03,
+     "b": 1.504,
+     "farbe": "#6E8BAA"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 6",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 2.3,
+     "h": 0.03,
+     "b": 1.465,
+     "farbe": "#6E8BAA"
+    },
+    {
+     "form": "band",
+     "name": "Fensterband 7",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 2.5999999999999996,
+     "h": 0.03,
+     "b": 1.426,
+     "farbe": "#6E8BAA"
+    }
+   ],
+   "hinweis": "Glatter Glasschaft, helle Lamellenkrone, flaches Dach, kein Heliport.",
+   "erkennungsmerkmal": "Glasschaft #7FB3C8 mit heller Lamellenkrone #DCE3EA – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  },
+  {
+   "id": "jr-central-towers",
+   "name": "JR Central Towers",
+   "position": null,
+   "grundflaeche": [
+    5,
+    3
+   ],
+   "hoehe": 3.0,
+   "referenz_real": "Office Tower 245 m, Hotel Tower 226 m, Bahnhofssockel",
+   "blick": "süd",
+   "farben": {
+    "Fassade": "#DBD8CA",
+    "Glas": "#7FB3C8",
+    "Sockel": "#C1BBAA",
+    "Gleisdach": "#9A9DA2"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Gleisdach",
+     "x": 0,
+     "y": 0,
+     "z": 0,
+     "b": 5,
+     "t": 0.8,
+     "h": 0.3,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "quader",
+     "name": "Bahnhofssockel",
+     "x": 0.2,
+     "y": 0.8,
+     "z": 0,
+     "b": 4.6,
+     "t": 2.0,
+     "h": 0.6,
+     "farbe": "#C1BBAA"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Office Tower (rund→8-kant)",
+     "cx": 1.4,
+     "cy": 1.8,
+     "z": 0.6,
+     "b": 1.2,
+     "t": 1.2,
+     "b_oben": 1.0,
+     "t_oben": 1.0,
+     "h": 2.4,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Hotel Tower",
+     "cx": 3.6,
+     "cy": 1.8,
+     "z": 0.6,
+     "b": 1.1,
+     "t": 1.1,
+     "b_oben": 0.95,
+     "t_oben": 0.95,
+     "h": 2.2,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "quader",
+     "name": "Vordach",
+     "x": 1.0,
+     "y": 2.8,
+     "z": 0.3,
+     "b": 3.0,
+     "t": 0.15,
+     "h": 0.05,
+     "farbe": "#4A4D52"
+    }
+   ],
+   "hinweis": "Zwillingstürme auf breitem Bahnhofssockel, Nord = Gleise. Office West, Hotel Ost.",
+   "erkennungsmerkmal": "Zwillingstürme hell #DBD8CA / Glas #7FB3C8 auf breitem Bahnhofssockel – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  },
+  {
+   "id": "atsuta-schrein",
+   "name": "Atsuta-Schrein",
+   "position": null,
+   "grundflaeche": [
+    3,
+    3
+   ],
+   "hoehe": 0.6,
+   "referenz_real": "Haupthalle ~10 m, Zedernhain",
+   "blick": "süd",
+   "farben": {
+    "Holz": "#8E6E4E",
+    "Dach": "#4A4D52",
+    "Kies": "#E8DCC4",
+    "Hain": "#5DBB73",
+    "Torii": "#7A6450"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Kies",
+     "x": 0,
+     "y": 0,
+     "z": 0,
+     "b": 3,
+     "t": 3,
+     "h": 0.02,
+     "farbe": "#E8DCC4"
+    },
+    {
+     "form": "quader",
+     "name": "Haupthalle",
+     "x": 0.9,
+     "y": 0.4,
+     "z": 0.02,
+     "b": 1.2,
+     "t": 0.8,
+     "h": 0.25,
+     "farbe": "#8E6E4E"
+    },
+    {
+     "form": "keil",
+     "name": "Satteldach (Shinmei)",
+     "x": 0.8,
+     "y": 0.35,
+     "z": 0.27,
+     "b": 1.4,
+     "t": 0.9,
+     "h": 0.22,
+     "farbe": "#4A4D52",
+     "steigt_nach": "giebel"
+    },
+    {
+     "form": "quader",
+     "name": "Chigi-Balken",
+     "x": 1.0,
+     "y": 0.75,
+     "z": 0.49,
+     "b": 1.0,
+     "t": 0.1,
+     "h": 0.04,
+     "farbe": "#FFC93C"
+    },
+    {
+     "form": "quader",
+     "name": "Torii Pfosten W",
+     "x": 1.1,
+     "y": 2.4,
+     "z": 0.02,
+     "b": 0.07,
+     "t": 0.07,
+     "h": 0.38,
+     "farbe": "#7A6450"
+    },
+    {
+     "form": "quader",
+     "name": "Torii Pfosten O",
+     "x": 1.83,
+     "y": 2.4,
+     "z": 0.02,
+     "b": 0.07,
+     "t": 0.07,
+     "h": 0.38,
+     "farbe": "#7A6450"
+    },
+    {
+     "form": "quader",
+     "name": "Torii Kasagi",
+     "x": 0.98,
+     "y": 2.38,
+     "z": 0.4,
+     "b": 1.04,
+     "t": 0.11,
+     "h": 0.05,
+     "farbe": "#7A6450"
+    },
+    {
+     "form": "baeume",
+     "name": "Zedernhain",
+     "positionen": [
+      [
+       0.3,
+       0.4
+      ],
+      [
+       2.7,
+       0.4
+      ],
+      [
+       0.3,
+       1.6
+      ],
+      [
+       2.7,
+       1.6
+      ]
+     ],
+     "stamm_h": 0.12,
+     "krone_r": 0.22,
+     "krone_h": 0.45,
+     "farbe": "#5DBB73"
+    }
+   ],
+   "hinweis": "Schlichter Shinmei-Stil, unbemaltes Holz, Torii holzbraun (nicht rot).",
+   "erkennungsmerkmal": "Unbemaltes Holz, dunkles Satteldach, goldene Chigi #FFC93C, Zedern – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  },
+  {
+   "id": "oasis21",
+   "name": "Oasis 21 (Raumschiff-Dach)",
+   "position": null,
+   "grundflaeche": [
+    3,
+    3
+   ],
+   "hoehe": 0.75,
+   "referenz_real": "Glasdach ~14 m über Platz, Ellipse",
+   "blick": "süd",
+   "farben": {
+    "Glas": "#7FB3C8",
+    "Wasser": "#A9D3E0",
+    "Stützen": "#F7F5EF",
+    "Platz": "#BFD271"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Platz (vertieft)",
+     "x": 0,
+     "y": 0,
+     "z": 0,
+     "b": 3,
+     "t": 3,
+     "h": 0.02,
+     "farbe": "#BFD271"
+    },
+    {
+     "form": "quader",
+     "name": "Stütze NW",
+     "x": 0.9,
+     "y": 0.9,
+     "z": 0.02,
+     "b": 0.1,
+     "t": 0.1,
+     "h": 0.55,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Stütze SO",
+     "x": 2.0,
+     "y": 2.0,
+     "z": 0.02,
+     "b": 0.1,
+     "t": 0.1,
+     "h": 0.55,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Stütze NO",
+     "x": 2.0,
+     "y": 0.9,
+     "z": 0.02,
+     "b": 0.1,
+     "t": 0.1,
+     "h": 0.55,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Stütze SW",
+     "x": 0.9,
+     "y": 2.0,
+     "z": 0.02,
+     "b": 0.1,
+     "t": 0.1,
+     "h": 0.55,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "zylinder",
+     "name": "Glasdach (Ellipse→12-Eck)",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.57,
+     "r": 1.3,
+     "h": 0.12,
+     "farbe": "#7FB3C8",
+     "segmente": 12
+    },
+    {
+     "form": "zylinder",
+     "name": "Wasserfläche oben",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.69,
+     "r": 1.15,
+     "h": 0.04,
+     "farbe": "#A9D3E0",
+     "segmente": 12
+    }
+   ],
+   "hinweis": "Flache, schwebende 12-Eck-Scheibe auf 4 Stützen; darunter offen.",
+   "erkennungsmerkmal": "Schwebende Glasscheibe #7FB3C8 mit Wasserfläche #A9D3E0 auf 4 Stützen – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  },
+  {
+   "id": "osu-kannon",
+   "name": "Ōsu Kannon",
+   "position": null,
+   "grundflaeche": [
+    3,
+    3
+   ],
+   "hoehe": 0.81,
+   "referenz_real": "Haupthalle ~20 m auf hohem Sockel, Freitreppe",
+   "blick": "süd (Treppe zur Straße)",
+   "farben": {
+    "Halle": "#E94F4F",
+    "Dach": "#4A4D52",
+    "Sockel": "#C1BBAA",
+    "Treppe": "#DBD8CA",
+    "Akzent": "#FFC93C"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Hof",
+     "x": 0,
+     "y": 0,
+     "z": 0,
+     "b": 3,
+     "t": 3,
+     "h": 0.02,
+     "farbe": "#E8DCC4"
+    },
+    {
+     "form": "quader",
+     "name": "Steinsockel (erhöht)",
+     "x": 0.4,
+     "y": 0.3,
+     "z": 0,
+     "b": 2.2,
+     "t": 1.7,
+     "h": 0.25,
+     "farbe": "#C1BBAA"
+    },
+    {
+     "form": "quader",
+     "name": "Treppe Stufe 1",
+     "x": 1.0,
+     "y": 2.0,
+     "z": 0,
+     "b": 1.0,
+     "t": 0.25,
+     "h": 0.08,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quader",
+     "name": "Treppe Stufe 2",
+     "x": 1.0,
+     "y": 2.0,
+     "z": 0.08,
+     "b": 1.0,
+     "t": 0.17,
+     "h": 0.08,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quader",
+     "name": "Treppe Stufe 3",
+     "x": 1.0,
+     "y": 2.0,
+     "z": 0.16,
+     "b": 1.0,
+     "t": 0.09,
+     "h": 0.09,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quader",
+     "name": "Haupthalle (rot)",
+     "x": 0.65,
+     "y": 0.5,
+     "z": 0.25,
+     "b": 1.7,
+     "t": 1.2,
+     "h": 0.3,
+     "farbe": "#E94F4F"
+    },
+    {
+     "form": "quader",
+     "name": "Veranda",
+     "x": 0.55,
+     "y": 1.65,
+     "z": 0.25,
+     "b": 1.9,
+     "t": 0.1,
+     "h": 0.04,
+     "farbe": "#7A5A48"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Walmdach",
+     "cx": 1.5,
+     "cy": 1.1,
+     "z": 0.55,
+     "b": 2.3,
+     "t": 1.7,
+     "b_oben": 1.265,
+     "t_oben": 0.935,
+     "h": 0.26,
+     "farbe": "#4A4D52"
+    },
+    {
+     "form": "quader",
+     "name": "Laterne (Akzent)",
+     "x": 1.4,
+     "y": 1.75,
+     "z": 0.33,
+     "b": 0.2,
+     "t": 0.05,
+     "h": 0.14,
+     "farbe": "#FFC93C"
+    }
+   ],
+   "hinweis": "Rote Halle auf hohem grauen Steinsockel, breite Freitreppe nach Süden mittig; große rote Laterne nur als Farbfläche, ohne Schrift.",
+   "erkennungsmerkmal": "Rote Halle #E94F4F auf grauem Steinsockel #C1BBAA mit Freitreppe – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  }
+ ]
+}

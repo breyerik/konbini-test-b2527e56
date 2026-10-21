@@ -1,0 +1,21 @@
+/* Bahnhof-Menü (Franky nach Yuki) – Eriks Regeln: keine runden Ecken, keine grauen Flächen */
+#bf{position:fixed;inset:0;z-index:95;background:#FFF8EE;color:#2B2D42;overflow-y:auto;display:none;padding:calc(env(safe-area-inset-top) + 8px) 16px 30px;font-family:var(--font)}
+body.bfopen #bf{display:block}#bf *{border-radius:0!important;box-sizing:border-box}
+#bf button{font:inherit;border:0;cursor:pointer}
+.bfroof{position:absolute;left:0;right:0;top:0;height:130px;background:#E8F3F8;border-bottom:4px solid #2B2D42;z-index:-1}
+#bf{isolation:isolate}
+.bfhead{display:flex;align-items:center;justify-content:center;position:relative;height:90px}.bfhead b{font-size:34px;font-weight:900;display:block;text-align:center}.bfhead small{display:block;text-align:center;color:#6B6F80}
+.bfback{position:absolute;left:0;top:14px;width:52px;height:52px;background:#FFFFFF!important;border:3px solid #2B2D42!important;font-size:34px!important;line-height:1;color:#2B2D42}
+.bfboard{background:#232634;color:#FFFFFF;padding:10px 12px;margin:20px 0 14px}.bft{font-size:14px;margin-bottom:6px;color:#C9CED6}.bft b{color:#FFFFFF;margin-right:10px}
+.bfdep{display:grid;grid-template-columns:62px 54px 1fr 54px 40px;font-size:17px;padding:3px 0;color:#8FE08F}.bfdep.a{color:#FFB547}.bfdep.h{font-size:11px;color:#C9CED6}.bfdep span:nth-child(2),.bfdep span:nth-child(4){color:#FFFFFF;font-size:14px}.bfdep.h span{color:#C9CED6!important;font-size:11px!important}
+.bfboard small{display:block;text-align:center;font-size:10px;color:#C9CED6;margin-top:4px}
+.bfq{font-weight:900;font-size:18px;margin:6px 0 8px}
+.bfcard{display:flex;align-items:center;gap:10px;background:#FFFFFF;border:3px solid #2B2D42;padding:10px;margin-bottom:10px}.bfcard.here{border-color:#E94F4F}
+.bfic{width:58px;height:58px;background:#BFE6F5;border:3px solid #2B2D42;display:flex;align-items:center;justify-content:center;font-size:32px;flex:none}
+.bfname{flex:1;min-width:0}.bfname b{font-size:21px;font-weight:900;display:block}.bfname small{display:block;font-size:12px;color:#6B6F80}
+.bfinfo small{display:block;font-size:11px;color:#6B6F80}.bfinfo b{font-size:15px;font-weight:900}
+.bfbtn{background:#E94F4F!important;color:#FFFFFF;font-weight:900;padding:10px 12px;font-size:14px;border:3px solid #2B2D42!important;white-space:nowrap}.bfbtn.off{background:#F2C9C9!important;border-color:#F2C9C9!important;color:#FFFFFF}
+.bfnow{background:#E94F4F;color:#FFFFFF;font-weight:900;font-size:12px;padding:4px 10px}
+.bfkobo{display:flex;align-items:flex-end;gap:10px;margin-top:18px}.bfkobo img{width:70px}.bfkobo div{background:#FFFFFF;border:3px solid #2B2D42;padding:12px;font-size:15px;flex:1}
+#bfload{position:fixed;inset:0;z-index:95;background:linear-gradient(#A2D7EE 0 50%,#FFF8EE 50% 100%);display:flex;align-items:center;justify-content:center}#bfload svg{width:100%;height:100%;display:block}
+.bffb{font-size:24px;font-weight:900}

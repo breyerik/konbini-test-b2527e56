@@ -1,0 +1,667 @@
+{
+ "stand": "2026-10-21",
+ "hinweis": "Rendite = Dividendenrendite des realen Originals (Prognose, Kurs 21.10.2026). Stichtag = Monatsende; Auszahlung ca. 2–3 Monate später. Spiel zahlt pro Stichtag Rendite/Anzahl × Depotwert.",
+ "firmen": [
+  {
+   "firma": "Gocha Gocha Kingdom",
+   "original": "Pan Pacific (Don Quijote)",
+   "code": "7532",
+   "rendite_prozent": 1.34,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=7532 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Shironeko Express",
+   "original": "Yamato Holdings",
+   "code": "9064",
+   "rendite_prozent": 2.24,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=9064 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Yūhi Bräu",
+   "original": "Asahi Group",
+   "code": "2502",
+   "rendite_prozent": 3.41,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2502 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Unmei-dō",
+   "original": "Nintendo",
+   "code": "7974",
+   "rendite_prozent": 1.86,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=7974 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Oto-Oto Denki",
+   "original": "Sony Group",
+   "code": "6758",
+   "rendite_prozent": 0.87,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=6758 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Inaho Motors",
+   "original": "Toyota",
+   "code": "7203",
+   "rendite_prozent": 3.23,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=7203 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Ocha-Niwa",
+   "original": "Ito En",
+   "code": "2593",
+   "rendite_prozent": 1.59,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Apr",
+    "Okt"
+   ],
+   "auszahlung_monate_ca": [
+    "Jul",
+    "Jan"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2593 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Kome-Kura Bank",
+   "original": "Mizuho FG",
+   "code": "8411",
+   "rendite_prozent": 1.91,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=8411 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Mono Mono Wear",
+   "original": "Fast Retailing (Uniqlo)",
+   "code": "9983",
+   "rendite_prozent": 1.2,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Feb",
+    "Aug"
+   ],
+   "auszahlung_monate_ca": [
+    "Mai",
+    "Nov"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=9983 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Nanashi-dō",
+   "original": "Ryohin Keikaku (Muji)",
+   "code": "7453",
+   "rendite_prozent": 0.8,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Feb",
+    "Aug"
+   ],
+   "auszahlung_monate_ca": [
+    "Mai",
+    "Nov"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=7453 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Kemuri Kōsha",
+   "original": "Japan Tobacco",
+   "code": "2914",
+   "rendite_prozent": 3.63,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2914 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Taishō Kashi",
+   "original": "Meiji Holdings",
+   "code": "2269",
+   "rendite_prozent": 2.52,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2269 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Hōō Bräu",
+   "original": "Kirin Holdings",
+   "code": "2503",
+   "rendite_prozent": 2.6,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2503 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Tsukiya Getränke",
+   "original": "Suntory Beverage & Food",
+   "code": "2587",
+   "rendite_prozent": 2.49,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2587 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Umami no Kami",
+   "original": "Ajinomoto",
+   "code": "2802",
+   "rendite_prozent": 0.95,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2802 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Senaka & Co.",
+   "original": "Kao",
+   "code": "4452",
+   "rendite_prozent": 2.09,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=4452 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Zuru Zuru Shokuhin",
+   "original": "Nissin Foods",
+   "code": "2897",
+   "rendite_prozent": 2.3,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2897 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Nyūsan-chan",
+   "original": "Yakult",
+   "code": "2267",
+   "rendite_prozent": 2.56,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2267 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Paripari Kōbō",
+   "original": "Calbee",
+   "code": "2229",
+   "rendite_prozent": 2.2,
+   "ausschuettungen_pro_jahr": 1,
+   "stichtag_monate": [
+    "Mär"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2229 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Banzai Kashi",
+   "original": "Ezaki Glico",
+   "code": "2206",
+   "rendite_prozent": 1.88,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2206 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Mitsu-Kame Bank",
+   "original": "MUFG",
+   "code": "8306",
+   "rendite_prozent": 2.8,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=8306 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Futatsuboshi Bank",
+   "original": "SMFG",
+   "code": "8316",
+   "rendite_prozent": 2.79,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=8316 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Awa-Awa Bottlers",
+   "original": "Coca-Cola Bottlers Japan",
+   "code": "2579",
+   "rendite_prozent": 1.83,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2579 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Hokkyokusei Bräu",
+   "original": "Sapporo Holdings",
+   "code": "2501",
+   "rendite_prozent": 2.05,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2501 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Shōyu-Maru",
+   "original": "Kikkoman",
+   "code": "2801",
+   "rendite_prozent": 1.37,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2801 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Marukun Suisan",
+   "original": "Toyo Suisan (Maruchan)",
+   "code": "2875",
+   "rendite_prozent": 2.04,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2875 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Kodama Seika",
+   "original": "Morinaga & Co.",
+   "code": "2201",
+   "rendite_prozent": 2.9,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2201 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Ushi-Ushi Milch",
+   "original": "Morinaga Milk",
+   "code": "2264",
+   "rendite_prozent": 2.41,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2264 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Tanizaki Pan",
+   "original": "Yamazaki Baking",
+   "code": "2212",
+   "rendite_prozent": 1.55,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2212 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Mayo-Kun",
+   "original": "Kewpie",
+   "code": "2809",
+   "rendite_prozent": 1.44,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mai",
+    "Nov"
+   ],
+   "auszahlung_monate_ca": [
+    "Aug",
+    "Feb"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2809 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Buta-Buta Ham",
+   "original": "NH Foods (Nippon Ham)",
+   "code": "2282",
+   "rendite_prozent": 2.9,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2282 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Tora Hygiene",
+   "original": "Lion",
+   "code": "4912",
+   "rendite_prozent": 1.86,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=4912 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Fuwari",
+   "original": "Unicharm",
+   "code": "8113",
+   "rendite_prozent": 2.21,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=8113 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Keshō-dō",
+   "original": "Shiseido",
+   "code": "4911",
+   "rendite_prozent": 1.71,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=4911 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Gacha-Gacha Asobi",
+   "original": "Bandai Namco",
+   "code": "7832",
+   "rendite_prozent": 1.3,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=7832 (Abruf 2026-10-21, 配当利回り Prognose) + Schätzung",
+   "stand": "2026-10-21",
+   "hinweis": "Prognose von Bandai Namco noch offen (kabutan: －); Schätzwert nach Vorjahresniveau"
+  },
+  {
+   "firma": "Yomu-Yomu Shoten",
+   "original": "KADOKAWA",
+   "code": "9468",
+   "rendite_prozent": 0.79,
+   "ausschuettungen_pro_jahr": 1,
+   "stichtag_monate": [
+    "Mär"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=9468 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Ie-Curry",
+   "original": "House Foods",
+   "code": "2810",
+   "rendite_prozent": 2.29,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2810 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Tomato-Kago",
+   "original": "Kagome",
+   "code": "2811",
+   "rendite_prozent": 2.08,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Jun",
+    "Dez"
+   ],
+   "auszahlung_monate_ca": [
+    "Sep",
+    "Mär"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2811 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  },
+  {
+   "firma": "Kōri-Rei",
+   "original": "Nichirei",
+   "code": "2871",
+   "rendite_prozent": 3.12,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "quelle": "https://kabutan.jp/stock/?code=2871 (Abruf 2026-10-21, 配当利回り Prognose)",
+   "stand": "2026-10-21"
+  }
+ ],
+ "regel_konbini": "Keine Konbini-Kette ist an der Börse (alle starten zeitgleich mit dem Spieler; Erik 21.10.2026). Daher stehen Eight, Lawsun, Familia, Minihalt, Asayake Mart, Tsubame Eki und spätere Ketten nicht in dieser Liste und zahlen keine Dividende."
+}

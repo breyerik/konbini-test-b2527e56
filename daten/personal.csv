@@ -1,0 +1,16 @@
+Rolle,Stufe,Wert,Einheit,Menschen,Produkt,Marketing,Ethik,Quelle,geschaetzt,Hinweis
+Filialleiter,Junior,3800000,Yen/Jahr,2,2,1,3,"Tokio-Schnitt Konbini-Personal 3,99 Mio (jobtag via https://job-q.me/articles/14507)",ja,Werte = Spielwerte 1-5
+Filialleiter,Standard,4500000,Yen/Jahr,3,3,3,3,"Filialleiter in Kettenfilialen 4,0-5,5 Mio: https://job-q.me/articles/14507",nein,"Gehalt belegt, Werte Spielwert"
+Filialleiter,Profi,5500000,Yen/Jahr,4,4,4,4,"Obergrenze 7-Eleven-Filiale 5,5 Mio: https://job-q.me/articles/14507",nein,"Gehalt belegt, Werte Spielwert"
+Filialleiter,Star,6500000,Yen/Jahr,5,5,5,5,keine Quelle,ja,selten am Arbeitsmarkt (Event)
+Schichtkraft,Anfänger,1280,Yen/Stunde,1,1,0,3,Mindestlohn Tokio ab 01.10.2026: https://jsite.mhlw.go.jp/tokyo-roudoukyoku/news_topics/houdou/20260930chinginka_00001.html,nein,Produktivitaet 1
+Schichtkraft,Erfahren,1450,Yen/Stunde,2,2,0,3,keine Quelle,ja,
+Schichtkraft,Profi,1600,Yen/Stunde,3,3,0,4,"Ø Stellenangebot Konbini-Aushilfe 1.582 Yen (bundesweit, Sept. 2026): https://jp.stanby.com/stats/occupation/%E3%82%B3%E3%83%B3%E3%83%93%E3%83%8B",nein,
+Zuschlag,Nachtzuschlag 22-5 Uhr,25,Prozent,-,-,-,-,Arbeitsstandardgesetz Art. 37: https://laws.e-gov.go.jp/law/322AC0000000049,nein,auf Stundenlohn
+Zuschlag,Lohnnebenkosten,15,Prozent,-,-,-,-,keine Quelle,ja,"Sozialversicherung Arbeitgeber, Spielwert"
+Schicht,Früh 6-14 Uhr,10240,Yen/Person/Schicht (Anfänger),-,-,-,-,8 h x 1.280,nein,
+Schicht,Spät 14-22 Uhr,10240,Yen/Person/Schicht (Anfänger),-,-,-,-,8 h x 1.280,nein,
+Schicht,Nacht 22-6 Uhr,12480,Yen/Person/Schicht (Anfänger),-,-,-,-,7 h x 1.600 + 1 h x 1.280,nein,
+Delegation,Filialleiter übernimmt Bestellung,0,-,-,nutzt Produkt,-,-,Spielmechanik wie Coffee Inc,ja,Fehlbestellung sinkt mit Produkt-Wert
+Delegation,Filialleiter übernimmt Personalplanung,0,-,nutzt Menschen,-,-,-,Spielmechanik,ja,
+Delegation,Filialleiter übernimmt lokales Marketing,0,-,-,-,nutzt Marketing,-,Spielmechanik,ja,

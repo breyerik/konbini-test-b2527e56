@@ -1,0 +1,860 @@
+{
+ "version": 1,
+ "stadt": "osaka",
+ "status": "Entwurf – wartet auf Whitebeard-Prüfung und Eriks Freigabe",
+ "einheit": "Felder (1 Stock = 0,20)",
+ "koordinaten": "x=Ost, y=Süd, z=Höhe; relativ zur NW-Ecke der Grundfläche; z=0 = Blockplatte",
+ "position_hinweis": "position=null: Stadtplan fehlt noch, Franky setzt die Felder",
+ "shading": {
+  "oben": 1.0,
+  "front": 0.92,
+  "seite": 0.72
+ },
+ "kontur": "#3A3C4A",
+ "wahrzeichen": [
+  {
+   "id": "osaka-castle",
+   "name": "Burg Osaka",
+   "position": null,
+   "grundflaeche": [
+    3,
+    3
+   ],
+   "hoehe": 1.55,
+   "referenz_real": "Hauptturm 55 m inkl. Sockel, 5 Dächer",
+   "blick": "süd",
+   "farben": {
+    "Wand": "#F7F5EF",
+    "Dach (hellgrün)": "#7FBFA8",
+    "Gold": "#FFC93C",
+    "Sockel": "#C1BBAA"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Steinsockel (Ishigaki)",
+     "x": 0.3,
+     "y": 0.3,
+     "z": 0,
+     "b": 2.4,
+     "t": 2.4,
+     "h": 0.35,
+     "farbe": "#C1BBAA"
+    },
+    {
+     "form": "quader",
+     "name": "Geschoss 1",
+     "x": 0.65,
+     "y": 0.65,
+     "z": 0.35,
+     "b": 1.7,
+     "t": 1.7,
+     "h": 0.18,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Dach 1",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.53,
+     "b": 2.0,
+     "t": 2.0,
+     "b_oben": 1.7,
+     "t_oben": 1.7,
+     "h": 0.05,
+     "farbe": "#7FBFA8"
+    },
+    {
+     "form": "quader",
+     "name": "Geschoss 2",
+     "x": 0.775,
+     "y": 0.775,
+     "z": 0.58,
+     "b": 1.45,
+     "t": 1.45,
+     "h": 0.16,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Dach 2",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.74,
+     "b": 1.75,
+     "t": 1.75,
+     "b_oben": 1.45,
+     "t_oben": 1.45,
+     "h": 0.05,
+     "farbe": "#7FBFA8"
+    },
+    {
+     "form": "quader",
+     "name": "Geschoss 3",
+     "x": 0.9,
+     "y": 0.9,
+     "z": 0.79,
+     "b": 1.2,
+     "t": 1.2,
+     "h": 0.15,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Dach 3",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 0.9400000000000001,
+     "b": 1.5,
+     "t": 1.5,
+     "b_oben": 1.2,
+     "t_oben": 1.2,
+     "h": 0.05,
+     "farbe": "#7FBFA8"
+    },
+    {
+     "form": "quader",
+     "name": "Geschoss 4",
+     "x": 1.0,
+     "y": 1.0,
+     "z": 0.99,
+     "b": 1.0,
+     "t": 1.0,
+     "h": 0.14,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Dach 4",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.13,
+     "b": 1.3,
+     "t": 1.3,
+     "b_oben": 1.0,
+     "t_oben": 1.0,
+     "h": 0.05,
+     "farbe": "#7FBFA8"
+    },
+    {
+     "form": "quader",
+     "name": "Geschoss 5",
+     "x": 1.1,
+     "y": 1.1,
+     "z": 1.18,
+     "b": 0.8,
+     "t": 0.8,
+     "h": 0.14,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Dach 5",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.3199999999999998,
+     "b": 1.1,
+     "t": 1.1,
+     "b_oben": 0.8,
+     "t_oben": 0.8,
+     "h": 0.05,
+     "farbe": "#7FBFA8"
+    },
+    {
+     "form": "quader",
+     "name": "Goldornament-Band oben",
+     "x": 1.08,
+     "y": 1.08,
+     "z": 1.2999999999999998,
+     "b": 0.84,
+     "t": 0.84,
+     "h": 0.03,
+     "farbe": "#FFC93C"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Hauptdach",
+     "cx": 1.5,
+     "cy": 1.5,
+     "z": 1.3699999999999999,
+     "b": 0.9,
+     "t": 0.9,
+     "b_oben": 0.49500000000000005,
+     "t_oben": 0.49500000000000005,
+     "h": 0.12,
+     "farbe": "#7FBFA8"
+    },
+    {
+     "form": "quader",
+     "name": "Goldfisch-Akzent (Shachihoko)",
+     "x": 1.42,
+     "y": 1.48,
+     "z": 1.4899999999999998,
+     "b": 0.16,
+     "t": 0.04,
+     "h": 0.06,
+     "farbe": "#FFC93C"
+    }
+   ],
+   "hinweis": "Grüne Kupferdächer, weiße Wände, Goldakzente nur als Quader. Ohne Wassergraben (Graben = Wasserfelder im Plan).",
+   "erkennungsmerkmal": "Weiße Wände zwischen hellgrünen Dächern (#F7F5EF / #7FBFA8), Goldband + Shachihoko #FFC93C – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  },
+  {
+   "id": "tsutenkaku",
+   "name": "Tsutenkaku",
+   "position": null,
+   "grundflaeche": [
+    2,
+    2
+   ],
+   "hoehe": 1.35,
+   "referenz_real": "108 m, Stahlturm",
+   "blick": "süd",
+   "farben": {
+    "Stahl": "#F7F5EF",
+    "Deck": "#F7F5EF",
+    "Leuchtband": "#FFC93C",
+    "Plattform": "#DBD8CA"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Bein NW",
+     "x": 0.3,
+     "y": 0.3,
+     "z": 0,
+     "b": 0.12,
+     "t": 0.12,
+     "h": 0.4,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Bein NO",
+     "x": 1.58,
+     "y": 0.3,
+     "z": 0,
+     "b": 0.12,
+     "t": 0.12,
+     "h": 0.4,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Bein SW",
+     "x": 0.3,
+     "y": 1.58,
+     "z": 0,
+     "b": 0.12,
+     "t": 0.12,
+     "h": 0.4,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Bein SO",
+     "x": 1.58,
+     "y": 1.58,
+     "z": 0,
+     "b": 0.12,
+     "t": 0.12,
+     "h": 0.4,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Bogen Süd (Scheitel)",
+     "x": 0.42,
+     "y": 1.58,
+     "z": 0.36,
+     "b": 1.16,
+     "t": 0.12,
+     "h": 0.04,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Bogen Süd Zwickel W",
+     "x": 0.42,
+     "y": 1.58,
+     "z": 0.32,
+     "b": 0.1,
+     "t": 0.12,
+     "h": 0.04,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Bogen Süd Zwickel O",
+     "x": 1.48,
+     "y": 1.58,
+     "z": 0.32,
+     "b": 0.1,
+     "t": 0.12,
+     "h": 0.04,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Bogen Ost (Scheitel)",
+     "x": 1.58,
+     "y": 0.42,
+     "z": 0.36,
+     "b": 0.12,
+     "t": 1.16,
+     "h": 0.04,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Bogen Ost Zwickel N",
+     "x": 1.58,
+     "y": 0.42,
+     "z": 0.32,
+     "b": 0.12,
+     "t": 0.1,
+     "h": 0.04,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Bogen Ost Zwickel S",
+     "x": 1.58,
+     "y": 1.48,
+     "z": 0.32,
+     "b": 0.12,
+     "t": 0.1,
+     "h": 0.04,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Plattform über Bögen",
+     "x": 0.3,
+     "y": 0.3,
+     "z": 0.4,
+     "b": 1.4,
+     "t": 1.4,
+     "h": 0.05,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quader",
+     "name": "Referenz-Auto (nur Maßstab, nicht bauen)",
+     "x": 0.75,
+     "y": 0.9,
+     "z": 0,
+     "b": 0.5,
+     "t": 0.22,
+     "h": 0.14,
+     "farbe": "#E94F4F"
+    },
+    {
+     "form": "quaderstumpf",
+     "name": "Schaft (8-kant, verjüngt)",
+     "cx": 1,
+     "cy": 1,
+     "z": 0.45,
+     "b": 0.7,
+     "t": 0.7,
+     "b_oben": 0.38,
+     "t_oben": 0.38,
+     "h": 0.55,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Aussichtsdeck (weiß)",
+     "x": 0.68,
+     "y": 0.68,
+     "z": 1.0,
+     "b": 0.64,
+     "t": 0.64,
+     "h": 0.16,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Leuchtband (ohne Schrift)",
+     "x": 0.7,
+     "y": 0.7,
+     "z": 1.16,
+     "b": 0.6,
+     "t": 0.6,
+     "h": 0.06,
+     "farbe": "#FFC93C"
+    },
+    {
+     "form": "kegelstumpf",
+     "name": "Spitze",
+     "cx": 1,
+     "cy": 1,
+     "z": 1.22,
+     "r": 0.08,
+     "r_oben": 0.02,
+     "h": 0.13,
+     "farbe": "#F7F5EF",
+     "segmente": 8
+    }
+   ],
+   "hinweis": "Kein Werbeschriftzug, Leuchtband einfarbig gold. Kein Sockelblock: vier schlanke Beine (0,12×0,12, Höhe 0,40 ≈ 30 % der Gesamthöhe). Je Seite ein offener Bogen, lichte Weite 1,16, lichte Höhe 0,32 (Zwickel) bis 0,36 (Scheitel); Auto 0,5×0,22×0,14 passt sichtbar durch. Rotes Referenz-Auto nur Maßstab, nicht modellieren.",
+   "erkennungsmerkmal": "Vier Beine mit offenen Bögen, Kopf weiß #F7F5EF mit Goldband #FFC93C – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  },
+  {
+   "id": "umeda-sky",
+   "name": "Umeda Sky Building",
+   "position": null,
+   "grundflaeche": [
+    3,
+    2
+   ],
+   "hoehe": 2.1,
+   "referenz_real": "173 m, 40 Stock, Zwillingstürme mit Floating Garden",
+   "blick": "süd",
+   "farben": {
+    "Glas": "#7FB3C8",
+    "Floating Garden": "#F7F5EF",
+    "Ring": "#FFC93C",
+    "Rahmen": "#DCE3EA",
+    "Plaza": "#E8DCC4"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Plaza",
+     "x": 0,
+     "y": 0,
+     "z": 0,
+     "b": 3,
+     "t": 2,
+     "h": 0.03,
+     "farbe": "#E8DCC4"
+    },
+    {
+     "form": "quader",
+     "name": "Turm West",
+     "x": 0.3,
+     "y": 0.5,
+     "z": 0,
+     "b": 0.8,
+     "t": 1.0,
+     "h": 1.95,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "quader",
+     "name": "Turm Ost",
+     "x": 1.9,
+     "y": 0.5,
+     "z": 0,
+     "b": 0.8,
+     "t": 1.0,
+     "h": 1.95,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "quader",
+     "name": "Floating Garden (Brücke oben)",
+     "x": 0.3,
+     "y": 0.5,
+     "z": 1.95,
+     "b": 2.4,
+     "t": 1.0,
+     "h": 0.15,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "ring",
+     "name": "Floating-Garden-Ring (Öffnung)",
+     "cx": 1.5,
+     "cy": 1.0,
+     "cz": 1.78,
+     "R": 0.3,
+     "r": 0.04,
+     "achse": "y",
+     "farbe": "#FFC93C",
+     "segmente": 16
+    },
+    {
+     "form": "quader",
+     "name": "Verbindungsbrücke Mitte",
+     "x": 1.1,
+     "y": 0.9,
+     "z": 1.05,
+     "b": 0.8,
+     "t": 0.2,
+     "h": 0.06,
+     "farbe": "#DCE3EA"
+    },
+    {
+     "form": "quader",
+     "name": "Rahmenband",
+     "x": 0.3,
+     "y": 1.48,
+     "z": 1.0,
+     "b": 2.4,
+     "t": 0.04,
+     "h": 0.06,
+     "farbe": "#DCE3EA"
+    }
+   ],
+   "hinweis": "Oben durch den Floating Garden verbunden; darunter hängt der Ring (kreisrunde Öffnung) frei im Spalt. Zwischen den Türmen offen (Durchblick wichtig), nur eine dünne Brücke auf halber Höhe.",
+   "erkennungsmerkmal": "Zwei Glastürme #7FB3C8, oben verbunden durch hellen Floating Garden #F7F5EF mit Goldring #FFC93C, Spalt offen – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  },
+  {
+   "id": "dotonbori-schild",
+   "name": "Dotonbori-Kanalfront (Läufer-Schild & Krabbe, Parodie)",
+   "position": null,
+   "grundflaeche": [
+    4,
+    2
+   ],
+   "hoehe": 0.9,
+   "referenz_real": "Kanalfront ~4 Stock, Leuchtschild ~20 m",
+   "blick": "süd (Kanal)",
+   "farben": {
+    "Haus": "#DBD8CA",
+    "Schild": "#2F3F66",
+    "Läufer": "#F7F5EF",
+    "Krabbe": "#E94F4F",
+    "Kai": "#C1BBAA"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Kai",
+     "x": 0,
+     "y": 1.5,
+     "z": 0,
+     "b": 4,
+     "t": 0.5,
+     "h": 0.05,
+     "farbe": "#C1BBAA"
+    },
+    {
+     "form": "quader",
+     "name": "Haus 1",
+     "x": 0,
+     "y": 0.2,
+     "z": 0,
+     "b": 1.3,
+     "t": 1.3,
+     "h": 0.7,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quader",
+     "name": "Haus 2",
+     "x": 1.35,
+     "y": 0.3,
+     "z": 0,
+     "b": 1.3,
+     "t": 1.2,
+     "h": 0.6,
+     "farbe": "#E8DCC4"
+    },
+    {
+     "form": "quader",
+     "name": "Haus 3",
+     "x": 2.7,
+     "y": 0.2,
+     "z": 0,
+     "b": 1.3,
+     "t": 1.3,
+     "h": 0.75,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quader",
+     "name": "Leuchtschild (ohne Schrift)",
+     "x": 1.45,
+     "y": 1.45,
+     "z": 0.3,
+     "b": 1.1,
+     "t": 0.05,
+     "h": 0.6,
+     "farbe": "#2F3F66"
+    },
+    {
+     "form": "quader",
+     "name": "Läufer-Silhouette (Parodie)",
+     "x": 1.85,
+     "y": 1.43,
+     "z": 0.4,
+     "b": 0.3,
+     "t": 0.03,
+     "h": 0.4,
+     "farbe": "#F7F5EF"
+    },
+    {
+     "form": "quader",
+     "name": "Krabbe Körper",
+     "x": 0.2,
+     "y": 1.45,
+     "z": 0.45,
+     "b": 0.9,
+     "t": 0.12,
+     "h": 0.22,
+     "farbe": "#E94F4F"
+    },
+    {
+     "form": "quader",
+     "name": "Krabbe Schere L",
+     "x": 0.05,
+     "y": 1.43,
+     "z": 0.55,
+     "b": 0.2,
+     "t": 0.08,
+     "h": 0.12,
+     "farbe": "#E94F4F"
+    },
+    {
+     "form": "quader",
+     "name": "Krabbe Schere R",
+     "x": 1.05,
+     "y": 1.43,
+     "z": 0.55,
+     "b": 0.2,
+     "t": 0.08,
+     "h": 0.12,
+     "farbe": "#E94F4F"
+    }
+   ],
+   "hinweis": "Glico-Läufer nur als neutrale Parodie (kein Logo, keine Schrift). Krabbe kantig aus Quadern. Südseite = Kanal (Wasser).",
+   "erkennungsmerkmal": "Navy-Leuchtschild #2F3F66 mit weißem Läufer + rote Krabbe #E94F4F – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  },
+  {
+   "id": "abeno-harukas",
+   "name": "Abeno Harukas",
+   "position": null,
+   "grundflaeche": [
+    3,
+    3
+   ],
+   "hoehe": 3.6,
+   "referenz_real": "300 m, 60 Stock, höchstes Gebäude Japans (2026: zweithöchstes)",
+   "blick": "süd",
+   "farben": {
+    "Glas": "#7FB3C8",
+    "Rahmen": "#DCE3EA",
+    "Sockel": "#DBD8CA"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Sockel (Kaufhaus)",
+     "x": 0.2,
+     "y": 0.2,
+     "z": 0,
+     "b": 2.6,
+     "t": 2.6,
+     "h": 0.7,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quader",
+     "name": "Stufe 1",
+     "x": 0.4,
+     "y": 0.4,
+     "z": 0.7,
+     "b": 2.2,
+     "t": 2.2,
+     "h": 1.1,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "quader",
+     "name": "Stufe 2",
+     "x": 0.6,
+     "y": 0.7,
+     "z": 1.8,
+     "b": 1.8,
+     "t": 1.6,
+     "h": 1.0,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "quader",
+     "name": "Stufe 3",
+     "x": 0.8,
+     "y": 1.0,
+     "z": 2.8,
+     "b": 1.4,
+     "t": 1.0,
+     "h": 0.8,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "quader",
+     "name": "Rahmen O",
+     "x": 2.55,
+     "y": 0.4,
+     "z": 0.7,
+     "b": 0.05,
+     "t": 2.2,
+     "h": 1.1,
+     "farbe": "#DCE3EA"
+    },
+    {
+     "form": "quader",
+     "name": "Dachkante",
+     "x": 0.8,
+     "y": 1.0,
+     "z": 3.58,
+     "b": 1.4,
+     "t": 1.0,
+     "h": 0.02,
+     "farbe": "#DCE3EA"
+    }
+   ],
+   "hinweis": "Drei nach Norden zurückspringende Glasstufen, flaches Dach, KEIN Heliport.",
+   "erkennungsmerkmal": "Drei nach Norden zurückspringende Glasstufen #7FB3C8 – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  },
+  {
+   "id": "osaka-station",
+   "name": "Bahnhof Osaka (Osaka Station City)",
+   "position": null,
+   "grundflaeche": [
+    6,
+    3
+   ],
+   "hoehe": 1.8,
+   "referenz_real": "North Gate Building 150 m, South Gate Building 122 m, Dach ~50 m",
+   "blick": "süd",
+   "farben": {
+    "Glas": "#7FB3C8",
+    "Stahl": "#DCE3EA",
+    "Turm N": "#6E8BAA",
+    "Turm S": "#DBD8CA",
+    "Gleise": "#4A4D52"
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "Gleisfeld",
+     "x": 1.2,
+     "y": 0.3,
+     "z": 0,
+     "b": 3.6,
+     "t": 2.4,
+     "h": 0.04,
+     "farbe": "#4A4D52"
+    },
+    {
+     "form": "quader",
+     "name": "Bahnsteig 1",
+     "x": 1.2,
+     "y": 0.9,
+     "z": 0.04,
+     "b": 3.6,
+     "t": 0.2,
+     "h": 0.06,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "quader",
+     "name": "Bahnsteig 2",
+     "x": 1.2,
+     "y": 1.6,
+     "z": 0.04,
+     "b": 3.6,
+     "t": 0.2,
+     "h": 0.06,
+     "farbe": "#9A9DA2"
+    },
+    {
+     "form": "quader",
+     "name": "Dachstütze W",
+     "x": 1.25,
+     "y": 0.4,
+     "z": 0,
+     "b": 0.08,
+     "t": 2.2,
+     "h": 0.55,
+     "farbe": "#DCE3EA"
+    },
+    {
+     "form": "quader",
+     "name": "Dachstütze O",
+     "x": 4.67,
+     "y": 0.4,
+     "z": 0,
+     "b": 0.08,
+     "t": 2.2,
+     "h": 0.55,
+     "farbe": "#DCE3EA"
+    },
+    {
+     "form": "quader",
+     "name": "Großes Glasdach",
+     "x": 1.1,
+     "y": 0.3,
+     "z": 0.55,
+     "b": 3.8,
+     "t": 2.4,
+     "h": 0.06,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "keil",
+     "name": "Dachschräge (Stahlrahmen)",
+     "x": 1.1,
+     "y": 0.3,
+     "z": 0.61,
+     "b": 3.8,
+     "t": 2.4,
+     "h": 0.1,
+     "farbe": "#DCE3EA",
+     "steigt_nach": "giebel"
+    },
+    {
+     "form": "quader",
+     "name": "South Gate Building (West)",
+     "x": 0,
+     "y": 0.6,
+     "z": 0,
+     "b": 1.2,
+     "t": 2.2,
+     "h": 1.5,
+     "farbe": "#DBD8CA"
+    },
+    {
+     "form": "quader",
+     "name": "South Gate Fensterband",
+     "x": 0,
+     "y": 2.78,
+     "z": 0.3,
+     "b": 1.2,
+     "t": 0.04,
+     "h": 1.0,
+     "farbe": "#7FB3C8"
+    },
+    {
+     "form": "quader",
+     "name": "North Gate Building (Ost)",
+     "x": 4.8,
+     "y": 0.2,
+     "z": 0,
+     "b": 1.2,
+     "t": 2.4,
+     "h": 1.8,
+     "farbe": "#6E8BAA"
+    },
+    {
+     "form": "quader",
+     "name": "North Gate Sockel",
+     "x": 4.8,
+     "y": 0.2,
+     "z": 0,
+     "b": 1.2,
+     "t": 2.4,
+     "h": 0.4,
+     "farbe": "#DBD8CA"
+    }
+   ],
+   "hinweis": "Großes, flaches Glas-/Stahldach überspannt alle Bahnsteige (offen an den Stirnseiten), links/rechts je ein Turm. Flachdächer, kein Heliport.",
+   "erkennungsmerkmal": "Großes helles Glas-/Stahldach #7FB3C8/#DCE3EA zwischen zwei Türmen – Erkennungsmerkmal + Farbe, nicht verkleinern"
+  }
+ ]
+}

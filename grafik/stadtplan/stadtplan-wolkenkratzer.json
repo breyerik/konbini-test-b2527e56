@@ -1,0 +1,145 @@
+{
+ "basis": "stadtplan.json v4 (unverändert)",
+ "tuerme": [
+  {
+   "id": 163,
+   "x": 24,
+   "y": 23,
+   "breite": 4,
+   "tiefe": 4,
+   "turm": "kokon-tower",
+   "ersetzt_typ": "buero-glas",
+   "ziel_feld": [
+    22.5,
+    28.4
+   ],
+   "abweichung_felder": 4.9
+  },
+  {
+   "id": "wahrzeichen:shinjuku-rathaus",
+   "x": 21,
+   "y": 27,
+   "breite": 4,
+   "tiefe": 4,
+   "turm": "rathaus-zwilling",
+   "ersetzt_typ": "wahrzeichen",
+   "ziel_feld": [
+    21.2,
+    29.3
+   ],
+   "abweichung_felder": 1.8
+  },
+  {
+   "id": 228,
+   "x": 26,
+   "y": 40,
+   "breite": 3,
+   "tiefe": 4,
+   "turm": "kreuzungs-turm",
+   "ersetzt_typ": "geschaeftshaus-neon",
+   "ziel_feld": [
+    27.5,
+    43.9
+   ],
+   "abweichung_felder": 1.9
+  },
+  {
+   "id": 243,
+   "x": 37,
+   "y": 44,
+   "breite": 2,
+   "tiefe": 2,
+   "turm": "hügel-turm",
+   "ersetzt_typ": "mittelhaus-fliesen",
+   "ziel_feld": [
+    35.4,
+    43.1
+   ],
+   "abweichung_felder": 3.2
+  },
+  {
+   "id": 222,
+   "x": 37,
+   "y": 39,
+   "breite": 3,
+   "tiefe": 2,
+   "turm": "mittelstadt-turm",
+   "ersetzt_typ": "geschaeftshaus-neon",
+   "ziel_feld": [
+    35.4,
+    40.7
+   ],
+   "abweichung_felder": 3.2
+  },
+  {
+   "id": 204,
+   "x": 25,
+   "y": 35,
+   "breite": 4,
+   "tiefe": 4,
+   "turm": "uhrturm-yoyogi",
+   "ersetzt_typ": "geschaeftshaus-neon",
+   "ziel_feld": [
+    24.8,
+    31.7
+   ],
+   "abweichung_felder": 5.8
+  },
+  {
+   "id": 93,
+   "x": 24,
+   "y": 10,
+   "breite": 2,
+   "tiefe": 2,
+   "turm": "sonnenschein-60",
+   "ersetzt_typ": "altbau-holz",
+   "ziel_feld": [
+    25.7,
+    10.8
+   ],
+   "abweichung_felder": 0.7
+  },
+  {
+   "id": 190,
+   "x": 13,
+   "y": 30,
+   "breite": 3,
+   "tiefe": 3,
+   "turm": "park-dreispitz",
+   "ersetzt_typ": "buero-beton",
+   "ziel_feld": [
+    21.3,
+    31.1
+   ],
+   "abweichung_felder": 6.8
+  },
+  {
+   "id": 206,
+   "x": 34,
+   "y": 35,
+   "breite": 2,
+   "tiefe": 3,
+   "turm": "tora-tor-turm",
+   "ersetzt_typ": "buero-beton",
+   "ziel_feld": [
+    41.0,
+    40.2
+   ],
+   "abweichung_felder": 7.0
+  },
+  {
+   "id": 256,
+   "x": 35,
+   "y": 48,
+   "breite": 3,
+   "tiefe": 3,
+   "turm": "azabu-wolke",
+   "ersetzt_typ": "geschaeftshaus-neon",
+   "ziel_feld": [
+    38.7,
+    43.2
+   ],
+   "abweichung_felder": 6.7
+  }
+ ]
+}

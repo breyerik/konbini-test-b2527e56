@@ -1,0 +1,216 @@
+{
+ "grundstuecke_laden_neu": [
+  {
+   "id": 177,
+   "laden": {
+    "seite": "strasse",
+    "art": "ecke",
+    "lage": "top",
+    "besitzer": "frei"
+   }
+  },
+  {
+   "id": 246,
+   "laden": {
+    "seite": "strasse",
+    "art": "ecke",
+    "lage": "top",
+    "besitzer": "frei"
+   }
+  },
+  {
+   "id": 247,
+   "laden": {
+    "seite": "strasse",
+    "art": "ecke",
+    "lage": "top",
+    "besitzer": "eight"
+   }
+  }
+ ],
+ "basis": "stadtplan-v6.json (unverändert)",
+ "freigabe": "⏳ Entwurf, wartet auf Eriks Freigabe (Dokomo-Uhrturm 190→157)",
+ "regel": "nur bebaute Grundstücke, nie Straße/Brücke/Wasser/Wahrzeichen-Block/Ring; Rathaus-Zwilling auf Wahrzeichen shinjuku-rathaus",
+ "laden_umzuege": [
+  {
+   "von": 217,
+   "nach": 246,
+   "besitzer": "frei",
+   "lage": "top",
+   "weg_felder": 8.1
+  },
+  {
+   "von": 202,
+   "nach": 247,
+   "besitzer": "eight",
+   "lage": "top",
+   "weg_felder": 13.8
+  },
+  {
+   "von": 197,
+   "nach": 177,
+   "besitzer": "frei",
+   "lage": "top",
+   "weg_felder": 13.0
+  }
+ ],
+ "tuerme": [
+  {
+   "id": 168,
+   "x": 13,
+   "y": 27,
+   "breite": 3,
+   "tiefe": 3,
+   "turm": "kokon-tower",
+   "name": "Kokon-Turm",
+   "ersetzt_typ": "buero-glas",
+   "ziel_feld": [
+    22.5,
+    28.4
+   ],
+   "abweichung_felder": 8.0
+  },
+  {
+   "id": "wahrzeichen:shinjuku-rathaus",
+   "x": 21,
+   "y": 27,
+   "breite": 4,
+   "tiefe": 4,
+   "turm": "rathaus-zwilling",
+   "name": "Tocho-Zwillingsturm",
+   "ersetzt_typ": "wahrzeichen",
+   "ziel_feld": [
+    21.2,
+    29.3
+   ],
+   "abweichung_felder": 1.8
+  },
+  {
+   "id": 225,
+   "x": 23,
+   "y": 48,
+   "breite": 4,
+   "tiefe": 4,
+   "turm": "kreuzungs-turm",
+   "name": "Scramble-Turm",
+   "ersetzt_typ": "buero-glas",
+   "ziel_feld": [
+    27.5,
+    43.9
+   ],
+   "abweichung_felder": 6.6
+  },
+  {
+   "id": 217,
+   "x": 32,
+   "y": 44,
+   "breite": 3,
+   "tiefe": 2,
+   "turm": "hügel-turm",
+   "name": "Mori-Hügelturm",
+   "ersetzt_typ": "geschaeftshaus-neon",
+   "ziel_feld": [
+    35.4,
+    43.1
+   ],
+   "abweichung_felder": 2.7
+  },
+  {
+   "id": 202,
+   "x": 38,
+   "y": 38,
+   "breite": 3,
+   "tiefe": 3,
+   "turm": "mittelstadt-turm",
+   "name": "Midtaun-Turm",
+   "ersetzt_typ": "buero-glas",
+   "ziel_feld": [
+    35.4,
+    40.7
+   ],
+   "abweichung_felder": 4.3
+  },
+  {
+   "id": 157,
+   "x": 31,
+   "y": 23,
+   "breite": 3,
+   "tiefe": 2,
+   "turm": "uhrturm-yoyogi",
+   "name": "Dokomo-Uhrturm",
+   "ersetzt_typ": "buero-beton",
+   "ziel_feld": [
+    24.8,
+    31.7
+   ],
+   "abweichung_felder": 10.9,
+   "vorher": {
+    "id": 190,
+    "x": 25,
+    "y": 35,
+    "abweichung_felder": 5.7
+   }
+  },
+  {
+   "id": 92,
+   "x": 24,
+   "y": 10,
+   "breite": 2,
+   "tiefe": 2,
+   "turm": "sonnenschein-60",
+   "name": "Sonnenschein 60",
+   "ersetzt_typ": "apaato-holz",
+   "ziel_feld": [
+    25.7,
+    10.8
+   ],
+   "abweichung_felder": 0.7
+  },
+  {
+   "id": 176,
+   "x": 13,
+   "y": 30,
+   "breite": 3,
+   "tiefe": 3,
+   "turm": "park-dreispitz",
+   "name": "Park-Dreispitz",
+   "ersetzt_typ": "buero-beton",
+   "ziel_feld": [
+    21.3,
+    31.1
+   ],
+   "abweichung_felder": 6.8
+  },
+  {
+   "id": 197,
+   "x": 43,
+   "y": 37,
+   "breite": 4,
+   "tiefe": 3,
+   "turm": "tora-tor-turm",
+   "name": "Torano-Torturm",
+   "ersetzt_typ": "geschaeftshaus-neon",
+   "ziel_feld": [
+    41.0,
+    40.2
+   ],
+   "abweichung_felder": 4.3
+  },
+  {
+   "id": 226,
+   "x": 31,
+   "y": 48,
+   "breite": 3,
+   "tiefe": 3,
+   "turm": "azabu-wolke",
+   "name": "Azabu-Wolkenturm",
+   "ersetzt_typ": "geschaeftshaus-neon",
+   "ziel_feld": [
+    38.7,
+    43.2
+   ],
+   "abweichung_felder": 8.8
+  }
+ ],
+ "hinweis": "Dokomo-Uhrturm aus der Sichtachse vor dem Tocho genommen; Minihalt-Umzug 190→189 rückgängig, Laden bleibt auf 190"
+}

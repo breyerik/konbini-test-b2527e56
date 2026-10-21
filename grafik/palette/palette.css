@@ -1,0 +1,14 @@
+:root{
+  --ke-hintergrund: #FFF8EE; /* Reisweiß – App-Hintergrund */
+  --ke-flaeche: #FFFFFF; /* Papier – Karten, Panels */
+  --ke-linie: #ECE6DC; /* Tatami – Rahmen, Trenner */
+  --ke-text: #2B2D42; /* Sumi – Text, Konturen */
+  --ke-text2: #6B6F80; /* Nebel – Nebentext */
+  --ke-primaer: #E94F4F; /* Akane – Hauptaktion, eigene Kette */
+  --ke-sekundaer: #3D7BD9; /* Aozora – Links, Auswahl */
+  --ke-erfolg: #5DBB73; /* Matcha – Gewinn, OK */
+  --ke-warnung: #FFC93C; /* Yuzu – Hinweise, Geld */
+  --ke-akzent: #F7A1B5; /* Sakura – Saison, Events */
+  --ke-nacht: #5B4B8A; /* Fuji – Nachtschicht */
+  --ke-himmel: #BFE6F5; /* Himmel – 3D-Himmel, leichte Flächen */
+}

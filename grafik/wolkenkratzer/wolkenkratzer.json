@@ -1,0 +1,245 @@
+{
+ "hinweis": "Entwurf, nicht freigegeben. Grundform für Franky (<=150 Dreiecke), Detail über Textur.",
+ "tuerme": [
+  {
+   "id": "kokon-tower",
+   "name": "Kokon-Turm",
+   "vorbild": "Mode Gakuen Cocoon Tower",
+   "viertel": "Shinjuku",
+   "grundform": "zylinder",
+   "grundflaeche_felder": [
+    3,
+    3
+   ],
+   "stockwerke": 50,
+   "hoehe_m": 204,
+   "textur": "wolkenkratzer/kokon-tower.svg",
+   "ziel_welt": [
+    -38.6,
+    -14.7
+   ],
+   "ziel_feld": [
+    22.5,
+    28.4
+   ],
+   "grundstueck_id": 163,
+   "abweichung_felder": 4.9
+  },
+  {
+   "id": "rathaus-zwilling",
+   "name": "Tocho-Zwillingsturm",
+   "vorbild": "Tokyo Metropolitan Government Building",
+   "viertel": "Shinjuku",
+   "grundform": "doppel",
+   "grundflaeche_felder": [
+    6,
+    4
+   ],
+   "stockwerke": 48,
+   "hoehe_m": 243,
+   "textur": "wolkenkratzer/rathaus-zwilling.svg",
+   "ziel_welt": [
+    -43.9,
+    -11.0
+   ],
+   "ziel_feld": [
+    21.2,
+    29.3
+   ],
+   "grundstueck_id": "wahrzeichen:shinjuku-rathaus",
+   "abweichung_felder": 1.8
+  },
+  {
+   "id": "kreuzungs-turm",
+   "name": "Scramble-Turm",
+   "vorbild": "Shibuya Scramble Square",
+   "viertel": "Shibuya",
+   "grundform": "gestuft",
+   "grundflaeche_felder": [
+    4,
+    4
+   ],
+   "stockwerke": 47,
+   "hoehe_m": 230,
+   "textur": "wolkenkratzer/kreuzungs-turm.svg",
+   "ziel_welt": [
+    -18.5,
+    48.3
+   ],
+   "ziel_feld": [
+    27.5,
+    43.9
+   ],
+   "grundstueck_id": 228,
+   "abweichung_felder": 1.9
+  },
+  {
+   "id": "hügel-turm",
+   "name": "Mori-Hügelturm",
+   "vorbild": "Roppongi Hills Mori Tower",
+   "viertel": "Roppongi",
+   "grundform": "zylinder",
+   "grundflaeche_felder": [
+    5,
+    5
+   ],
+   "stockwerke": 54,
+   "hoehe_m": 238,
+   "textur": "wolkenkratzer/hügel-turm.svg",
+   "ziel_welt": [
+    13.7,
+    45.1
+   ],
+   "ziel_feld": [
+    35.4,
+    43.1
+   ],
+   "grundstueck_id": 243,
+   "abweichung_felder": 3.2
+  },
+  {
+   "id": "mittelstadt-turm",
+   "name": "Midtaun-Turm",
+   "vorbild": "Tokyo Midtown Tower",
+   "viertel": "Roppongi",
+   "grundform": "gestuft",
+   "grundflaeche_felder": [
+    4,
+    4
+   ],
+   "stockwerke": 54,
+   "hoehe_m": 248,
+   "textur": "wolkenkratzer/mittelstadt-turm.svg",
+   "ziel_welt": [
+    13.9,
+    35.5
+   ],
+   "ziel_feld": [
+    35.4,
+    40.7
+   ],
+   "grundstueck_id": 222,
+   "abweichung_felder": 3.2
+  },
+  {
+   "id": "uhrturm-yoyogi",
+   "name": "Dokomo-Uhrturm",
+   "vorbild": "NTT Docomo Yoyogi Building",
+   "viertel": "Shinjuku Süd",
+   "grundform": "gestuft",
+   "grundflaeche_felder": [
+    4,
+    3
+   ],
+   "stockwerke": 27,
+   "hoehe_m": 240,
+   "textur": "wolkenkratzer/uhrturm-yoyogi.svg",
+   "ziel_welt": [
+    -29.2,
+    -1.3
+   ],
+   "ziel_feld": [
+    24.8,
+    31.7
+   ],
+   "grundstueck_id": 204,
+   "abweichung_felder": 5.8
+  },
+  {
+   "id": "sonnenschein-60",
+   "name": "Sonnenschein 60",
+   "vorbild": "Sunshine 60",
+   "viertel": "Ikebukuro",
+   "grundform": "box",
+   "grundflaeche_felder": [
+    5,
+    4
+   ],
+   "stockwerke": 60,
+   "hoehe_m": 240,
+   "textur": "wolkenkratzer/sonnenschein-60.svg",
+   "ziel_welt": [
+    -25.6,
+    -86.3
+   ],
+   "ziel_feld": [
+    25.7,
+    10.8
+   ],
+   "grundstueck_id": 93,
+   "abweichung_felder": 0.7
+  },
+  {
+   "id": "park-dreispitz",
+   "name": "Park-Dreispitz",
+   "vorbild": "Shinjuku Park Tower",
+   "viertel": "Shinjuku",
+   "grundform": "gestuft",
+   "grundflaeche_felder": [
+    5,
+    4
+   ],
+   "stockwerke": 52,
+   "hoehe_m": 235,
+   "textur": "wolkenkratzer/park-dreispitz.svg",
+   "ziel_welt": [
+    -43.6,
+    -3.8
+   ],
+   "ziel_feld": [
+    21.3,
+    31.1
+   ],
+   "grundstueck_id": 190,
+   "abweichung_felder": 6.8
+  },
+  {
+   "id": "tora-tor-turm",
+   "name": "Torano-Torturm",
+   "vorbild": "Toranomon Hills Mori Tower",
+   "viertel": "Toranomon",
+   "grundform": "gestuft",
+   "grundflaeche_felder": [
+    5,
+    5
+   ],
+   "stockwerke": 52,
+   "hoehe_m": 255,
+   "textur": "wolkenkratzer/tora-tor-turm.svg",
+   "ziel_welt": [
+    36.4,
+    33.3
+   ],
+   "ziel_feld": [
+    41.0,
+    40.2
+   ],
+   "grundstueck_id": 206,
+   "abweichung_felder": 7.0
+  },
+  {
+   "id": "azabu-wolke",
+   "name": "Azabu-Wolkenturm",
+   "vorbild": "Azabudai Hills Mori JP Tower",
+   "viertel": "Azabudai/Toranomon",
+   "grundform": "zylinder",
+   "grundflaeche_felder": [
+    5,
+    5
+   ],
+   "stockwerke": 64,
+   "hoehe_m": 325,
+   "textur": "wolkenkratzer/azabu-wolke.svg",
+   "ziel_welt": [
+    27.0,
+    45.3
+   ],
+   "ziel_feld": [
+    38.7,
+    43.2
+   ],
+   "grundstueck_id": 256,
+   "abweichung_felder": 6.7
+  }
+ ]
+}

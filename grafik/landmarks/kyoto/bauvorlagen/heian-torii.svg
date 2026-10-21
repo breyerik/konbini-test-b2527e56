@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="610" height="178" viewBox="0 0 610 178"><rect width="100%" height="100%" fill="#F2EFE6"/>
+<rect x="30" y="138" width="312.0" height="6" fill="#565859"/>
+<rect x="30.0" y="135.9" width="312.0" height="2.1" fill="#D5CAB4" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="61.2" y="131.8" width="41.6" height="6.2" fill="#B1AC9C" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="269.2" y="131.8" width="41.6" height="6.2" fill="#B1AC9C" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="68.5" y="67.3" width="27.0" height="64.5" fill="#C65026" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="276.5" y="67.3" width="27.0" height="64.5" fill="#C65026" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="50.8" y="72.5" width="270.4" height="7.3" fill="#C65026" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="177.7" y="64.2" width="16.6" height="8.3" fill="#C65026" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="35.2" y="57.9" width="301.6" height="6.2" fill="#C65026" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="19.6" y="49.6" width="332.8" height="8.3" fill="#44464B" stroke="#3A3C4A" stroke-width="1"/>
+<text x="30" y="162" font-family="sans-serif" font-size="12" fill="#3A3C4A">Front (Süd) · 3 Felder</text>
+<rect x="372.0" y="138" width="208.0" height="6" fill="#565859"/>
+<rect x="372.0" y="135.9" width="208.0" height="2.1" fill="#A79E8D" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="460.4" y="131.8" width="41.6" height="6.2" fill="#8A867A" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="460.4" y="131.8" width="41.6" height="6.2" fill="#8A867A" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="467.7" y="67.3" width="27.0" height="64.5" fill="#9B3E1E" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="467.7" y="67.3" width="27.0" height="64.5" fill="#9B3E1E" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="473.9" y="72.5" width="14.6" height="7.3" fill="#9B3E1E" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="476.0" y="64.2" width="10.4" height="8.3" fill="#9B3E1E" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="468.7" y="57.9" width="25.0" height="6.2" fill="#9B3E1E" stroke="#3A3C4A" stroke-width="1"/>
+<rect x="465.6" y="49.6" width="31.2" height="8.3" fill="#35373B" stroke="#3A3C4A" stroke-width="1"/>
+<text x="372.0" y="162" font-family="sans-serif" font-size="12" fill="#3A3C4A">Seite (Ost) · 2 Felder</text>
+<line x1="14" y1="138" x2="14" y2="49.60000000000001" stroke="#E94F4F" stroke-width="2"/><text x="4" y="43.60000000000001" font-family="sans-serif" font-size="12" fill="#E94F4F">0,85</text></svg>

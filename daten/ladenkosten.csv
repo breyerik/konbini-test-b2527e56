@@ -1,0 +1,35 @@
+Kostenart,Stadtteil,Wert,Einheit,Quelle,geschaetzt,Hinweis
+Miete pro Tsubo,Shinjuku,53500,Yen/Tsubo/Monat,https://www.reinet.or.jp/pdf/tenpo/2026spring/outline.pdf (1F-Angebotsmiete 2. Hj. 2025),nein,
+Miete Laden,Shinjuku,1605000,Yen/Monat,https://www.reinet.or.jp/pdf/tenpo/2026spring/outline.pdf (1F-Angebotsmiete 2. Hj. 2025),ja,"30 Tsubo (~99 m2) = Spielannahme, Innenstadt kleiner"
+Kaution,Shinjuku,9630000,Yen einmalig,keine Quelle; in Tokio ueblich 6-12 Monatsmieten,ja,"6 Monatsmieten, zurueck bei Schliessung"
+Miete pro Tsubo,Shibuya,45500,Yen/Tsubo/Monat,https://www.reinet.or.jp/pdf/tenpo/2026spring/outline.pdf (1F-Angebotsmiete 2. Hj. 2025),nein,
+Miete Laden,Shibuya,1456000,Yen/Monat,https://www.reinet.or.jp/pdf/tenpo/2026spring/outline.pdf (1F-Angebotsmiete 2. Hj. 2025),ja,"32 Tsubo (~106 m2) = Spielannahme, Innenstadt kleiner"
+Kaution,Shibuya,8736000,Yen einmalig,keine Quelle; in Tokio ueblich 6-12 Monatsmieten,ja,"6 Monatsmieten, zurueck bei Schliessung"
+Miete pro Tsubo,Asakusa,36819,Yen/Tsubo/Monat,https://souba.builds.jp/tenant/city/130262 (Durchschnitt Juli 2026),nein,
+Miete Laden,Asakusa,1325484,Yen/Monat,https://souba.builds.jp/tenant/city/130262 (Durchschnitt Juli 2026),ja,"36 Tsubo (~119 m2) = Spielannahme, Innenstadt kleiner"
+Kaution,Asakusa,7952904,Yen einmalig,keine Quelle; in Tokio ueblich 6-12 Monatsmieten,ja,"6 Monatsmieten, zurueck bei Schliessung"
+Miete pro Tsubo,Setagaya,29186,Yen/Tsubo/Monat,https://souba.builds.jp/tenant/city/130234 (Durchschnitt Sept. 2026),nein,
+Miete Laden,Setagaya,1167440,Yen/Monat,https://souba.builds.jp/tenant/city/130234 (Durchschnitt Sept. 2026),ja,"40 Tsubo (~132 m2) = Spielannahme, Innenstadt kleiner"
+Kaution,Setagaya,7004640,Yen einmalig,keine Quelle; in Tokio ueblich 6-12 Monatsmieten,ja,"6 Monatsmieten, zurueck bei Schliessung"
+Einrichtung/Innenausbau Standard,alle,7500000,Yen einmalig,Innenausbau 6-12 Mio Yen bei ca. 60 Tsubo: https://land.ieul.jp/knowledge/land-use/commercial/29131/,ja,Details und Stile in ausbau.csv
+Neubau komplett (optional),alle,28000000,Yen einmalig,Bau + Innenausbau 21-36 Mio Yen: https://land.ieul.jp/knowledge/land-use/commercial/29131/,ja,nur fuer freistehende Laeden
+Erstbestueckung Ware,alle,4000000,Yen einmalig,keine Quelle,ja,Spielwert
+Mindestlohn Tokio bis 30.09.2026,alle,1226,Yen/Stunde,https://jsite.mhlw.go.jp/tokyo-roudoukyoku/news_topics/houdou/20230710chinginka_00008.html,nein,gueltig ab 03.10.2025
+Mindestlohn Tokio ab 01.10.2026,alle,1280,Yen/Stunde,https://jsite.mhlw.go.jp/tokyo-roudoukyoku/news_topics/houdou/20260930chinginka_00001.html,nein,"aktueller Wert, Startwert im Spiel"
+Nachtzuschlag 22-5 Uhr,alle,25,Prozent,Arbeitsstandardgesetz Art. 37: https://laws.e-gov.go.jp/law/322AC0000000049,nein,
+Lohnnebenkosten,alle,15,Prozent,keine Quelle,ja,Spielwert fuer Sozialabgaben
+Personal Fruehschicht 6-14 Uhr,pro Person,10240,Yen/Schicht,8 h x 1.280 Yen,nein,ohne Nebenkosten
+Personal Spaetschicht 14-22 Uhr,pro Person,10240,Yen/Schicht,8 h x 1.280 Yen,nein,ohne Nebenkosten
+Personal Nachtschicht 22-6 Uhr,pro Person,12480,Yen/Schicht,7 h x 1.600 + 1 h x 1.280 Yen,nein,ohne Nebenkosten
+Personal pro Schicht (Start),alle,2,Personen,keine Quelle,ja,"Spielwert; Nacht mit 1 Person moeglich, dann Risiko-Event"
+Strom Verbrauch,alle,11800,kWh/Monat,ca. 142.000 kWh/Jahr je Laden: https://tokyo-co2down.g.kuroco-img.app/files/user/files/action/business/industry-seminar/text/conveniencestore.pdf,nein,
+Strom Kosten,alle,350000,Yen/Monat,300.000-400.000 Yen/Monat: https://www.enegraph.net/column/post-29/,nein,Mittelwert
+Kunden pro Tag (Referenz),alle,804,Kunden/Tag,Lawson 2018: https://news.yahoo.co.jp/expert/articles/bef2ad3a149d40d1694b8d43d344a1f1b6cc614d,nein,Startladen im Spiel z. B. 600
+Abschreibung/Verderb Frischware,alle,8,Prozent der Frischware,7-10 %: https://news.akirax.online/2026/01/17/convenience-store-bento-cost/,ja,Spielwert innerhalb Quellenspanne
+Rohertrag Laden gesamt,alle,30,Prozent,https://fc-platform.jp/truth/,nein,Kontrollwert fuer Balancing
+Franchise-Gebuehr Eight (wie 7-Eleven A),Franchise,43,Prozent vom Rohertrag,"https://www.sej.co.jp/owner/type-a/ (45 %, 24 h: 43 %)",nein,fuer Franchise-Modus
+Franchise-Gebuehr Eight (wie 7-Eleven C),Franchise,56,Prozent vom Rohertrag (gestaffelt 56/66/71/76),https://www.jfa-fc.or.jp/fc-g-misc/pdf/71-2.pdf,nein,Zentrale stellt Laden
+Franchise-Gebuehr Familia (wie FamilyMart 1FC-A),Franchise,49,Prozent vom Rohertrag (gestaffelt 49/39/36),https://www.family.co.jp/company/fc/system/process.html,nein,
+Franchise-Gebuehr Lawsun (wie Lawson FC-Bn),Franchise,41,Prozent vom Rohertrag (gestaffelt 41/36/31/21),https://www.lawson.co.jp/company/fc/agreement/,nein,bei unter 24 h +3 Punkte
+Beitrittsgebuehr Franchise,Franchise,3150000,Yen einmalig,7-Eleven A: https://www.sej.co.jp/owner/type-a/,nein,
+Stromkosten-Anteil Zentrale,Franchise,80,Prozent,7-Eleven: https://www.7andi.com/library/dbps_data/_template_/_res/ir/library/co/pdf/p24_33.pdf,nein,

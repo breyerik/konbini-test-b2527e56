@@ -1,0 +1,595 @@
+{
+ "seed": 2026,
+ "hinweis": "Entwurf Yuki, 21.10.2026. Start: alle Konkurrenten mit 0 Läden, staerke steuert Expansionstempo.",
+ "ketten_je_stadt": {
+  "tokio": {
+   "eight": {
+    "staerke_1bis5": 5,
+    "start_laeden": 0
+   },
+   "lawsun": {
+    "staerke_1bis5": 4,
+    "start_laeden": 0
+   },
+   "familia": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   },
+   "asayake-mart": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   },
+   "tsubame-eki": {
+    "staerke_1bis5": 3,
+    "start_laeden": 0
+   }
+  },
+  "yokohama": {
+   "eight": {
+    "staerke_1bis5": 5,
+    "start_laeden": 0
+   },
+   "lawsun": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   },
+   "familia": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   },
+   "minihalt": {
+    "staerke_1bis5": 1,
+    "start_laeden": 0
+   },
+   "zabu": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   },
+   "asayake-mart": {
+    "staerke_1bis5": 1,
+    "start_laeden": 0
+   },
+   "tsubame-eki": {
+    "staerke_1bis5": 3,
+    "start_laeden": 0
+   }
+  },
+  "osaka": {
+   "eight": {
+    "staerke_1bis5": 4,
+    "start_laeden": 0
+   },
+   "lawsun": {
+    "staerke_1bis5": 4,
+    "start_laeden": 0
+   },
+   "familia": {
+    "staerke_1bis5": 4,
+    "start_laeden": 0
+   },
+   "asayake-mart": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   },
+   "tsubame-eki": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   }
+  },
+  "kyoto": {
+   "eight": {
+    "staerke_1bis5": 3,
+    "start_laeden": 0
+   },
+   "lawsun": {
+    "staerke_1bis5": 4,
+    "start_laeden": 0
+   },
+   "familia": {
+    "staerke_1bis5": 3,
+    "start_laeden": 0
+   },
+   "minihalt": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   },
+   "zabu": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   },
+   "asayake-mart": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   },
+   "tsubame-eki": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   }
+  },
+  "nagoya": {
+   "eight": {
+    "staerke_1bis5": 4,
+    "start_laeden": 0
+   },
+   "lawsun": {
+    "staerke_1bis5": 4,
+    "start_laeden": 0
+   },
+   "familia": {
+    "staerke_1bis5": 4,
+    "start_laeden": 0
+   },
+   "minihalt": {
+    "staerke_1bis5": 3,
+    "start_laeden": 0
+   },
+   "asayake-mart": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   },
+   "tsubame-eki": {
+    "staerke_1bis5": 2,
+    "start_laeden": 0
+   }
+  }
+ },
+ "firmen": {
+  "Gocha Gocha Kingdom": {
+   "staedte": [
+    "yokohama",
+    "nagoya"
+   ]
+  },
+  "Shironeko Express": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Yūhi Bräu": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Unmei-dō": {
+   "staedte": [
+    "tokio",
+    "nagoya"
+   ]
+  },
+  "Oto-Oto Denki": {
+   "staedte": [
+    "yokohama",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Inaho Motors": {
+   "staedte": "nur Börse"
+  },
+  "Ocha-Niwa": {
+   "staedte": [
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Kome-Kura Bank": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Mono Mono Wear": {
+   "staedte": [
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Nanashi-dō": {
+   "staedte": [
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Kemuri Kōsha": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Taishō Kashi": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Hōō Bräu": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Tsukiya Getränke": {
+   "staedte": [
+    "tokio",
+    "yokohama"
+   ]
+  },
+  "Umami no Kami": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Senaka & Co.": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Zuru Zuru Shokuhin": {
+   "staedte": [
+    "tokio",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Nyūsan-chan": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "kyoto"
+   ]
+  },
+  "Paripari Kōbō": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto"
+   ]
+  },
+  "Banzai Kashi": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka"
+   ]
+  },
+  "Mitsu-Kame Bank": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Futatsuboshi Bank": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Awa-Awa Bottlers": {
+   "staedte": [
+    "yokohama",
+    "kyoto"
+   ]
+  },
+  "Hokkyokusei Bräu": {
+   "staedte": [
+    "tokio",
+    "nagoya"
+   ]
+  },
+  "Shōyu-Maru": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "nagoya"
+   ]
+  },
+  "Marukun Suisan": {
+   "staedte": [
+    "tokio",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Kodama Seika": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Ushi-Ushi Milch": {
+   "staedte": [
+    "yokohama",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Tanizaki Pan": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "nagoya"
+   ]
+  },
+  "Mayo-Kun": {
+   "staedte": [
+    "osaka",
+    "nagoya"
+   ]
+  },
+  "Buta-Buta Ham": {
+   "staedte": [
+    "yokohama",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Tora Hygiene": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Fuwari": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Keshō-dō": {
+   "staedte": [
+    "osaka",
+    "nagoya"
+   ]
+  },
+  "Gacha-Gacha Asobi": {
+   "staedte": [
+    "tokio",
+    "kyoto"
+   ]
+  },
+  "Yomu-Yomu Shoten": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Ie-Curry": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Tomato-Kago": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  },
+  "Kōri-Rei": {
+   "staedte": [
+    "tokio",
+    "yokohama",
+    "osaka",
+    "kyoto",
+    "nagoya"
+   ]
+  }
+ },
+ "firmen_je_stadt": {
+  "tokio": [
+   "Banzai Kashi",
+   "Futatsuboshi Bank",
+   "Fuwari",
+   "Gacha-Gacha Asobi",
+   "Hokkyokusei Bräu",
+   "Hōō Bräu",
+   "Ie-Curry",
+   "Kemuri Kōsha",
+   "Kodama Seika",
+   "Kome-Kura Bank",
+   "Kōri-Rei",
+   "Marukun Suisan",
+   "Mitsu-Kame Bank",
+   "Nyūsan-chan",
+   "Paripari Kōbō",
+   "Senaka & Co.",
+   "Shironeko Express",
+   "Shōyu-Maru",
+   "Taishō Kashi",
+   "Tanizaki Pan",
+   "Tomato-Kago",
+   "Tora Hygiene",
+   "Tsukiya Getränke",
+   "Umami no Kami",
+   "Unmei-dō",
+   "Yomu-Yomu Shoten",
+   "Yūhi Bräu",
+   "Zuru Zuru Shokuhin"
+  ],
+  "yokohama": [
+   "Awa-Awa Bottlers",
+   "Banzai Kashi",
+   "Buta-Buta Ham",
+   "Futatsuboshi Bank",
+   "Fuwari",
+   "Gocha Gocha Kingdom",
+   "Hōō Bräu",
+   "Ie-Curry",
+   "Kemuri Kōsha",
+   "Kodama Seika",
+   "Kome-Kura Bank",
+   "Kōri-Rei",
+   "Mitsu-Kame Bank",
+   "Mono Mono Wear",
+   "Nanashi-dō",
+   "Nyūsan-chan",
+   "Oto-Oto Denki",
+   "Paripari Kōbō",
+   "Senaka & Co.",
+   "Shironeko Express",
+   "Shōyu-Maru",
+   "Taishō Kashi",
+   "Tanizaki Pan",
+   "Tomato-Kago",
+   "Tora Hygiene",
+   "Tsukiya Getränke",
+   "Umami no Kami",
+   "Ushi-Ushi Milch",
+   "Yomu-Yomu Shoten",
+   "Yūhi Bräu"
+  ],
+  "osaka": [
+   "Banzai Kashi",
+   "Futatsuboshi Bank",
+   "Fuwari",
+   "Hōō Bräu",
+   "Ie-Curry",
+   "Kemuri Kōsha",
+   "Keshō-dō",
+   "Kodama Seika",
+   "Kome-Kura Bank",
+   "Kōri-Rei",
+   "Marukun Suisan",
+   "Mayo-Kun",
+   "Mitsu-Kame Bank",
+   "Mono Mono Wear",
+   "Nanashi-dō",
+   "Paripari Kōbō",
+   "Senaka & Co.",
+   "Shironeko Express",
+   "Shōyu-Maru",
+   "Taishō Kashi",
+   "Tanizaki Pan",
+   "Tomato-Kago",
+   "Tora Hygiene",
+   "Yomu-Yomu Shoten",
+   "Yūhi Bräu",
+   "Zuru Zuru Shokuhin"
+  ],
+  "kyoto": [
+   "Awa-Awa Bottlers",
+   "Buta-Buta Ham",
+   "Futatsuboshi Bank",
+   "Fuwari",
+   "Gacha-Gacha Asobi",
+   "Hōō Bräu",
+   "Ie-Curry",
+   "Kemuri Kōsha",
+   "Kodama Seika",
+   "Kome-Kura Bank",
+   "Kōri-Rei",
+   "Marukun Suisan",
+   "Mitsu-Kame Bank",
+   "Mono Mono Wear",
+   "Nanashi-dō",
+   "Nyūsan-chan",
+   "Ocha-Niwa",
+   "Oto-Oto Denki",
+   "Paripari Kōbō",
+   "Senaka & Co.",
+   "Shironeko Express",
+   "Taishō Kashi",
+   "Tomato-Kago",
+   "Tora Hygiene",
+   "Umami no Kami",
+   "Ushi-Ushi Milch",
+   "Yomu-Yomu Shoten",
+   "Yūhi Bräu",
+   "Zuru Zuru Shokuhin"
+  ],
+  "nagoya": [
+   "Buta-Buta Ham",
+   "Futatsuboshi Bank",
+   "Fuwari",
+   "Gocha Gocha Kingdom",
+   "Hokkyokusei Bräu",
+   "Hōō Bräu",
+   "Ie-Curry",
+   "Kemuri Kōsha",
+   "Keshō-dō",
+   "Kodama Seika",
+   "Kome-Kura Bank",
+   "Kōri-Rei",
+   "Marukun Suisan",
+   "Mayo-Kun",
+   "Mitsu-Kame Bank",
+   "Mono Mono Wear",
+   "Nanashi-dō",
+   "Ocha-Niwa",
+   "Oto-Oto Denki",
+   "Senaka & Co.",
+   "Shironeko Express",
+   "Shōyu-Maru",
+   "Taishō Kashi",
+   "Tanizaki Pan",
+   "Tomato-Kago",
+   "Tora Hygiene",
+   "Umami no Kami",
+   "Unmei-dō",
+   "Ushi-Ushi Milch",
+   "Yomu-Yomu Shoten",
+   "Yūhi Bräu",
+   "Zuru Zuru Shokuhin"
+  ]
+ }
+}

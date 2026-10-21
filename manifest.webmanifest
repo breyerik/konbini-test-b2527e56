@@ -1,0 +1,30 @@
+{
+ "name": "Konbini Empire",
+ "short_name": "Konbini",
+ "description": "Tycoon-Spiel \u00fcber Konbini in Tokio (Prototyp)",
+ "start_url": "./index.html",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "any",
+ "background_color": "#FFF8EE",
+ "theme_color": "#FFF8EE",
+ "lang": "de",
+ "icons": [
+  {
+   "src": "grafik/app/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "grafik/app/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "grafik/app/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
