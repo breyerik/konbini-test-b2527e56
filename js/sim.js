@@ -1,6 +1,10 @@
 // Konbini Empire v2 – Wirtschaftssimulation
 import {SLOT_MIGRATION,PLAN_REV,lotSlot,OMA_SHOP,starterBuild,slotOpen,unlockedCount,PLAN_SLOTS,SAVE_KEY,START,MONTHS,CATS,DISTRICTS,DMAP,INIT_RIVALS,BASE_CUST,COST,PRICE,SERVICES,SVC_KEYS,SVC_TYPE_MUL,CHAINS,RIVALS,TRAITS,FAMILY,GIVEN_F,GIVEN_M,defaultLogo,START_CASH,BUILD_WEEKS,BUILD,EQUIP_KEYS,defaultBuild,buildCost,optPrice,MGR_TIERS,CAMPAIGNS,TIERS,tierOf,TAX,LOAN,CONV,STOCK_INIT,WARDS,AREAS,RIVAL_START,MGR_STD_SALARY} from './data.js';
 import {GFX} from './gfx.js';
+import * as SO from './sortiment.js';
+const SOK=(s,k)=>s.chain!=='player'||SO.offen(state,k);
+const SOW=(s,k)=>s.chain!=='player'||!SO.K.ON?1:SO.offen(state,k)?SO.breite(state,k):(SO.K.ERSATZ_ART==='kunden'?SO.K.ERSATZ:SO.K.KUNDEN_SANFT);// Gewicht für Kundenzahl/Auswahl
+function ersatz(s,d){if(s.chain!=='player'||!SO.K.ON||SO.K.ERSATZ_ART!=='umsatz')return 1;let all=0,zu=0;for(const k of CATS){const v=k.p*k.price*d.w[k.id];all+=v;zu+=v*(1-SO.breite(state,k.id));}const l=all?zu/all:0;return 1+SO.K.ERSATZ*l/Math.max(.2,1-l);}// Sortiment-Freischaltung nur für den Spieler
 import {EVENTS,EVENT_RULES,RIVAL_RULES} from './events_data.js';
 import {F as FELD,CITY} from './plan.js';
 export const rnd=(a,b)=>a+Math.random()*(b-a);
@@ -57,11 +61,12 @@ export const CALIB={k:.62}; // Gesamt-Kalibrierung der Umsätze (aus Bobs Simula
 export function rivalCfg(){return{cats:Object.fromEntries(CATS.map(c=>[c.id,true])),price:1,night:true}}
 export function playerCfg(){return{cats:Object.fromEntries(CATS.map(c=>[c.id,true])),px:{},night:true,svc:{},svcSince:{},camps:{}}}
 export function newState(logo){
- const s={v:5,city:CITY.id,planRev:PLAN_REV,logo:logo||defaultLogo(),week:1,cash:START_CASH,loan:0,loanPay:0,rep:10,nextId:1,stores:[],campaigns:[],hist:[],news:[],paper:[],milestones:{},cum:{rev:0,profit:0},lastReport:null,flow:{inv:0,fin:0},lossCF:0,tut:{},tutOff:false,taxCut:true};
+ const s={v:5,city:CITY.id,planRev:PLAN_REV,logo:logo||defaultLogo(),week:1,sortiment:SO.K.ON?{art:Object.fromEntries(SO.K.START.map(a=>[a.id,{name:a.name,cat:a.cat}]))}:null,cash:START_CASH,loan:0,loanPay:0,rep:10,nextId:1,stores:[],campaigns:[],hist:[],news:[],paper:[],milestones:{},cum:{rev:0,profit:0},lastReport:null,flow:{inv:0,fin:0},lossCF:0,tut:{},tutOff:false,taxCut:true};
  // v3.1: alle Ketten starten ohne Läden; die Plan-Läden sind nur mögliche Standorte
  // v3.2: Spieler übernimmt „Omas Laden“ (fertig gebaut, schlichte Ausstattung, 1–2 Aushilfen, keine Nachtschicht)
  {const sh=OMA_SHOP,b=starterBuild(),cfg=playerCfg();
-  s.stores.push({id:s.nextId++,chain:'player',d:sh.d,slot:sh.i,tier:sh.tier,no:1,oma:true,starter:true,name:'Omas Laden',opened:1,build:0,cfg,b,mgr:omaManager(),deleg:{staff:false,prod:false,mkt:false,inc:false},deposit:0,invest:Math.round(buildCost(b)*.4),bh:{sauber:3,frische:3,service:3,auswahl:3,overall:3}});}
+  s.stores.push({id:s.nextId++,chain:'player',d:sh.d,slot:sh.i,tier:sh.tier,no:1,oma:true,starter:true,name:'Omas Laden',opened:1,build:0,cfg,b,mgr:null,// Erik 22.10.: Filialleitung zum Start frei (Tutorial: einstellen)
+  deleg:{staff:false,prod:false,mkt:false,inc:false},deposit:0,invest:Math.round(buildCost(b)*.4),bh:{sauber:3,frische:3,service:3,auswahl:3,overall:3}});}
  placeStartRivals(s);
  return s;
 }
@@ -199,7 +204,7 @@ export function ghostRound(g){return Math.max(1,Math.min(5,Math.round(g*2)/2));}
 export function rateStore(s,r){
  const fx=storeFx(s),m=fx.m,inn=OPT(s,'inn'),fr=OPT(s,'fridge'),pos=OPT(s,'pos'),self=OPT(s,'self'),sh=OPT(s,'shelf'),cf=OPT(s,'coffee');
  const cl=x=>Math.max(1,Math.min(5,x));
- const offered=CATS.filter(k=>s.cfg.cats[k.id]&&!(k.id==='coffee'&&!cf)&&!(k.id==='oden'&&s.b.oden<0)).length/CATS.length;
+ const offered=sum(CATS.filter(k=>s.cfg.cats[k.id]&&!(k.id==='coffee'&&!cf)&&!(k.id==='oden'&&s.b.oden<0)).map(k=>SOW(s,k.id)))/CATS.length;
  const extras=['fryer','steamer','smoothie','hot'].filter(k=>s.b[k]>=0).length;
  const avgpx=sum(CATS.map(k=>(s.cfg.px&&s.cfg.px[k.id])||1))/CATS.length;
  const n={sauber:cl(.9+.35*(inn?inn.q:3)+.35*m.eth),
@@ -233,16 +238,16 @@ function runStore(s,d,ev,custExp,cust,events){
  const queue=cust>0?(cust-served)/cust:0,ratio=served/custExp;
  let rev=0,cogs=0,waste=0,wasteU=0,stockU=0,demU=0,lostU=0;const cats={};
  const sa=saisonFor(ev),cut=foodTaxCut();
- const wk=s.cfg.camps||{};
+ const wk=s.cfg.camps||{};const ers=ersatz(s,d);
  for(const k of CATS){
-  if(!c.cats[k.id]||(k.id==='coffee'&&s.b.coffee<0)||(k.id==='oden'&&s.b.oden<0))continue;
-  let price=k.price,costR=k.cost,unitsF=1,fresh=k.fresh;
+  if(!c.cats[k.id]||!SOK(s,k.id)||(k.id==='coffee'&&s.b.coffee<0)||(k.id==='oden'&&s.b.oden<0))continue;
+  let price=k.price,costR=k.cost,unitsF=1,fresh=k.fresh;if(s.chain==='player'){const pp=SO.preis(state,k);if(pp){unitsF*=Math.pow(k.price/pp.price,SO.K.PREIS_MENGE);price=pp.price;costR=pp.cost;}}
   if(k.id==='saison'){price=sa.price;costR=sa.cost;unitsF=sa.f*Math.min(1.5,Math.max(.08,300/price));if(sa.preorder)fresh=false;}
   const sfac=seasonFactor(k,ev);if(sfac<=0)continue;
   const pxm=(c.px&&c.px[k.id])||1;
   let campCat=1,campWaste=1;for(const id in wk){const cp=CAMPAIGNS.find(x=>x.id===id);if(!cp)continue;if(cp.cat&&cp.cat[k.id])campCat*=cp.cat[k.id];if(cp.waste)campWaste*=cp.waste[k.id]||cp.waste.all||1;}
   const elast=Math.pow(1/pxm,1.1*(.5+d.ps*.5));
-  const dem=custExp*ratio*k.p*d.w[k.id]*sfac*unitsF*(ev.cm[k.id]||1)*(fx.cm[k.id]??1)*campCat*elast*(cut&&k.id!=='alltag'?1.05:1)*CALIB.k;
+  const dem=custExp*ratio*k.p*d.w[k.id]*sfac*unitsF*(ev.cm[k.id]||1)*(fx.cm[k.id]??1)*campCat*elast*(cut&&k.id!=='alltag'?1.05:1)*CALIB.k*(s.chain==='player'?SO.breite(state,k.id)*ers:1);
   const act=dem*rnd(.9,1.1),uc=price*costR;let sold=act;
   if(fresh){const stock=Math.max(0,act*(1+gauss()*m.sigma))*1.04;sold=Math.min(stock,act);const w=(stock-sold)*campWaste;waste+=w*uc;wasteU+=w;stockU+=stock;lostU+=act-sold;demU+=act;}
   const inn=OPT(s,'inn');sold*=1+((inn?inn.q:3)-3)*.015;const r=sold*price*pxm*m.basket;rev+=r;cogs+=sold*uc;cats[k.id]=r;
@@ -262,8 +267,8 @@ function custFor(s,d,ev){
  let camp=1;const wk=s.cfg.camps||{};for(const id in wk){const cp=CAMPAIGNS.find(x=>x.id===id);if(cp){camp*=1+(cp.cust||0)*(cp.decay&&wk[id].left<(cp.dur||1)?.5:1)*(cp.big&&['station','office'].includes(d.type)?cp.big:1);if(cp.night&&s.cfg.night)camp*=1+cp.night*d.night;if(cp.tourist&&d.type==='tourist')camp*=1+cp.tourist;}}
  let sb=0;for(const k of SVC_KEYS)if(s.cfg.svc[k])sb+=SERVICES[k].bonus*Math.sqrt((SVC_TYPE_MUL[k]||{})[d.type]||1);
  const avgpx=sum(CATS.map(k=>(s.cfg.px&&s.cfg.px[k.id])||1))/CATS.length;
- const offered=CATS.filter(k=>s.cfg.cats[k.id]&&!(k.id==='coffee'&&s.b.coffee<0)&&!(k.id==='oden'&&s.b.oden<0));
- const tot=sum(CATS.map(k=>k.p*k.price*d.w[k.id])),off=sum(offered.map(k=>k.p*k.price*d.w[k.id]));
+ const offered=CATS.filter(k=>s.cfg.cats[k.id]&&SOK(s,k.id)&&!(k.id==='coffee'&&s.b.coffee<0)&&!(k.id==='oden'&&s.b.oden<0));
+ const tot=sum(CATS.map(k=>k.p*k.price*d.w[k.id])),off=sum(offered.map(k=>k.p*k.price*d.w[k.id]))+sum(CATS.filter(k=>s.cfg.cats[k.id]&&!SOK(s,k.id)).map(k=>k.p*k.price*d.w[k.id]*(SO.K.ERSATZ_ART==='kunden'?SO.K.ERSATZ:SO.K.KUNDEN_SANFT)));
  let a=si.pass*CONV*ghostMul(s.bh?s.bh.overall:3)*brand('player')*(ev.tm[d.type]||1)*(ev.tm.all||1)*(1-rivalLoss(s))*evMul(s)/(1+.12*own)*ramp*camp*(1+sb*d.svc)*(1+fx.attr)*m.sf/.94;
  a*=Math.max(.5,1-(avgpx-1)*1.2*d.ps);a*=.5+.5*(off/tot);
  if(state.campaigns.some(x=>x.chain==='player'))a*=1;
@@ -280,7 +285,7 @@ export function rivalLoss(s){const R=RIVAL_RULES;let l=0,nearUsed=false;const ac
 const evHit=(e,s)=>e.ziel==='alle'||(e.ziel==='laden'&&e.sid===s.id)||(e.ziel==='stadtteil'&&e.d===s.d);
 export function evSum(s,k,def){let m=def;for(const e of state.evMods||[]){if(e.left<=0||e[k]==null||!evHit(e,s))continue;m=k==='marge'||k==='cashWk'?m+e[k]:m*e[k];}return m;}
 export function evMul(s){let m=1;for(const e of state.evMods||[]){if(e.left<=0||e.cust==null)continue;if(e.ziel==='alle'||(e.ziel==='laden'&&e.sid===s.id)||(e.ziel==='stadtteil'&&e.d===s.d))m*=e.cust;}return m;}
-const GROUP={coffee:'heiss',oden:'heiss',drinks:'kalt',onigiri:'essen',bento:'essen',brot:'essen',saison:'essen',snacks:'sonst',alltag:'sonst'};
+const GROUP={tee:'heiss',coffee:'heiss',oden:'heiss',drinks:'kalt',onigiri:'essen',bento:'essen',brot:'essen',saison:'essen',snacks:'sonst',alltag:'sonst'};
 export function endWeek(){
  const w=state.week,ev=seasonInfo(w);
  const rep={week:w,date:dateLabel(weekDate(w)),ev:{label:ev.label,emoji:ev.emoji,desc:ev.desc},stores:[],news:[],tips:[],events:[],share:{},milestones:[],opened:[],closed:[],ready:[],paper:[]};
@@ -444,7 +449,8 @@ export function offerResult(m,salary){const ratio=salary/m.expect;if(ratio>=1)re
 export function fireManager(s){if(!s.mgr)return;const c=Math.round(s.mgr.salary/52*2);state.cash-=c;s.mgr=null;s.deleg={staff:false,prod:false,mkt:false,inc:false};save();return c;}
 export function designOf(s){
  const b=s.b||defaultBuild(),sm=b.coffee;
- return {facade:s.facade||'brand',building:b.fac===0?0:b.fac===1?1:0,sign:b.fac===1?2:b.fac===2?1:0,awning:b.fac===2?3:b.fac===0?2:1,layout:1,shelves:b.fridge>=2?2:0,counter:b.self>=0?2:b.pos>=1?1:0,coffee:sm<0?0:sm>=2?2:1,eatin:b.inn===2?2:b.inn===1?1:0,lighting:b.inn===1?2:b.inn===2?1:0,owned:{}};
+ return {facade:s.facade||'brand',building:b.fac===0?0:b.fac===1?1:0,sign:b.fac===1?2:b.fac===2?1:0,awning:0,// Erik 22.10. 18:12: Markise weg (Spielerladen)
+ layout:1,shelves:b.fridge>=2?2:0,counter:b.self>=0?2:b.pos>=1?1:0,coffee:sm<0?0:sm>=2?2:1,eatin:b.inn===2?2:b.inn===1?1:0,lighting:b.inn===1?2:b.inn===2?1:0,owned:{}};
 }
 
 /* ---------- Rivalen eröffnen (bevorzugt nahe Spieler-Filialen) ---------- */

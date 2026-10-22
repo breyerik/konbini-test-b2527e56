@@ -7,6 +7,7 @@ import * as S from './sim.js';
 import * as FZ from './finanzen.js';
 import * as BU from './buero.js';
 import * as PV from './privat.js';
+import * as SO from './sortiment.js';
 import * as NK from './neueketten.js';
 import * as BF from './bahnhof.js';
 import {GFX,loadGfx,has,svgColored,svgURL} from './gfx.js';
@@ -54,7 +55,7 @@ const sheetOpen=()=>document.body.classList.contains('sheet');
 
 const GH=(g,size=22)=>{let h='';for(let i=1;i<=5;i++){const k=g>=i?'voll':g>=i-.5?'halb':'leer';h+=`<img src="grafik/bewertung/geist-${k}.svg" width="${size}" height="${size}" alt="">`;}return `<span class="gh">${h}</span>`;};
 const bar100=v=>`<div class="sk"><i style="width:${Math.round(v*20)}%"></i></div>`;
-const groupOf={coffee:'heiss',oden:'heiss',drinks:'kalt',onigiri:'essen',bento:'essen',brot:'essen',saison:'essen',snacks:'sonst',alltag:'sonst'};
+const groupOf={tee:'heiss',coffee:'heiss',oden:'heiss',drinks:'kalt',onigiri:'essen',bento:'essen',brot:'essen',saison:'essen',snacks:'sonst',alltag:'sonst'};
 const GROUPS=[['heiss','🔥 Heiß'],['kalt','🧊 Kalt'],['essen','🍙 Essen'],['sonst','🛒 Sonstiges']];
 const starsN=(n)=>`<span class="stars">${'★'.repeat(n)}<i>${'★'.repeat(5-n)}</i></span>`;
 const si=(did,slot)=>S.siteInfo(did,slot);
@@ -226,7 +227,7 @@ function openStoreSheet(id){
  $('#sheet').dataset.sid=id;$('#sheet').dataset.tab=T;if(same)$('#sheet').scrollTop=keep;
  syncPv();
  const pv=$('#pv');requestAnimationFrame(()=>{previewMode(pvMode);storePreview(pv,'player',st().logo,S.designOf(s));pv.appendChild(pv.querySelector('.pvt'));});
- if(T==='service')tut(s.build?'personal':'buuhuu');else if(T==='product')tut('sortiment');else if(T==='mkt')tut('marketing');
+ if(T==='service')tut(s.build||!s.mgr?'personal':'buuhuu');else if(T==='product')tut('sortiment');else if(T==='mkt')tut('marketing');
 }
 function storeService(s){
  const bh=s.bh,m=s.mgr,l=s.last;
@@ -275,16 +276,17 @@ function storeServices(s,d){
 function storeProduct(s){
  const g=ui.pgroup||'heiss',ev=S.seasonInfo(st().week),sa=S.saisonFor(ev),l=s.last,cats=D.CATS.filter(k=>groupOf[k.id]===g);
  const cards=cats.map(k=>{
-  const na=S.seasonFactor(k,ev)<=0||(k.id==='coffee'&&s.b.coffee<0)||(k.id==='oden'&&s.b.oden<0),on=s.cfg.cats[k.id]&&!na;
-  const pxm=(s.cfg.px&&s.cfg.px[k.id])||1,base=k.id==='saison'?sa.price:k.price,cr=k.id==='saison'?sa.cost:k.cost,price=Math.round(base*pxm),unit=Math.round(base*cr),mg=Math.max(0,1-unit/price);
-  const sub=na?(k.id==='coffee'?'Keine Kaffeemaschine':k.id==='oden'?'Kein Oden-Topf':'Jetzt nicht im Angebot'):(k.id==='saison'?esc(sa.name):(k.items?k.items.length+' Artikel':''));
-  return `<div class="prod ${on?'':'off'}"><div class="pimg">${catIcon(k,84)}</div><b class="pn">${k.name}</b><small class="ps2">${sub}${k.fresh?' · frisch':''}</small>
+  const lock=!SO.offen(st(),k.id),na=lock||S.seasonFactor(k,ev)<=0||(k.id==='coffee'&&s.b.coffee<0)||(k.id==='oden'&&s.b.oden<0),on=s.cfg.cats[k.id]&&!na;
+  const so=SO.ensure(st()),an=so.alle?null:SO.arts(st(),k.id).map(a=>a.name),artTxt=an?(an.length>2?an.slice(0,2).join(', ')+' +'+(an.length-2):an.join(', ')):null;
+  const pxm=(s.cfg.px&&s.cfg.px[k.id])||1,pp=SO.preis(st(),k),base=k.id==='saison'?sa.price:pp?pp.price:k.price,cr=k.id==='saison'?sa.cost:pp?pp.cost:k.cost,price=Math.round(base*pxm),unit=Math.round(base*cr),mg=Math.max(0,1-unit/price);
+  const sub=lock?'🔒 per Markenverhandlung freischalten':na?(k.id==='coffee'?'Keine Kaffeemaschine':k.id==='oden'?'Kein Oden-Topf':'Jetzt nicht im Angebot'):(k.id==='saison'?esc(sa.name):artTxt!=null?esc(artTxt):(k.items?k.items.length+' Artikel':''));
+  return `<div class="prod ${on?'':'off'}"><div class="pimg">${catIcon(k,84)}</div><b class="pn">${an&&an.length===1&&k.id==="drinks"?esc(an[0]):k.name}</b><small class="ps2">${sub}${k.fresh?' · frisch':''}</small>
   <div class="prow"><button class="tgl ${on?'on':''}" data-act="cat" data-id="${s.id}" data-k="${k.id}" ${na?'disabled':''}><i></i></button><span>Im Menü</span><div class="lw"><small>Umsatz letzte Woche</small><b>${l&&l.cats&&l.cats[k.id]?fmtY(l.cats[k.id]):'0'}</b></div></div>
   <div class="prow"><div class="donut" style="--p:${Math.round(mg*100)}"><b>Marge<br>${Math.round(mg*100)} %</b></div><div class="grow"><small class="cost">Stückkosten ${unit} ¥</small><div class="step sm"><button data-act="px" data-id="${s.id}" data-k="${k.id}" data-v="-1">−</button><div><b>${price} ¥</b></div><button data-act="px" data-id="${s.id}" data-k="${k.id}" data-v="1">＋</button></div></div></div></div>`}).join('');
  const dg=s.deleg&&s.deleg.prod&&s.mgr;
  return `<div class="gtabs">${GROUPS.map(([k,l])=>`<button class="${g===k?'on':''}" data-act="pgroup" data-v="${k}">${l}</button>`).join('')}</div>
  ${dg?`<div class="tip ok">👔 ${esc(s.mgr.name)} kümmert sich um Bestellmengen und Preise. Du kannst trotzdem eingreifen.</div>`:''}
- <div class="ptrack">${cards}</div><div class="tip">🗑️ Frische Ware, die nicht verkauft wird, wandert in den Müll. Behalte Abschrift und Ausverkauf im Auge.</div>`;
+ <div class="ptrack">${cards}</div>${cats.some(k=>["onigiri","bento","oden"].includes(k.id)&&SO.offen(st(),k.id))?'<div class="tip">🗑️ Frische Ware, die nicht verkauft wird, wandert in den Müll. Behalte Abschrift und Ausverkauf im Auge.</div>':''}`;
 }
 function storeMarketing(s){
  const ev=S.seasonInfo(st().week);
@@ -467,7 +469,7 @@ function showIntro(view){
  const lt=latestSlot();
  const html=SC.screen({name:'start',cls:'start',mutate:root=>{if(!lt)for(const g of root.querySelectorAll('[data-nur-mit-spielstand="true"]'))g.remove();},
   buttons:[...(lt?[{x:170,y:1430,w:740,h:140,act:'loadslot',v:lt.slot,label:'▶ '+T.weiter}]:[]),{x:170,y:1610,w:740,h:120,act:'newgame',label:T.neues_spiel},{x:170,y:1780,w:740,h:110,act:'loadmenu',label:T.laden,disabled:!has,cls:has?'':'dim'}],
-  extra:`<div class="scrfoot">${has?'':esc(T.kein_spielstand)+'<br>'}Prototyp V5 · alle Marken sind fiktive Parodien</div>`});
+  extra:`<div class="scrfoot">${has?'':esc(T.kein_spielstand)+'<br>'}Prototyp V5.1 · alle Marken sind fiktive Parodien</div>`});
  introShow(html,'linear-gradient(180deg,#5B4B8A 50%,#6B6F80 50%)');
 }
 // Klickflächen der Slot-Karten
@@ -485,7 +487,7 @@ function showIntroPlain(view){
  <button class="btn full" data-act="loadmenu" ${has?'':'disabled'} aria-disabled="${!has}">${esc(T.laden)}</button>${has?'':`<small style="display:block;margin-top:6px;color:var(--mut)">${esc(T.kein_spielstand)}</small>`}`;}
  $('#intro').classList.remove('scrmode');
  $('#intro').innerHTML=`<div class="introcard"><div class="brandmark">コンビニ</div><div class="title">KONBINI EMPIRE</div>${body}
- <div style="color:var(--mut);font-size:11px;margin-top:14px;font-weight:700">Prototyp V5 · alle Marken sind fiktive Parodien</div></div>`;
+ <div style="color:var(--mut);font-size:11px;margin-top:14px;font-weight:700">Prototyp V5.1 · alle Marken sind fiktive Parodien</div></div>`;
  $('#intro').classList.add('show');
 }
 function logoEditor(mode){

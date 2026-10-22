@@ -135,3 +135,6 @@ body.fzopen #toast:not(.show){opacity:0;pointer-events:none}
 #fz .pvtitle{font-size:22px;font-weight:900;margin:6px 0 10px}
 #fz .pvtop .huge{font-size:30px!important;white-space:nowrap}#fz .pvart b{font-size:15px!important}
 #fz .pvart{padding:10px!important;box-sizing:border-box}
+/* Einzelprodukte je Firma (Erik 22.10.) */
+#fz .fzarts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}#fz .fzarts button.fzpill{font:inherit;font-size:13px;font-weight:900;padding:8px 12px;border:0;cursor:pointer}
+#fz .fzarts button.fzpill.k{background:#3A3778;color:#fff}#fz .fzarts button.fzpill.y{background:#FFC93C;color:#1E1B4B}#fz .fzarts button.fzpill.b{background:#3B82F6;color:#fff}#fz .fzarts .fzsm{flex-basis:100%}

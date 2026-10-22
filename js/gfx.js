@@ -61,7 +61,7 @@ export function applyPrices(rows){
  // Spalten: Produkt, Warengruppe, Verkaufspreis, Einkaufspreis, Haltbarkeit (in Tagen), Saisonfaktor, Verkaufspreis_netto …
  const agg={};
  for(const r of rows){
-  const k=CATS.find(c=>c.csv.toLowerCase()===(r['warengruppe']||'').trim().toLowerCase());
+  const k=/^grüntee/i.test(r['produkt']||'')?CATS.find(c=>c.id==='tee'):CATS.find(c=>c.csv.toLowerCase()===(r['warengruppe']||'').trim().toLowerCase());
   const vk=num(r['verkaufspreis_netto'])||num(r['verkaufspreis']),ek=num(r['einkaufspreis']);
   const hb=num(r['haltbarkeit (in tagen)']??r['haltbarkeit in tagen']??r['haltbarkeit']);
   if(!k||!(vk>0)||!(ek>0))continue;

@@ -12,7 +12,8 @@ export const CATS=[
  {id:'brot',name:'Sandwiches & Brot',csv:'Sandwiches/Brot',jp:'パン',emoji:'🥪',icon:'sandwich',p:.16,price:227,cost:.70,fresh:true,sf:{spring:1,summer:1,autumn:1,winter:1}},
  {id:'oden',name:'Oden',csv:'Oden',jp:'おでん',emoji:'🍢',icon:'oden',p:.10,price:146,cost:.50,fresh:true,sf:{spring:.4,summer:0,autumn:1.4,winter:2}},
  {id:'coffee',name:'Kaffee',csv:'Kaffee',jp:'コーヒー',emoji:'☕',icon:'kaffee',p:.26,price:169,cost:.25,fresh:false,sf:{spring:1,summer:.5,autumn:1.3,winter:1.6}},
- {id:'drinks',name:'Getränke',csv:'Getränke',jp:'飲み物',emoji:'🥤',icon:'getraenke',p:.62,price:151,cost:.65,fresh:false,sf:{spring:1,summer:1.6,autumn:.9,winter:.5}},
+ {id:'tee',name:'Tee',csv:'Tee',jp:'お茶',emoji:'🍵',icon:'tee',p:.14,price:162,cost:.62,fresh:false,sf:{spring:1,summer:1.1,autumn:1,winter:1}},// Erik 22.10.: Tee eigenes Start-Produkt, aus Getränke herausgelöst (p .62 → .48 + .14)
+ {id:'drinks',name:'Getränke',csv:'Getränke',jp:'飲み物',emoji:'🥤',icon:'getraenke',p:.48,price:151,cost:.65,fresh:false,sf:{spring:1,summer:1.6,autumn:.9,winter:.5}},
  {id:'snacks',name:'Snacks & Heißes',csv:'Snacks/Süßes',jp:'おやつ',emoji:'🍫',icon:'snacks',p:.55,price:221,cost:.60,fresh:false,sf:{spring:1,summer:1,autumn:1,winter:1}},
  {id:'saison',name:'Saisonware',csv:'Saisonware',jp:'季節限定',emoji:'🌸',icon:'saisonware',p:.12,price:300,cost:.70,fresh:true,sf:{spring:1,summer:1,autumn:1,winter:1}},
  {id:'alltag',name:'Alltagsartikel',csv:'Alltagsartikel',jp:'日用品',emoji:'🧴',icon:'alltagsartikel',p:.22,price:449,cost:.65,fresh:false,sf:{spring:1,summer:1.4,autumn:1.2,winter:.7}},
@@ -20,12 +21,12 @@ export const CATS=[
 export const CATMAP=Object.fromEntries(CATS.map(c=>[c.id,c]));
 // Gewichtung der Warengruppen je Viertel-Typ
 export const TYPE_W={
- station:{onigiri:1.3,bento:1,brot:1.3,oden:.8,coffee:1.35,drinks:1.35,snacks:1.1,saison:1,alltag:1},
- office:{onigiri:1.2,bento:1.6,brot:1.3,oden:.7,coffee:1.6,drinks:1,snacks:.9,saison:.8,alltag:.8},
- uni:{onigiri:1.45,bento:1.05,brot:1.2,oden:.8,coffee:1,drinks:1.3,snacks:1.4,saison:.9,alltag:.8},
- tourist:{onigiri:1.25,bento:.9,brot:1,oden:1.1,coffee:.9,drinks:1.3,snacks:1.2,saison:1.6,alltag:1.1},
- nightlife:{onigiri:1.1,bento:.7,brot:.8,oden:.9,coffee:.8,drinks:1.6,snacks:1.3,saison:1,alltag:1.3},
- residential:{onigiri:1,bento:1.15,brot:1.1,oden:1.35,coffee:.8,drinks:1,snacks:1,saison:1,alltag:1.3},
+ station:{onigiri:1.3,bento:1,brot:1.3,oden:.8,coffee:1.35,drinks:1.35,tee:1.35,snacks:1.1,saison:1,alltag:1},
+ office:{onigiri:1.2,bento:1.6,brot:1.3,oden:.7,coffee:1.6,drinks:1,tee:1,snacks:.9,saison:.8,alltag:.8},
+ uni:{onigiri:1.45,bento:1.05,brot:1.2,oden:.8,coffee:1,drinks:1.3,tee:1.3,snacks:1.4,saison:.9,alltag:.8},
+ tourist:{onigiri:1.25,bento:.9,brot:1,oden:1.1,coffee:.9,drinks:1.3,tee:1.3,snacks:1.2,saison:1.6,alltag:1.1},
+ nightlife:{onigiri:1.1,bento:.7,brot:.8,oden:.9,coffee:.8,drinks:1.6,tee:1.6,snacks:1.3,saison:1,alltag:1.3},
+ residential:{onigiri:1,bento:1.15,brot:1.1,oden:1.35,coffee:.8,drinks:1,tee:1,snacks:1,saison:1,alltag:1.3},
 };
 export const TYPES={
  station:{label:'Bahnhof',icon:'🚉',color:'#20a4f3'},
@@ -214,7 +215,7 @@ export const BUILD_WEEKS=2;
 // q = Qualität 1–5, prod = Produktivität 1–5, n = Anzahl im Standardladen, dep = Abschreibung in Jahren
 export const BUILD={
  fac:{label:'Außenbereich',icon:'fassade',opts:[
-  {name:'Standard',price:2500000,q:2,dep:15,desc:'Schild, Markise, Beleuchtung',gfx:'iso_fac0'},
+  {name:'Standard',price:2500000,q:2,dep:15,desc:'Schild, Beleuchtung',gfx:'iso_fac0'},
   {name:'Neon-Tokio',price:3200000,q:4,dep:15,desc:'Leuchtreklame: +Nachtkunden',gfx:'iso_fac1',night:.12},
   {name:'Holz-Machiya (Japan Stil)',price:3800000,q:5,dep:15,desc:'Passt zu Asakusa: +Touristen',gfx:'iso_fac2',tourist:.12}]},
  inn:{label:'Innenbereich',opts:[

@@ -7,6 +7,8 @@ let S,H;// Sim-Modul und Helfer aus app.js (chainLogo, esc, rerender, toast)
 import * as NK from './neueketten.js';
 import * as BU from './buero.js';
 import * as PV from './privat.js';
+import * as SO from './sortiment.js';
+import * as WG from './wachstum_cfg.js';
 import * as UE from './uebernahme_cfg.js';
 import {NEUESTAEDTE} from './cities.js';
 const V={praemie:UE.PRAEMIE.standard,wochen:UE.LAUFZEIT.standard,div:PV.CFG.DIVIDENDE.standard,ein:PV.CFG.EINLAGE.start,einArt:PV.CFG.EINLAGE.standard,tab:'filialen',view:null,id:null,laufzeit:12,exkl:false,jahre:2,gebot:0,streu:25,kaufen:null};
@@ -51,6 +53,12 @@ const endDate=(y,n)=>{const e=new Date(y+n,C.VERTRAG_ENDE.monat-1,C.VERTRAG_ENDE
 const dl=d=>{d=new Date(d);return d.getDate()+'.'+(d.getMonth()+1)+'.';},dly=d=>dl(d)+new Date(d).getFullYear();
 const depotWert=fz=>Object.entries(fz.depot).reduce((a,[id,n])=>a+n*fz.kurse[id].k,0);
 const kreditSumme=(s,fz)=>s.loan+fz.kredite.reduce((a,k)=>a+k.rest,0);
+// Startkredit (Erik 16:29)
+function gewinn4(s){const h=s.hist.slice(-WG.STARTKREDIT.gewinnWochen);return h.length?h.reduce((a,x)=>a+x.net,0)/h.length:0;}
+function startKredit(s,fz){const K=WG.STARTKREDIT,zins=C.LEITZINS+K.zinsAufschlag,rate=annW(K.betrag,zins,K.jahre);
+ if(fz.startKredit)return {fertig:true,zins,rate};const frueh=s.week<K.abWoche,g=gewinn4(s);return {ok:!frueh&&g>0,frueh,g,zins,rate};}
+// Hersteller-Stufe: ab wie vielen Läden verhandelt die Firma (0 = ab Start)
+export function abLaeden(f){const w=(f.kurs||0)*(f.aktien||0);for(const t of WG.HERSTELLER_STUFEN)if(w>=t.abWert)return t.laeden;return 0;}
 function cf13(s){const h=s.hist.slice(-13);return h.length?h.reduce((a,x)=>a+x.net,0)/h.length:0;}
 const annW=(P,zins,jahre)=>{const i=zins/100/52,n=jahre*52;return i?P*i/(1-Math.pow(1+i,-n)):P/n;};
 const rateAll=(s,fz)=>fz.kredite.reduce((a,k)=>a+k.rate,0)+(s.loanPay||0)/52*0;
@@ -206,7 +214,7 @@ function pAngebot(s,fz){const c=V.id,ch=H.CHAINS[c],r=rvState(s,fz,c),w=rvWert(s
  <div class="fzyrs">${C.ANGEBOT.stufen.map(x=>`<button class="${Math.abs(x-f)<1e-6?'on':''}" data-act="fz" data-v="angebotf" data-x="${x}"><b>${Math.round(x*100)} %</b><small>${fY(w*x)}</small></button>`).join('')}</div>
  <div class="fzc fzline">Annahme-Chance <span class="grow"></span><b class="${ch2>=.5?'p':'n'}">${Math.round(ch2*100)} %</b></div>
  <div class="fzsm">Bei Absage ${C.ANGEBOT.sperreWochen} Wochen kein neues Angebot${r.sperre>0?` · gesperrt: noch ${r.sperre} Wo.`:''}</div>
- <button class="fzbtn full" data-act="fz" data-v="angebot" ${r.sperre>0?'disabled':''}>🤝 Angebot über ${fY(w*f)} senden</button>`;}
+ <button class="fzbtn full" data-act="fz" data-v="kaufsenden" ${r.sperre>0?'disabled':''}>🤝 Angebot über ${fY(w*f)} senden</button>`;}
 /* ---------- Wochen-Hook (aus sim.endWeek) ---------- */
 export function weekHook(s,rep,T){if(!ON)return;const fz=ensure(s);const w=s.week,d=S.weekDate(w);
  for(const f of FIRMEN){const q=fz.kurse[f.id],r=Math.random;const nk=q.k*Math.exp(f.vol/Math.sqrt(52)*gauss(r));q.ch=nk/q.k-1;q.k=nk;q.h.push(nk);if(q.h.length>30)q.h.shift();}
@@ -219,10 +227,11 @@ export function weekHook(s,rep,T){if(!ON)return;const fz=ensure(s);const w=s.wee
  for(const [id,m] of Object.entries(fz.messe))if(m.holder!=='player'&&d>new Date(m.ende))delete fz.messe[id];
  if(fz.ipo&&T.net>0){const div=PV.dividende(s,T.net);cash-=div;net-=div;}// Spieler: freiwillige Dividende (Erik 22:07), Rivalen bleiben bei 30 %
  if(fz.ipo){fz.pwert=(fz.pwert||[]).concat(companyValue(s,fz).wert).slice(-52);}
+ {const o=startKredit(s,fz);if(o.ok&&!fz.startKreditInfo){fz.startKreditInfo=s.week;const t=`🐾 Kobo: Die Bank gibt dir jetzt einen <b>Startkredit über ${fY(WG.STARTKREDIT.betrag)}</b> – genug für den zweiten Laden! (Finanzen › Börse › Kredite)`;if(rep.events)rep.events.push(t);news(s,{chain:'player',text:t});}}
  rvWeek(s,fz,rep);if(UE.ON)ueWoche(s,fz);
  s.cash+=cash;T.net+=net;rep.fz={cash,net,extra};}
 /* ---------- Aktionen ---------- */
-export function act(b){const s=S.state,fz=ensure(s),a=b.dataset.v,x=b.dataset.x;
+export function act(b){const s=S.state,fz=ensure(s),a=b.dataset.v,x=b.dataset.x;const v0=V.view+'|'+V.tab;
  switch(a){
  case 'tab':V.tab=x;V.view=null;V.zentrale=false;break;
  case 'back':V.view=V.view==='deal'||V.view==='bieten'?'messe':null;stopTimer();break;
@@ -235,7 +244,7 @@ export function act(b){const s=S.state,fz=ensure(s),a=b.dataset.v,x=b.dataset.x;
  case 'rvkauf':rvKauf(s,fz,FM[V.id].rival,+x);break;
  case 'kaufangebot':V.tab='konkurrenz';V.view='angebot';V.id=x;V.angebot=1.1;break;
  case 'angebotf':V.angebot=+x;break;
- case 'angebot':angebot(s,fz,V.id,V.angebot||1.1);break;
+ case 'kaufsenden':angebot(s,fz,V.id,V.angebot||1.1);break;// war 'angebot' – doppelt mit der Markenverhandlung (Bug Erik 22.10.)
  case 'kredite':V.view='kredite';break;
  case 'kaufen':V.kaufen=V.kaufen==='k'?null:'k';break;
  case 'verkaufen':V.kaufen=V.kaufen==='v'?null:'v';break;
@@ -243,18 +252,20 @@ export function act(b){const s=S.state,fz=ensure(s),a=b.dataset.v,x=b.dataset.x;
   if(V.kaufen==='k'){const cost=amt*(1+C.GEBUEHR_AKTIEN);if(cost>s.cash){H.toast('Nicht genug Geld 💸');break;}s.cash-=cost;fz.depot[f.id]=(fz.depot[f.id]||0)+amt/q.k;H.toast(`📈 ${f.name}: für ${fY(amt)} gekauft`);}
   else{const have=(fz.depot[f.id]||0)*q.k,v=Math.min(have,amt);if(v<=0){H.toast('Keine Aktien im Depot');break;}fz.depot[f.id]-=v/q.k;if(fz.depot[f.id]*q.k<1)delete fz.depot[f.id];fz.pending+=v*(1-C.GEBUEHR_AKTIEN);H.toast(`Verkauft – ${fY(v*(1-C.GEBUEHR_AKTIEN))} kommen nächste Woche`);}
   V.kaufen=null;S.save();break;}
+ case 'startkredit':{const o=startKredit(s,fz);if(!o.ok)break;const K=WG.STARTKREDIT;fz.kredite.push({bank:K.bank,betrag:K.betrag,rest:K.betrag,zins:o.zins,rate:o.rate,jahre:K.jahre,seit:s.week,start:true});fz.startKredit=s.week;s.cash+=K.betrag;S.save();H.toast(`🏦 Startkredit: ${fY(K.betrag)} – Zeit für Laden Nr. 2!`);break;}
  case 'kredit':{const bk=C.BANKEN.find(q=>q.id===x),o=bankOffer(s,fz,bk);if(!o.ok){H.toast('Dein Cashflow reicht für diese Bank noch nicht');break;}
   fz.kredite.push({bank:bk.id,betrag:o.bis,rest:o.bis,zins:o.zins,rate:o.rate,jahre:bk.jahre,seit:s.week});s.cash+=o.bis;S.save();H.toast(`🏦 ${FM[bk.id].name}: ${fY(o.bis)} Kredit`);break;}
- case 'marke':V.view='verhandeln';V.id=x;V.laufzeit=12;V.exkl=false;break;
+ case 'marke':{if(abLaeden(FM[x])>nStores(s)){V.view='zuklein';V.id=x;break;}V.view='verhandeln';V.id=x;V.laufzeit=12;V.exkl=false;const A=SO.artikel(FM[x]);const o=A.find(a=>!fz.vertraege[a.id])||A[0];V.art=o?o.id:null;break;}
+ case 'artikel':V.art=x;break;
  case 'exkl':V.exkl=!V.exkl;break;
- case 'angebot':{const o=inlandDeal(s,FM[V.id]);const e=new Date(S.weekDate(s.week));e.setMonth(e.getMonth()+V.laufzeit);
-  if(o.zahlung>s.cash){H.toast('Nicht genug Geld 💸');break;}s.cash-=o.zahlung;fz.vertraege[V.id]={typ:o.p[3],vk:o.p[1],net:o.net,ek:o.ek,ende:+e,exkl:V.exkl,seit:s.week};delete fz.verh[V.id];V.view=null;S.save();H.toast(`🤝 Vertrag mit ${FM[V.id].name}`);break;}
+ case 'angebot':{if(!FM[V.id]||!C.PRODUKT[FM[V.id].branche])break;const o=inlandDeal(s,FM[V.id]);const A=SO.artikel(FM[V.id]),art=A.find(a=>a.id===V.art)||A[0],key=art?art.id:V.id;if(fz.vertraege[key]){H.toast('Für diesen Artikel gibt es schon einen Vertrag');break;}const e=new Date(S.weekDate(s.week));e.setMonth(e.getMonth()+V.laufzeit);
+  if(o.zahlung>s.cash){H.toast('Nicht genug Geld 💸');break;}s.cash-=o.zahlung;fz.vertraege[key]={firma:V.id,artikel:art?art.name:null,typ:o.p[3],vk:o.p[1],net:o.net,ek:o.ek,ende:+e,exkl:V.exkl,seit:s.week};delete fz.verh[V.id];V.view=null;const neu=art&&SO.freischalten(s,art.id,art.name,art.cat);S.save();H.toast(`🤝 Vertrag mit ${FM[V.id].name}`+(neu?` · ✅ ${art.name} jetzt im Sortiment`:''));break;}
  case 'ablehnen':fz.verh[V.id]=1;V.view=null;break;
  case 'messe':V.view='messe';break;
  case 'stand':{const m=MM[x];V.id=x;V.jahre=2;if(m.art==='bieten'&&!(fz.messe[x]&&fz.messe[x].holder==='player')){if(!isApril(s)){V.view='deal';break;}startAuction(s,fz,m);V.view='bieten';}else V.view='deal';break;}
  case 'jahre':V.jahre=+x;if(V.view==='bieten'&&fz.auktion)fz.auktion.jahre=V.jahre;break;
  case 'deal':{const m=MM[V.id],o=messeDeal(s,m,V.jahre);if(!isApril(s)){H.toast('Messe-Verträge gibt es nur im April');break;}if(o.zahlung>s.cash){H.toast('Nicht genug Geld 💸');break;}
-  s.cash-=o.zahlung;fz.vertraege[m.id]={typ:m.typ,vk:m.vk,net:o.net,ek:o.ek,ende:+o.ende,exkl:true,seit:s.week,messe:true};fz.messe[m.id]={holder:'player',ende:+o.ende};V.view='messe';S.save();H.toast(`✅ ${m.name} bis ${dly(o.ende)}`);break;}
+  s.cash-=o.zahlung;fz.vertraege[m.id]={typ:m.typ,vk:m.vk,net:o.net,ek:o.ek,ende:+o.ende,exkl:true,seit:s.week,messe:true};fz.messe[m.id]={holder:'player',ende:+o.ende};SO.freischalten(s,'messe:'+m.id,m.prod,SO.K.MESSE_TYP[m.typ]||SO.katVon(m.prod));V.view='messe';S.save();H.toast(`✅ ${m.name} bis ${dly(o.ende)}`);break;}
  case 'auslaufen':V.view='messe';H.toast('Vertrag läuft am '+dl(endDate(fairYear(s),0))+' aus');break;
  case 'gebot':V.gebot=Math.max(C.BIETEN.schritt,V.gebot+(+x)*C.BIETEN.schritt);break;
  case 'bieten':bid(s,fz);break;
@@ -269,7 +280,7 @@ export function act(b){const s=S.state,fz=ensure(s),a=b.dataset.v,x=b.dataset.x;
  case 'neukette':V.tab='konkurrenz';V.view='neukette';V.id=x;break;
  case 'ipostart':{const r=ipoReq(s,fz);if(!r.ok){H.toast('Voraussetzungen noch nicht erfüllt');break;}const cap=r.wert*V.streu/100*(1-C.IPO.gebuehr);s.cash+=cap;fz.ipo={streu:V.streu,week:s.week,cap,dividende:V.div};S.save();H.toast(`🔔 Börsengang: ${fY(cap)}`);break;}
  }
- H.rerender();}
+ H.rerender();if(v0!==V.view+'|'+V.tab){const el=document.getElementById('fz');if(el){el.scrollTop=0;requestAnimationFrame(()=>{el.scrollTop=0;});}}}
 export function onInput(el){const k=el.dataset.fzin;if(k==='laufzeit')V.laufzeit=+el.value;if(k==='streu')V.streu=+el.value;if(k==='praemie')V.praemie=+el.value;if(k==='wochen')V.wochen=+el.value;if(k==='div'){V.div=+el.value;const fz=ensure(S.state);if(fz.ipo&&V.view==='vermoegen')fz.ipo.dividende=V.div;}H.rerender();}
 /* ---------- Deals ---------- */
 function inlandDeal(s,f){const p=C.PRODUKT[f.branche],n=nStores(s),si=stufeIdx(n),tp=tierPrices(ekBase(s,p[3],p[1],p[2])),net=netVK(s,p[3],p[1]);
@@ -294,7 +305,7 @@ function tick(s,fz){const a=fz.auktion;if(!a||V.view!=='bieten'){stopTimer();ret
  if(!a.bids.length){if(Date.now()>=a.ends){stopTimer();fz.auktion=null;V.view='messe';H.toast('Keine Gebote – Stand bleibt frei');S.save();H.rerender();}return;}const now=Date.now(),top=a.bids.reduce((p,b)=>b.v>p.v?b:p,a.bids[0]);
  if(top.c==='player'){for(const b of a.bids)if(b.c!=='player'&&b.max>=top.v+C.BIETEN.schritt&&now-top.t>1500){b.v=top.v+C.BIETEN.schritt;b.t=now;a.ends=Math.max(a.ends,now+6000);break;}}
  if(now>=a.ends){stopTimer();const w=a.bids.reduce((p,b)=>b.v>p.v?b:p,a.bids[0]),m=MM[a.id],ende=endDate(fairYear(s),a.jahre);
-  if(w.c==='player'){const o=messeDeal(s,m,a.jahre);s.cash-=w.v;fz.vertraege[m.id]={typ:m.typ,vk:m.vk,net:o.net,ek:o.ek,ende:+ende,exkl:true,seit:s.week,messe:true};fz.messe[m.id]={holder:'player',ende:+ende};H.toast(`🔨 Zuschlag: ${m.name} für ${fY(w.v)}`);}
+  if(w.c==='player'){const o=messeDeal(s,m,a.jahre);s.cash-=w.v;fz.vertraege[m.id]={typ:m.typ,vk:m.vk,net:o.net,ek:o.ek,ende:+ende,exkl:true,seit:s.week,messe:true};fz.messe[m.id]={holder:'player',ende:+ende};SO.freischalten(s,'messe:'+m.id,m.prod,SO.K.MESSE_TYP[m.typ]||SO.katVon(m.prod));H.toast(`🔨 Zuschlag: ${m.name} für ${fY(w.v)}`);}
   else{fz.messe[m.id]={holder:w.c,ende:+ende};if(NK.cfg(w.c))NK.messeGewonnen(s,w.c);H.toast(`🔨 ${H.CHAINS[w.c]?H.CHAINS[w.c].name:w.c} bekommt ${m.name}`);}
   fz.auktion=null;V.view='messe';S.save();}
  H.rerender();}
@@ -351,33 +362,44 @@ function pFirma(s,fz){const f=FM[V.id],q=fz.kurse[f.id],n=fz.depot[f.id]||0,an=n
  ${V.kaufen?`<div class="fzc fzline">${V.kaufen==='k'?'Kaufen für':'Verkaufen für'}<span class="grow"></span>${amts.map(a=>`<button class="fzbtn s" data-act="fz" data-v="order" data-x="${a}">${fY(a)}</button>`).join('')}</div><div class="fzsm">1 % Gebühr${V.kaufen==='v'?' · Geld kommt 1 Woche später':''} · Aktien zählen nicht als Kasse</div>`:''}
  <div class="fzbtns"><button class="fzbtn" data-act="fz" data-v="kaufen">Kaufen</button><button class="fzbtn d" data-act="fz" data-v="verkaufen">Verkaufen</button></div>`;}
 function pKredite(s,fz){const offers=C.BANKEN.map(b=>({b,o:bankOffer(s,fz,b)})),best=offers.filter(x=>x.o.ok).sort((a,b)=>a.o.zins-b.o.zins)[0],okN=offers.filter(x=>x.o.ok).length;
- return `<div class="fzc fzline col"><div><button class="fzlink" data-act="fz" data-v="back">◀ Börse</button> 🏦 <b>Banken</b> · <span class="${okN?'p':'n'}">${okN?`${okN===3?'alle 3 passen':okN+' passen'} zu deinem Cashflow ✅`:'noch keine Bank passt zu deinem Cashflow'}</span> · Leitzins BoJ ${de(C.LEITZINS,2)} %</div><div>Ø operativer Cashflow 13 Wo.: <b class="${cls(cf13(s))}">${fY(cf13(s))}/Wo.</b> · nötig ≥ ${de(C.CF_REGEL,1)} × Wochenrate</div></div>
+ return `<button class="fzlink" data-act="fz" data-v="back">◀ Börse</button>
+ ${(()=>{const o=startKredit(s,fz),K=WG.STARTKREDIT;if(o.fertig)return '';return `<div class="fzc fzbank ${o.ok?'best':''}"><div class="fzrow t">${logo(FM[K.bank].logo,56)}<div class="grow"><b>Startkredit</b><small>${FM[K.bank].name} · ${K.jahre} Jahre · für den zweiten Laden</small></div>${o.ok?'<span class="fzpill g">✅ frei</span>':'<span class="fzpill k">🔒 gesperrt</span>'}</div>
+  <div class="fzrow"><span>Betrag</span><b class="y">${fY(K.betrag)}</b></div><div class="fzrow"><span>Zins</span><b>${de(o.zins,2)} %</b></div><div class="fzrow"><span>Wochenrate</span><b>${fY(o.rate)}</b></div>
+  <div class="fzrow"><span>${o.frueh?'❌':'✅'} ab KW ${K.abWoche}</span><b>jetzt KW ${s.week}</b></div><div class="fzrow"><span>${o.g>0&&!o.frueh?'✅':o.g>0?'✅':'❌'} Ø Gewinn letzte ${K.gewinnWochen} Wo. > 0</span><b class="${o.g>0?"p":"n"}">${fY(o.g)}/Wo.</b></div>
+  <div class="fzsm">Startkredit-Regel: ab KW ${K.abWoche} bei positivem Gewinn. Die 1,5×-Cashflow-Regel der Banken gilt hier nicht.</div>
+  <button class="fzbtn" data-act="fz" data-v="startkredit" ${o.ok?'':'disabled'}>${o.ok?`Startkredit ${fY(K.betrag)} aufnehmen`:'noch gesperrt'}</button></div>`;})()}
+ <div class="fzc fzline col"><div>🏦 <b>Banken</b> · <span class="${okN?'p':'n'}">${okN?`${okN===3?'alle 3 passen':okN+' passen'} zu deinem Cashflow ✅`:'noch keine Bank passt zu deinem Cashflow'}</span> · Leitzins BoJ ${de(C.LEITZINS,2)} %</div><div>Ø operativer Cashflow 13 Wo.: <b class="${cf13(s)>0?'p':'n'}">${fY(cf13(s))}/Wo.</b> · nötig ≥ ${de(C.CF_REGEL,1)} × Wochenrate</div></div>
  ${offers.map(({b,o})=>{const f=FM[b.id];return `<div class="fzc fzbank ${best&&best.b===b?'best':''}"><div class="fzrow t">${logo(f.logo,56)}<div class="grow"><b>${f.name}</b><small>Laufzeit ${b.jahre} Jahre</small></div>${best&&best.b===b?'<span class="fzpill y">günstigster Zins</span>':''}</div>
   <div class="fzrow"><span>Zins</span><b>${de(o.zins,2)} %</b></div><div class="fzrow"><span>bis zu</span><b class="y">${fY(o.bis)}</b></div><div class="fzrow"><span>Wochenrate (voll)</span><b>${fY(o.rate)}</b></div>
   <button class="fzbtn" data-act="fz" data-v="kredit" data-x="${b.id}" ${o.ok?'':'disabled'}>${o.ok?'Kredit beantragen':'Cashflow reicht noch nicht'}</button></div>`;}).join('')}
  ${fz.kredite.length?`<div class="fzh">Laufende Kredite</div><div class="fzc fzlist">${fz.kredite.map(k=>`<div class="fzrow"><span>${FM[k.bank].name}</span><span>${fY(k.rest)} offen</span><span>${fY(k.rate)}/Wo.</span></div>`).join('')}</div>`:''}`;}
 function status(s,fz,id){const v=fz.vertraege[id],m=fz.messe[id];
+ if(FM[id]&&!MM[id]){const A=SO.artikel(FM[id]),n=A.filter(a=>fz.vertraege[a.id]||SO.hat(s,a.id)).length;if(n)return `<span class="fzpill b">✅ ${n}/${A.length} im Sortiment</span>`;}
  if(v)return '<span class="fzpill b">✅ Vertrag aktiv</span>';if(m&&m.holder!=='player')return `<span class="fzpill k">🔒 bei ${H.CHAINS[m.holder]?H.CHAINS[m.holder].name:m.holder}</span>`;
  if(fz.verh[id]===undefined&&!MM[id]&&FM[id]&&FM[id].branche==='Bier/Getränke')return '<span class="fzpill y">🤝 Verhandlung offen</span>';return '<span class="fzpill k">➕ Kein Vertrag</span>';}
 function pProdukte(s,fz){const inl=FIRMEN.filter(f=>C.PRODUKT[f.branche]&&!f.rival),y=year(s),d=S.weekDate(s.week),apr=isApril(s);
  const tage=Math.round((new Date(d.getMonth()>3||(d.getMonth()===3&&d.getDate()>16)?d.getFullYear()+1:d.getFullYear(),3,14)-d)/864e5);
- const rows=inl.map(f=>{const p=C.PRODUKT[f.branche];return `<button class="fzc fzfirm" data-act="fz" data-v="marke" data-x="${f.id}">${logo(f.logo,44)}<div class="grow"><b>${f.name}</b><small>${H.esc(f.branche)} · ${H.esc(p[0])}</small></div>${status(s,fz,f.id)}<span class="fzchev">›</span></button>`;});
+ const rows=inl.map(f=>{const p=C.PRODUKT[f.branche],A=SO.artikel(f),ab=abLaeden(f);if(ab>nStores(s))return `<button class="fzc fzfirm zu" data-act="fz" data-v="marke" data-x="${f.id}">${logo(f.logo,44)}<div class="grow"><b>${f.name}</b><small>${H.esc(A.length?A.map(a=>a.name).join(', '):f.branche)}</small><small class="n">Noch nicht interessiert · ab ${ab} Läden</small></div><span class="fzpill k">🔒 ab ${ab}</span><span class="fzchev">›</span></button>`;return `<button class="fzc fzfirm" data-act="fz" data-v="marke" data-x="${f.id}">${logo(f.logo,44)}<div class="grow"><b>${f.name}</b><small>${H.esc(A.length?A.map(a=>a.name).join(', '):f.branche+' · '+p[0])}</small></div>${status(s,fz,f.id)}<span class="fzchev">›</span></button>`;});
  const mrows=C.MESSE.marken.filter(m=>fz.vertraege[m.id]||fz.messe[m.id]).map(m=>`<button class="fzc fzfirm" data-act="fz" data-v="messe">${logo('grafik/logos/firmen/'+m.id+'.svg',44)}<div class="grow"><b>${m.name}</b><small>${m.prod} · ${m.land} · Messe-Marke</small></div>${status(s,fz,m.id)}<span class="fzchev">›</span></button>`);
  return `<div class="fzc fzline">🌸 <b>Marken-Messe</b>&nbsp;im April · 10 internationale Marken<span class="grow"></span><button class="fzlink y" data-act="fz" data-v="messe">${apr?'Jetzt geöffnet ›':'Einladung ›'}</button></div>
  <div class="fzh">Marken · ${inl.length+C.MESSE.marken.length} · tippen zum Verhandeln</div><div class="fzlist">${mrows.join('')}${rows.join('')}</div>${kobo('Tipp auf eine Marke, dann kannst du verhandeln!')}`;}
 function tierBox(tp,si,einheit,n){return `<div class="fzsub">🏷️ Einkaufspreis nach Filialzahl <small>/ ${einheit}</small></div><div class="fztiers">${C.STUFEN.map((t,i)=>`<div class="${i===si?'on':''}"><small>${t.bis>1e8?t.von+'+':t.von+'–'+t.bis} Läden</small><b>¥${tp[i]}</b>${i===si?`<small>◀ wir: ${n}</small>`:''}</div>`).join('')}</div><div class="fzsm">Mehr Läden = günstiger · keine Mindestmenge</div>`;}
 function ertrag(title,lines,netto,extra){return `<div class="fzc fzert ${netto<0?'neg':''}"><div class="fzsub ${netto<0?'n':'p'}">📊 ${title}</div>${lines.map(l=>`<div class="fzrow"><span>${l[0]}</span><b class="${l[2]||''}">${l[1]}</b></div>`).join('')}<div class="fzrow tot"><b>= Ergebnis</b><b class="${cls(netto)}">${fY(netto,1)} ${netto<0?'⚠️':'✅'}</b></div>${netto<0?'<div class="fzwarn">⚠️ Achtung: Verlust! Dieser Deal bringt weniger Mehrertrag, als er kostet.</div>':''}${extra||''}</div>`;}
-function pVerhandeln(s,fz){const f=FM[V.id],o=inlandDeal(s,f),p=o.p,marge=Math.round(o.net-o.ek),v=fz.vertraege[f.id];
+function pZuKlein(s,fz){const f=FM[V.id],ab=abLaeden(f),[nm,bild]=[['Frau Hayashi','sakura'],['Herr Tanaka','kenji'],['Frau Mori','emi'],['Herr Sato','hiroshi'],['Frau Ishida','aoi']][f.id.length%5];
+ return `<div class="fzc fzdet"><div class="fzav"><img src="grafik/filialleiter/${bild}.svg" alt="${nm}" width="76" height="76"></div><div class="grow"><button class="fzlink" data-act="fz" data-v="back">◀ Produkte</button><small>📞 Anfrage · Verkaufsleitung</small><b class="big">${nm}</b><small>${logo(f.logo,22)} ${f.name}</small></div></div>
+ <div class="fzquote">„${H.esc(WG.ZU_KLEIN.replace('{n}',ab))}“</div><div class="fzc"><div class="fzrow"><span>Deine Läden</span><b>${nStores(s)}</b></div><div class="fzrow"><span>Interesse ab</span><b class="y">${ab} Läden</b></div><div class="fzsm">Kleine Lieferanten verhandeln schon jetzt mit dir.</div></div>${kobo('Große Hersteller wollen erst eine größere Kette sehen. Wachse weiter!')}`;}
+function pVerhandeln(s,fz){const f=FM[V.id],o=inlandDeal(s,f),p=o.p,marge=Math.round(o.net-o.ek),A=SO.artikel(f),art=A.find(a=>a.id===V.art)||A[0],v=fz.vertraege[art?art.id:f.id];
+ const chips=A.length?`<div class="fzh">Produkte von ${H.esc(f.name)} · einzeln verhandeln</div><div class="fzc fzarts">${A.map(a=>{const on=a===art,hat=fz.vertraege[a.id]||SO.hat(s,a.id);return `<button class="fzpill ${on?'y':hat?'b':'k'}" data-act="fz" data-v="artikel" data-x="${a.id}">${hat?'✅ ':''}${H.esc(a.name)}</button>`;}).join(' ')}<div class="fzsm">Jedes verhandelte Produkt kommt ins Sortiment deiner Läden.</div></div>`:'';
  const [nm,bild]=[['Frau Hayashi','sakura'],['Herr Tanaka','kenji'],['Frau Mori','emi'],['Herr Sato','hiroshi'],['Frau Ishida','aoi']][f.id.length%5];// gezeichnete Porträts (Yuki, grafik/filialleiter)
- return `<div class="fzc fzdet"><div class="fzav"><img src="grafik/filialleiter/${bild}.svg" alt="${nm}" width="76" height="76"></div><div class="grow"><button class="fzlink" data-act="fz" data-v="back">◀ Produkte</button><small>🤝 Treffen · Verkaufsleitung</small><b class="big">${nm}</b><small>${logo(f.logo,22)} ${f.name} · ${H.esc(p[0])}</small></div></div>
- <div class="fzquote">„Unser ${H.esc(p[0].replace(/ \d.*$/,''))} wäre ideal für Ihre Läden. Mit ${H.ladenN(o.n)} sind Sie in Stufe ${C.STUFEN[o.si].bis>1e8?C.STUFEN[o.si].von+'+':C.STUFEN[o.si].von+'–'+C.STUFEN[o.si].bis}: <b>¥${o.ek}</b> pro ${p[4]}.“</div>
+ return `<div class="fzc fzdet"><div class="fzav"><img src="grafik/filialleiter/${bild}.svg" alt="${nm}" width="76" height="76"></div><div class="grow"><button class="fzlink" data-act="fz" data-v="back">◀ Produkte</button><small>🤝 Treffen · Verkaufsleitung</small><b class="big">${nm}</b><small>${logo(f.logo,22)} ${f.name} · ${H.esc(art?art.name:p[0])}</small></div></div>${chips}
+ <div class="fzquote">„Unser Produkt ${H.esc(art?art.name:p[0].replace(/ \d.*$/,''))} wäre ideal für Ihre Läden. Mit ${H.ladenN(o.n)} sind Sie in Stufe ${C.STUFEN[o.si].bis>1e8?C.STUFEN[o.si].von+'+':C.STUFEN[o.si].von+'–'+C.STUFEN[o.si].bis}: <b>¥${o.ek}</b> pro ${p[4]}.“</div>
  <div class="fzc fzsale"><div class="fzsub p">🏪 Verkauf im Laden · pro ${p[4]}</div><div class="fz3"><div><small>Einkauf</small><b>¥${o.ek}</b></div><div><small>Verkaufspreis (Vorschlag)</small><b class="y">¥${p[1]}</b></div><div><small>Marge</small><b class="p">¥${marge} · ${Math.round(marge/o.net*100)} %</b></div></div>
  <div class="fzsm c">≈ ${fY(o.u*marge)} Rohertrag/Woche (${H.ladenN(o.n)} × ≈${Math.round(o.u/o.n)} ${p[4]==='Dose'?'Dosen':'Stück'}) · Kaufquote ${de((C.KAUFQUOTE[p[3]]||0)*100,1)} % der Kunden</div></div>
  <div class="fzh">Bedingungen</div><div class="fzc">${tierBox(o.tp,o.si,p[4],o.n)}
  <div class="fzsub">📅 Laufzeit <b class="y r">${V.laufzeit} Monate</b></div><input type="range" class="fzrange" min="6" max="24" step="6" value="${V.laufzeit}" data-fzin="laufzeit"><div class="fzsm">länger = besserer Preis</div>
  <div class="fzsub">⭐ Exklusivität <small>(optional)</small><button class="fztog ${V.exkl?'on':''}" data-act="fz" data-v="exkl">${V.exkl?'An':'Aus'}</button></div><div class="fzsm">An: Eight &amp; Co. verlieren die Marke · Einkauf −${Math.round(C.EXKL.ekMinus*100)} %, Einmalzahlung ${fY(C.EXKL.zahlungJeLaden*o.n)}</div></div>
  ${ertrag(`Erwarteter Ertrag (${V.laufzeit} Monate, ${o.wk} Wo.)`,[[`Rohertrag ${o.wk} Wochen`,fY(o.fc.roh,1)],[`davon Mehrertrag ggü. Ersatzmarke (${Math.round(C.MEHRERTRAG*100)} %)`,fY(o.fc.mehr,1),'p'],['− Einmalzahlung',o.zahlung?fY(-o.zahlung):'¥0',o.zahlung?'n':'']],o.netto)}
- <div class="fzbtns"><button class="fzbtn" data-act="fz" data-v="angebot" ${v?'disabled':''}>${v?'✅ Vertrag aktiv':'🤝 Angebot machen'}</button><button class="fzbtn d" data-act="fz" data-v="ablehnen">Ablehnen</button></div>`;}
+ <div class="fzbtns"><button class="fzbtn" data-act="fz" data-v="angebot" ${v?'disabled':''}>${v?'✅ Vertrag aktiv':`🤝 Angebot für ${H.esc(art?art.name:p[0])}`}</button><button class="fzbtn d" data-act="fz" data-v="ablehnen">Ablehnen</button></div>`;}
 function pMesse(s,fz){const y=year(s),d=S.weekDate(s.week),apr=isApril(s),fy=d.getMonth()>3?d.getFullYear()+1:d.getFullYear();
  const tage=Math.max(0,Math.round((new Date(fy,3,14)-d)/864e5)),mine=C.MESSE.marken.find(m=>fz.messe[m.id]&&fz.messe[m.id].holder==='player');
  const tag=m=>{const h=fz.messe[m.id];if(h&&h.holder==='player')return '<span class="fzpill b">🔁 Verlängern</span>';if(h)return `<span class="fzpill k">🔒 ${H.CHAINS[h.holder].name}</span>`;return m.art==='bieten'?'<span class="fzpill y">🔨 Bieten</span>':'<span class="fzpill g">🤝 Direkt</span>';};
@@ -439,17 +461,18 @@ function pIPO(s,fz){const r=ipoReq(s,fz),cap=r.wert*V.streu/100*(1-C.IPO.gebuehr
 export function render(){const s=S.state,fz=ensure(s);let b;if(V.zentrale&&BU.ON)return BU.render();
  if(V.tab==='filialen')b=V.view==='vermoegen'?pVermoegen(s,fz):pFilialen(s,fz);
  else if(V.tab==='boerse')b=V.view==='tender'&&FM[V.id]&&FM[V.id].rv?pTender(s,fz):V.view==='firma'?(FM[V.id]&&FM[V.id].rv?pRival(s,fz):pFirma(s,fz)):V.view==='kredite'?pKredite(s,fz):pBoerse(s,fz);
- else if(V.tab==='produkte')b=V.view==='verhandeln'?pVerhandeln(s,fz):V.view==='messe'?pMesse(s,fz):V.view==='deal'?pDeal(s,fz):V.view==='bieten'?pBieten(s,fz):pProdukte(s,fz);
+ else if(V.tab==='produkte')b=V.view==='zuklein'?pZuKlein(s,fz):V.view==='verhandeln'?pVerhandeln(s,fz):V.view==='messe'?pMesse(s,fz):V.view==='deal'?pDeal(s,fz):V.view==='bieten'?pBieten(s,fz):pProdukte(s,fz);
  else b=V.view==='ipo'?pIPO(s,fz):V.view==='angebot'?pAngebot(s,fz):V.view==='neukette'?pNeuKette(s,fz):pKonkurrenz(s,fz);
  return head(s)+`<div class="fzbody">${b}</div>`;}
 export function init(sim,helpers){S=sim;H=helpers;PV.init(sim,{texte:helpers.texte,firmenwert:s=>companyValue(s,ensure(s)).wert,depot:s=>depotWert(ensure(s))});
  const plans={};if(BU.ON)for(const k of ['000','001','010','011','100','101','110','111'])fetch(`grafik/buero/plan/plan_${k}.svg`).then(r=>r.ok?r.text():'').then(t=>plans[k]=t).catch(()=>{});
  BU.init(sim,{allMine,esc:helpers.esc,fY,toast:helpers.toast,ladenN:helpers.ladenN,dtype:id=>helpers.dtype?helpers.dtype(id):'standard',typName:t=>({office:'🏢 Büroviertel',station:'🚉 Bahnhof',tourist:'⛩️ Tourismus',nightlife:'🌃 Ausgehviertel',residential:'🏘️ Wohnviertel',uni:'🎓 Uni'})[t]||t,
-  produktName:id=>(MM[id]||FM[id]||{name:id}).name,messeTermin:C.MESSE_TERMIN,planSvg:k=>plans[k]||'',zuFinanzen:tab=>{V.zentrale=false;V.tab=tab;V.view=tab==='boerse'?null:V.view;V.view=null;H.rerender();}});if(!ON)return;
+  produktName:id=>{const v=ensure(S.state).vertraege[id];if(v&&v.artikel)return v.artikel;const b=String(id).split('#')[0];return (MM[b]||FM[b]||{name:id}).name;},messeTermin:C.MESSE_TERMIN,planSvg:k=>plans[k]||'',zuFinanzen:tab=>{V.zentrale=false;if(tab==='messe'){V.tab='produkte';V.view='messe';}else{V.tab=tab;V.view=null;}H.rerender();}});if(!ON)return;
  if(!document.getElementById('fzcss')){const l=document.createElement('link');l.id='fzcss';l.rel='stylesheet';l.href='css/finanzen.css';document.head.appendChild(l);}
  fetch('daten/DIVIDENDEN.json').then(r=>r.json()).then(j=>{for(const d of j.firmen)DIV[d.firma]=d;H.rerender();}).catch(()=>{});
  document.addEventListener('input',e=>{if(e.target.dataset&&e.target.dataset.fzin)onInput(e.target);});}
 export const ui=V;// für Tests/Screens
 export const firmenwert=s=>companyValue(s,ensure(s));
 export function zeigeNeueKette(id){V.tab='konkurrenz';V.view='neukette';V.id=id;}
+export const _firma=id=>FM[id];
 export const _t={startAuction:(s,id)=>{const fz=ensure(s);startAuction(s,fz,MM[id]);stopTimer();return fz.auktion;},rvBreakEven,inlandDeal:(s,id)=>inlandDeal(s,FM[id]),messeDeal:(s,id,j)=>messeDeal(s,MM[id],j),unitsWeek,forecast,bankOffer:(s,id)=>bankOffer(s,ensure(s),C.BANKEN.find(b=>b.id===id)),companyValue};
