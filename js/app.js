@@ -26,9 +26,12 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 let W=null;
 const ui={tab:'map',storeTab:'service',storeId:null,cands:{},pending:null,draft:null,editLogo:null,editMode:'new',pgroup:'heiss'};
 /* ---------- Bausteine ---------- */
+const H_esc=t=>String(t).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 function chainLogo(c,size=28){
  if(c==='player')return `<img class="logo" src="${logoURL(st().logo,Math.min(256,size*3))}" width="${size}" height="${size}" alt="">`;
- const f=D.CHAINS[c].file;return has('logo_'+c)?`<img class="logo" src="grafik/logos/${f}.svg" width="${size}" height="${size}" alt="${D.CHAINS[c].name}">`:`<img class="logo" src="${logoURL(c,size*3)}" width="${size}" height="${size}" alt="">`;
+ const ch=D.CHAINS[c]||{name:c};if(ch.nachfolger||!ch.file){// Platzhalter bis Yuki liefert: Initiale auf Farbkreis; grafik/ketten/<logo>.png nur wenn LOGO_FREIGEGEBEN (neueketten_cfg.js)
+  const ini=H_esc((ch.name||c).trim()[0]||'?');return `<span class="logo ph" style="position:relative;display:inline-grid;place-items:center;width:${size}px;height:${size}px;border-radius:50%;background:${ch.color||'#7a8a99'};color:#fff;font-weight:800;font-size:${Math.round(size*.5)}px;flex:none;overflow:hidden">${ini}${ch.logo?`<img src="grafik/ketten/${ch.logo}.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.remove()">`:''}</span>`;}
+ const f=ch.file;return has('logo_'+c)?`<img class="logo" src="grafik/logos/${f}.svg" width="${size}" height="${size}" alt="${D.CHAINS[c].name}">`:`<img class="logo" src="${logoURL(c,size*3)}" width="${size}" height="${size}" alt="">`;
 }
 const cname=c=>c==='player'?st().logo.name:D.CHAINS[c].name;
 const ccolor=c=>c==='player'?chainLook('player',st().logo,{facade:'brand'}).main:D.CHAINS[c].color;
@@ -36,7 +39,7 @@ function catIcon(k,size=46){return GFX.svg['icon_'+k.icon]?`<img src="grafik/ico
 function svcIcon(v,size=40){return `<img src="grafik/icons/services/${v.icon}.svg" width="${size}" height="${size}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${v.emoji}',style:'font-size:${size*.75}px'}))">`;}
 function stars(v){const f=Math.floor(v),h=v-f>=.5;return `<span class="stars">${'★'.repeat(f)}${h?'<b class="half">★</b>':''}<i>${'★'.repeat(5-f-(h?1:0))}</i></span>`;}
 function seg(act,id,k,arr,cur,fmt){return `<div class="seg">${arr.map((o,i)=>`<button class="${i===cur?'on':''}" data-act="${act}" data-id="${id}" data-k="${k}" data-v="${i}">${o.label}${fmt?`<small>${fmt(o,i)}</small>`:''}</button>`).join('')}</div>`}
-let toastT;function toast(m,cls){const t=$('#toast');t.className=cls||'';t.innerHTML=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2300);}
+let toastT;function toast(m,cls){const t=$('#toast');t.className=cls||'';t.innerHTML=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),3000);}
 function showSheet(h){$('#sheet').innerHTML='<div class="grab"></div>'+h;$('#sheet').scrollTop=0;document.body.classList.add('sheet');}
 // Städte: eine Firma, Wechsel = speichern + neu laden in die andere Stadt (Karte/Plan hängen am Seitenstart)
 const TRAVEL=[{id:'tokio',name:'Tokio',jp:'東京',emoji:'🗼'},{id:'yokohama',name:'Yokohama',jp:'横浜',emoji:'🎡'}].concat(NEUESTAEDTE?Object.values(NEUE_STAEDTE).map(c=>({id:c.id,name:c.name,jp:c.jp,emoji:c.emoji})):[]);
@@ -106,7 +109,7 @@ function tabStores(){
  const ms=S.mine();let h=`<div class="h1">Deine Filialen</div><div style="color:var(--mut);font-weight:700;font-size:13px;margin:0 2px 8px">${ladenN(ms.length)} in ${CITY.name}</div>`;
  if(!ms.length)return h+`<div class="card empty"><div style="font-size:52px">🏪</div><h3 style="margin:8px 0 6px">Noch keine Konbini</h3><p style="color:var(--mut);margin:0 0 14px;line-height:1.5;font-weight:600">Tippe auf der Karte auf einen <b>空き</b>-Pin „Zu vermieten“.</p><button class="btn primary" data-act="tab" data-t="map">Zur Karte</button></div>`;
  for(const s of ms){const l=s.last,m=s.mgr,t=D.TIERS[s.tier];
-  h+=`<button class="card storecard" data-act="store" data-id="${s.id}"><div class="row">${chainLogo('player',40)}<div class="grow"><b style="font-size:16px">${S.storeLabel(s)}</b><div class="chips" style="margin-top:4px"><span class="chip"><img src="grafik/karte/${t.badge}.svg" width="14" height="16" alt=""> ${t.label}</span>${s.build?'<span class="chip">🚧 Bald eröffnet</span>':GH(s.bh.overall,14)}</div></div><span style="color:var(--mut);font-size:24px">›</span></div>
+  h+=`<button class="card storecard" data-act="store" data-id="${s.id}"><div class="row">${chainLogo('player',40)}<div class="grow"><b style="font-size:16px">${S.storeLabel(s)}</b><div class="chips" style="margin-top:4px"><span class="chip"><img src="grafik/karte/${t.badge}.svg" width="14" height="16" alt=""> ${t.label}</span>${s.build?'<span class="chip">🚧 Bald eröffnet</span>':GH(s.bh.overall,14)}${!s.mgr&&s.quit?'<span class="chip badge-fehlt">⚠️ Filialleitung fehlt</span>':''}${s.mgr&&s.mgr.kuendigt?`<span class="chip badge-fehlt">⚠️ Gekündigt · KW ${s.mgr.kuendigt.zum-1}</span>`:''}</div></div><span style="color:var(--mut);font-size:24px">›</span></div>
   <div class="row" style="margin-top:9px;font-size:12.5px;font-weight:700;color:var(--mut)"><span style="font-size:20px">${m?m.avatar:'🧑'}</span><span class="grow">${m?esc(m.name):'Kein Filialleiter'}</span></div>
   <div class="stats3"><div>Kunden/Tag<b>${l&&!l.building?fmtN(l.cust/7):'–'}</b></div><div>Umsatz<b>${l&&!l.building?fmtY(l.rev):'–'}</b></div><div>Gewinn<b class="${l?(l.net>=0?'pos':'neg'):''}">${l?sgn(l.net):'neu'}</b></div></div></button>`;}
  return h+`<button class="btn full" data-act="tab" data-t="map">＋ Neuen Standort auf der Karte wählen</button>`;
@@ -151,7 +154,7 @@ let pvMode='outside';
 function mountPreview(b){const pv=$('#pv');if(!pv)return;requestAnimationFrame(()=>{previewMode(pvMode);storePreview(pv,'player',st().logo,designOf(b));pv.appendChild(pv.querySelector('.pvt'));});}
 const pvToggle=`<div class="pvt"><button class="PVI" data-act="pvmode" data-v="inside">Innen</button><button class="PVO" data-act="pvmode" data-v="outside">Außen</button></div>`;
 function propertySheet(did,slot){
- const s=st(),d=D.DMAP[did];if(slot==null)slot=S.freeSlots(did)[0];if(slot==null||!D.slotOpen(did,slot,s.week))return;
+ const s=st(),d=D.DMAP[did];if(slot==null)slot=S.freeSlots(did)[0];if(slot==null||!D.slotOpen(did,slot,s.week))return;if(((s.fz&&s.fz.sperre)||[]).some(x=>x.d===did&&x.slot===slot&&x.bis>s.week)){toast('Standort nach Liquidation noch gesperrt 🚧');return;}
  const info=si(did,slot);ui.draft={did,slot,b:D.defaultBuild()};
  const p=W.slotPos(did,slot);W.select(p.x,p.z);W.flyTo(p.x,p.z,72);
  const riv={};S.inD(did).filter(x=>x.chain!=='player').forEach(x=>riv[x.chain]=(riv[x.chain]||0)+1);
@@ -237,6 +240,7 @@ function storeService(s){
   ${D.BH_CATS.map(c=>`<div class="bhr"><span>${c.label}</span>${GH(bh[c.id],18)}</div>`).join('')}
   <div class="quote">„${esc(S.quote(s)||'Noch keine Stimmen.')}“<small>– anonymer BuuHuu-Nutzer</small></div></div>`;}
  h+=`<div class="h">Filialleiter</div>`;
+ if(!m&&s.quit)h+=`<div class="card quitcard"><b>⚠️ Filialleitung fehlt</b><div style="font-size:13px;font-weight:700">${esc(s.quit.name)} hat in KW ${s.quit.week} gekündigt${s.quit.grund?` (${esc(s.quit.grund)})`:''}.</div><button class="btn primary full sm" style="margin-top:8px" data-act="hirelist" data-id="${s.id}">👔 Neue Filialleitung einstellen</button></div>`;
  if(!m){h+=`<div class="card"><div class="row"><div class="ava">🧑</div><div class="grow"><b>Kein Filialleiter</b><small style="display:block;color:var(--mut);font-weight:700;font-size:12px">Du führst den Laden selbst. Mit einem Filialleiter kannst du Aufgaben abgeben.</small></div></div><button class="btn blue full" style="margin-top:10px" data-act="hirelist" data-id="${s.id}">Filialleiter einstellen</button></div>`;}
  else{const pc=Math.round((m.salary/m.expect-1)*100);
   h+=`<div class="card"><div class="mgr"><div class="ava big">${mgrAva(m)}</div><div class="grow"><b style="font-size:17px">${esc(m.name)}</b><div style="font-size:12px;color:var(--mut);font-weight:700">${m.age} Jahre · seit KW ${s.opened} · ${m.stufe}</div><div style="font-size:12px;color:var(--mut);font-weight:700">Mitarbeiter-Erfahrung ${m.empM} Mon. · Manager-Erfahrung ${m.mgrM} Mon.</div></div></div>
@@ -305,17 +309,21 @@ function storeFin(s){
  ${row('Betriebsergebnis',r=>r.op,'sum')}</table></div>`;
 }
 /* ---------- Wochenergebnis & Zeitung ---------- */
+const fmtU=v=>v>=1e9?'¥'+(v/1e9).toLocaleString('de-DE',{maximumFractionDigits:1})+' Mrd':fmtY(v);
 function reportSheet(r){
  const T=r.T;
  showSheet(`<div style="text-align:center;color:var(--mut);font-size:12px;font-weight:900;letter-spacing:1.4px">WOCHENERGEBNIS · KW ${r.week}</div>
+ ${(r.quits||[]).map(q=>`<div class="card quitcard"><div class="row"><img src="grafik/maskottchen/kobo-besorgt.svg" alt="" width="54" height="54" onerror="this.remove()"><div class="grow"><b style="font-size:16px">😢 Filialleitung hat gekündigt</b><div style="font-size:13px;font-weight:700;margin-top:3px"><b>${esc(q.name)}</b> hat <b>${esc(q.laden)}</b> verlassen.${q.grund?`<br>Grund: ${esc(q.grund)}`:''}</div><div style="font-size:12px;color:var(--mut);font-weight:700;margin-top:3px">Bis du jemanden einstellst, führst du den Laden selbst (Bestellungen, Preise).</div></div></div><button class="btn primary full sm" style="margin-top:10px" data-act="hirelist" data-id="${q.sid}">👔 Neue Filialleitung einstellen</button></div>`).join('')}
+ ${r.kdj?`<div class="card kdjcard"><b style="font-size:17px">🏆 Konbini-Awards ${r.kdj.jahr}</b><div style="font-weight:900;margin-top:8px">Konbini des Jahres</div><div style="font-size:12px;color:var(--mut);font-weight:700">Ø BuuHuu-Bewertung aller Läden über das Geschäftsjahr</div>${r.kdj.top.map((x,i)=>`<div class="row" style="margin-top:6px;${x.chain==='player'?'font-weight:900':''}"><span style="width:26px">${['🥇','🥈','🥉'][i]}</span>${chainLogo(x.chain,26)}<span class="grow" style="margin-left:6px">${esc(x.name)}</span>${GH(x.avg,14)}<b style="margin-left:6px">${x.avg.toFixed(2).replace('.',',')}</b></div>`).join('')}${r.kdj.rang>3?`<div style="font-size:12px;margin-top:6px;font-weight:700">Du: Platz ${r.kdj.rang} von ${r.kdj.n}</div>`:''}<div style="font-weight:900;margin-top:12px">Am schnellsten wachsender Konbini</div><div style="font-size:12px;color:var(--mut);font-weight:700">Umsatzwachstum gegenüber dem Vorjahr (52 Wochen)</div>${!(r.kdj.wachs||[]).length?'<div style="font-size:13px;font-weight:800;margin-top:6px">In diesem Jahr nicht vergeben – kein Umsatzwachstum.</div>':''}${(r.kdj.wachs||[]).filter(x=>x.pct>0).map((x,i)=>`<div class="row" style="margin-top:6px;${x.chain==='player'?'font-weight:900':''}"><span style="width:26px">${['🥇','🥈','🥉'][i]}</span>${chainLogo(x.chain,26)}<span class="grow" style="margin-left:6px">${esc(x.name)}<small style="display:block;font-size:11.5px;color:var(--mut);font-weight:700">${fmtU(x.von)} → ${fmtU(x.bis)}</small></span><b>+${x.pct.toFixed(1).replace('.',',')} %</b></div>`).join('')}${r.kdj.wrang>3?`<div style="font-size:12px;margin-top:6px;font-weight:700">Du: Platz ${r.kdj.wrang}</div>`:''}</div>`:''}
+ ${(r.quitWarn||[]).map(q=>`<div class="card quitcard warn"><b style="font-size:15px">⚠️ Kündigung eingegangen</b><div style="font-size:13px;font-weight:700;margin-top:3px"><b>${esc(q.name)}</b> (${esc(q.laden)}) hört nach KW ${q.zum-1} auf. Grund: ${esc(q.grund)}.<br>Mehr Gehalt oder bessere Zahlen können sie noch halten.</div><button class="btn sm full" style="margin-top:8px" data-act="store" data-id="${q.sid}">Zum Laden ›</button></div>`).join('')}
  <div class="hero"><small>${r.ev.emoji} ${r.ev.label} · ab ${r.date}</small><div class="num ${T.net>=0?'pos':'neg'}" id="countup">${sgn(0)}</div><small>Nettoeinkommen</small></div>
  <div class="stats3"><div>Umsatz<b>${fmtY(T.rev+T.fees)}</b></div><div>Kunden/Tag<b>${fmtN(T.cust/7)}</b></div><div>Kasse<b>${fmtY(st().cash)}</b></div></div>
  <div class="lbl">Cashflow</div><div class="card" style="padding:6px 14px"><table class="fin"><tr><td>Geschäft</td><td class="${T.cf.op>=0?'pos':'neg'}">${sgn(T.cf.op)}</td></tr><tr><td>Investition</td><td class="${T.cf.inv>=0?'pos':'neg'}">${sgn(T.cf.inv)}</td></tr><tr><td>Finanzierung</td><td class="${T.cf.fin>=0?'pos':'neg'}">${sgn(T.cf.fin)}</td></tr></table></div>
  ${r.milestones.map(m=>`<div class="tip ok">🏆 <span><b>Meilenstein:</b> ${m}</span></div>`).join('')}
  ${r.stores.length?`<div class="lbl">Filialen</div><div class="card" style="padding:4px 14px">${r.stores.map(x=>{const s=st().stores.find(y=>y.id===x.id);return `<div class="srow">${chainLogo('player',28)}<div class="grow"><b>${s?S.storeLabel(s):''}</b><div style="color:var(--mut);font-size:11px;font-weight:600">${x.building?'🚧 im Bau':fmtN(x.cust/7)+' Kunden/Tag · '+GH(x.ghosts||3,12).replace(/<\/?span[^>]*>/g,'')+''}</div></div><div class="v"><b class="${x.net>=0?'pos':'neg'}">${sgn(x.net)}</b><small>${fmtY(x.rev)}</small></div></div>`}).join('')}</div>`:`<div class="tip">🏪 Noch keine Filiale. Tippe auf der Karte auf einen 空き-Pin.</div>`}
  ${r.news.filter(n=>n.chain&&n.chain!=='player').length?`<div class="lbl">Konkurrenz</div><div class="card" style="padding:4px 14px">${r.news.filter(n=>n.chain&&n.chain!=='player').map(n=>`<div class="srow">${chainLogo(n.chain,28)}<div class="grow" style="font-size:13px;font-weight:700">${n.text}</div>${n.near?'<b class="neg" style="font-size:12px">nah!</b>':''}</div>`).join('')}</div>`:''}
- ${r.events.map(t=>`<div class="tip ok">${t}</div>`).join('')}
- ${r.tips.length?`<div class="lbl">Tipps</div>${r.tips.map(t=>`<div class="tip">${t}</div>`).join('')}`:''}
+ ${r.events.map(t=>`<div class="tip ${/^(😢|⚠️)/.test(t)?'bad':'ok'}">${t}</div>`).join('')}
+ ${r.tips.length?`<div class="lbl">Tipps</div>${r.tips.map(t=>`<div class="tip"><span>${t}</span></div>`).join('')}`:''}
  <button class="btn primary full" data-act="paper" style="margin-top:14px">📰 Konbini Shimbun lesen</button>`);
  const el=$('#countup'),t0=performance.now();(function step(t){const p=Math.min(1,(t-t0)/900),e=1-Math.pow(1-p,3);if(el&&el.isConnected){el.textContent=sgn(T.net*e);if(p<1)requestAnimationFrame(step)}})(t0);
 }
@@ -345,6 +353,7 @@ function storyCard(i){
 }
 function doEndWeek(){
  if(sheetOpen())return null;const c0=st().cash;const r=S.endWeek();renderAll();reportSheet(r);
+ {const fz=st().fz;if(fz&&fz.insZeigen&&FZ.ON&&FZ.zeigeInsolvenz){fz.insZeigen=false;S.save();FZ.zeigeInsolvenz();ui.finK=false;ui.tab='fin';renderBar();renderPanel();}}
  {const nk=st().nk;if(nk&&nk.zeigen){const id=nk.zeigen;nk.zeigen=null;S.save();if(FZ.ON){FZ.zeigeNeueKette(id);ui.finK=false;ui.tab='fin';renderBar();renderPanel();}}}
  {const s=st();s.cashDown=s.cash<c0?(s.cashDown||0)+1:0;
   // Erik: 4 Wochen in Folge im Minus = Spiel verloren; Warnung mit Restwochen nach jeder Minus-Woche
@@ -469,7 +478,7 @@ function showIntro(view){
  const lt=latestSlot();
  const html=SC.screen({name:'start',cls:'start',mutate:root=>{if(!lt)for(const g of root.querySelectorAll('[data-nur-mit-spielstand="true"]'))g.remove();},
   buttons:[...(lt?[{x:170,y:1430,w:740,h:140,act:'loadslot',v:lt.slot,label:'▶ '+T.weiter}]:[]),{x:170,y:1610,w:740,h:120,act:'newgame',label:T.neues_spiel},{x:170,y:1780,w:740,h:110,act:'loadmenu',label:T.laden,disabled:!has,cls:has?'':'dim'}],
-  extra:`<div class="scrfoot">${has?'':esc(T.kein_spielstand)+'<br>'}Prototyp V5.1 · alle Marken sind fiktive Parodien</div>`});
+  extra:`<div class="scrfoot">${has?'':esc(T.kein_spielstand)+'<br>'}Prototyp V5.2 · alle Marken sind fiktive Parodien</div>`});
  introShow(html,'linear-gradient(180deg,#5B4B8A 50%,#6B6F80 50%)');
 }
 // Klickflächen der Slot-Karten
@@ -487,7 +496,7 @@ function showIntroPlain(view){
  <button class="btn full" data-act="loadmenu" ${has?'':'disabled'} aria-disabled="${!has}">${esc(T.laden)}</button>${has?'':`<small style="display:block;margin-top:6px;color:var(--mut)">${esc(T.kein_spielstand)}</small>`}`;}
  $('#intro').classList.remove('scrmode');
  $('#intro').innerHTML=`<div class="introcard"><div class="brandmark">コンビニ</div><div class="title">KONBINI EMPIRE</div>${body}
- <div style="color:var(--mut);font-size:11px;margin-top:14px;font-weight:700">Prototyp V5.1 · alle Marken sind fiktive Parodien</div></div>`;
+ <div style="color:var(--mut);font-size:11px;margin-top:14px;font-weight:700">Prototyp V5.2 · alle Marken sind fiktive Parodien</div></div>`;
  $('#intro').classList.add('show');
 }
 function logoEditor(mode){

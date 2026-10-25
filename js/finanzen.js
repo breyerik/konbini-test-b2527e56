@@ -24,7 +24,7 @@ const cls=n=>n>=0?'p':'n';
 /* ---------- Zustand ---------- */
 function rnd(seed){let x=seed>>>0||1;return()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return((x>>>0)%1e6)/1e6};}
 const gauss=r=>{const u=r()||1e-6,v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(6.2832*v);};
-export function ensure(s){if(s.fz&&s.fz.v===1)return s.fz;
+export function ensure(s){if(s.fz&&s.fz.v===1){PF=s.fz.profil||null;return s.fz;}
  const fz={v:1,kurse:{},depot:{},pending:0,kredite:[],vertraege:{},messe:{},auktion:null,ipo:null,verh:{}};
  for(const f of FIRMEN){const r=rnd([...f.id].reduce((a,c)=>a*31+c.charCodeAt(0),7));const sw=f.vol/Math.sqrt(52);let k=f.kurs;const h=[k];
   for(let i=0;i<29;i++){k=k/Math.exp(sw*gauss(r));h.unshift(k);}// Verlauf rückwärts, endet beim heutigen Kurs aus Bobs Tabelle
@@ -75,19 +75,22 @@ const rvChains=s=>Object.keys(H.CHAINS).filter(c=>C.RIVAL_START[c]!=null);
 const rvStores=(s,c)=>s.stores.filter(x=>x.chain===c).concat(...Object.values(s.away||{}).map(a=>(a.stores||[]).filter(x=>x.chain===c)));
 const rvN=(s,c)=>{const r=((ensure(s).rv)||{})[c];return rvStores(s,c).length+(r&&r.virt||0);};// Karte + übrige Städte
 function rvState(s,fz,c){fz.rv=fz.rv||{};if(!fz.rv[c])fz.rv[c]={kasse:C.RIVAL_START[c]!=null?C.RIVAL_START[c]:5e6,laeden:rvStores(s,c).length,hist:[],boerse:null,sperre:0,weg:false};return fz.rv[c];}
-// Bewertung wie beim Spieler (Bob): 15 × Jahresgewinn + Kasse − Schulden + ½ Buchwert Läden
+// Firmenwert Rivale: Kasse − Kredite + Läden × Buchwert (¥25 Mio) + 4 × Jahresgewinn (nur wenn positiv) → steigt mit jedem Laden
 export function rvWert(s,c){const fz=ensure(s),r=rvState(s,fz,c),h=r.hist.slice(-52),g=h.reduce((a,x)=>a+x.g,0),n=rvN(s,c),FW=C.FIRMENWERT;
- return Math.max(0,Math.max(0,r.kasse)+.5*n*FW.ladenWert+FW.gewinnFaktor*g-Math.max(0,-r.kasse));}
-function rvIpoOk(s,r,c){const y1=r.hist.slice(-52),y2=r.hist.slice(-104,-52);return !r.boerse&&year(s)>=C.RIVAL_IPO.abJahr&&rvN(s,c)>=C.IPO.filialen&&y1.reduce((a,x)=>a+x.rev,0)>=C.IPO.umsatz&&y2.length===52&&y1.reduce((a,x)=>a+x.g,0)>0&&y2.reduce((a,x)=>a+x.g,0)>0;}
+ const schuld=(r.loans||[]).reduce((a,l)=>a+l.rest,0);return Math.max(0,r.kasse-schuld+n*C.RIVAL_LADEN.buchwert*FW.buchQuote+FW.gewinnFaktor*Math.max(0,g));}
+function rvIpoOk(s,r,c){const y1=r.hist.slice(-52),y2=r.hist.slice(-104,-52);return !r.boerse&&year(s)>=C.RIVAL_IPO.abJahr&&rvN(s,c)>=(C.RIVAL_IPO.filialen??C.IPO.filialen)&&y1.reduce((a,x)=>a+x.rev,0)>=(C.RIVAL_IPO.umsatz??C.IPO.umsatz)&&y1.length===52&&y1.reduce((a,x)=>a+x.g,0)>0&&((C.RIVAL_IPO.gewinnJahre??2)<2||y2.length===52&&y2.reduce((a,x)=>a+x.g,0)>0);}
 // Börsennotierte Rivalen erscheinen als Firma im Börse-Tab
 function rvFirma(s,c){const r=(ensure(s).rv||{})[c],ch=H.CHAINS[c]||{name:c};if(!r||!r.boerse)return null;const id=RVK(c);
  if(!FM[id])FM[id]={id,name:ch.name,code:'',branche:'Konbini-Kette',kurs:r.boerse.k,aktien:r.boerse.aktien,logo:`grafik/logos/${ch.file||c}.svg`,desc:'',vol:C.RIVAL_KURS.vol,bank:false,rival:c,rv:true};return FM[id];}
 function rvIPO(s,fz,c,r){const st=C.RIVAL_IPO.streu,rr=rnd(seedOf(c)),streu=Math.round(st[0]+rr()*(st[1]-st[0]))/100,w=rvWert(s,c),A=C.RIVAL_IPO.aktien,k=w/A;
- r.boerse={aktien:A,streu,k,ch:0,h:[k],woche:s.week};const id=RVK(c);rvFirma(s,c);fz.kurse[id]={k,ch:0,h:[k]};
+ r.boerse={aktien:A,streu,k,ch:0,h:[k],woche:s.week};fz.ipoN=(fz.ipoN||0)+1;const id=RVK(c);rvFirma(s,c);fz.kurse[id]={k,ch:0,h:[k]};
  news(s,{chain:c,text:`🔔 <b>${H.CHAINS[c].name}</b> geht an die Börse! Bewertung ${fY(w)}, ${Math.round(streu*100)} % Streubesitz – im Börse-Tab kaufbar.`});}
 // Itos Texte (marketing/texte.json → uebernahme), alle Platzhalter füllen
 const TX={warnung_fremdbesitz:'Kobo: Pass auf! {kette} besitzt schon {anteil} % unserer Aktien.',eilmeldung_uebernahme_droht:'🚨 Eilmeldung: Übernahme droht! {kette} hält bereits {anteil} % von {laden}.',angebot_eingang:'{kette} bietet {betrag} für alle Aktien. Das sind {aufschlag} % über dem Kurs.',angebot_abgelehnt:'Kobo: Wir halten die Mehrheit und haben das Angebot von {kette} abgelehnt.',uebernahme_erfolgt:'{kette} hat dein Imperium übernommen.',ipo_warnung:'Achtung: Nach dem Börsengang können Rivalen dich übernehmen, wenn du unter 51 % fällst.',ipo_streubesitz_rot:'Streubesitz über 49 % = Übernahme möglich'};
-export function tx(id,o={}){const T=(H.texte&&H.texte()||{}).uebernahme||{};return String(T[id]||TX[id]).replace(/\{(\w+)\}/g,(m,k)=>o[k]!=null?o[k]:m);}
+// Platzhalter (Gruppe Ito/Yuki/Whitebeard): {rivale}=Rivalenkette, {kette}=eigene Kette. Alte Texte nutzen {kette} noch für den Rivalen.
+export function tx(id,o={}){const T=(H.texte&&H.texte()||{}).uebernahme||{};const t=String(T[id]||TX[id]);
+ if(o.rivale==null&&o.kette!=null)o={...o,rivale:o.kette};if(t.includes('{rivale}'))o={...o,kette:o.spieler??o.laden??'uns'};
+ return t.replace(/\{(\w+)\}/g,(m,k)=>o[k]!=null?o[k]:m);}
 function news(s,n){s.news=[{...n,week:s.week}].concat(s.news||[]).slice(0,14);}
 // Übernahme: Läden der Kette werden unsere (alle Städte), Kette verschwindet als Konkurrent
 export function uebernahme(s,c){const fz=ensure(s),r=rvState(s,fz,c),ch=H.CHAINS[c];let n=0;
@@ -95,7 +98,11 @@ export function uebernahme(s,c){const fz=ensure(s),r=rvState(s,fz,c),ch=H.CHAINS
  s.stores.filter(x=>x.chain===c).forEach(conv);for(const a of Object.values(s.away||{}))(a.stores||[]).filter(x=>x.chain===c).forEach(conv);
  if(r.virt){s.away=s.away||{};const j=s.away.japan=s.away.japan||{stores:[],op:0};j.n=(j.n||0)+r.virt;j.op=(j.op||0)+r.virt*C.RIVAL_LADEN.umsatzWoche*C.RIVAL_LADEN.gewinnQuote;n+=r.virt;r.virt=0;}
  r.weg=true;r.uebernommen=s.week;const i=H.RIVALS.indexOf(c);if(i>=0)H.RIVALS.splice(i,1);s.uebernommen=(s.uebernommen||[]).concat(c);
- news(s,{chain:'player',text:`🏆 Übernahme! <b>${ch?ch.name:c}</b> gehört jetzt uns – ${n} Läden kommen dazu.`});S.save();return n;}
+ news(s,{chain:'player',text:`🏆 Übernahme! <b>${ch?ch.name:c}</b> gehört jetzt uns – ${n} Läden kommen dazu.`});NK.nachfolger(s,c,'uebernommen');S.save();return n;}
+// Pleite (Erik 23.10.): Läden schließen in allen Städten, Kette verschwindet, eine neu gegründete rückt nach
+export function rvPleite(s,c,rep){const fz=ensure(s),r=rvState(s,fz,c),ch=H.CHAINS[c],n=rvN(s,c);s.stores=s.stores.filter(x=>x.chain!==c);for(const a of Object.values(s.away||{}))a.stores=(a.stores||[]).filter(x=>x.chain!==c);
+ r.weg=true;r.pleite=s.week;r.virt=0;const i=H.RIVALS.indexOf(c);if(i>=0)H.RIVALS.splice(i,1);if(s.priceActs)delete s.priceActs[c];
+ const m={id:'pleite:'+c,chain:c,text:`💥 <b>${ch?ch.name:c}</b> ist pleite – nach ${r.minus||C.RIVAL_PLEITE.wochen} Wochen Verlust${r.krise>0?' in der Krise':''}, Kasse ${fY(Math.abs(r.kasse)).replace(',00 ',' ')} im Minus. ${n===1?"Der einzige Laden schließt":n?"Alle "+n+" Läden schließen":"Keine Läden betroffen"}.`};news(s,m);if(rep&&rep.news)rep.news.push({...m,week:s.week});NK.nachfolger(s,c,'pleite',rep);return n;}
 /* ---------- Rivalen in mehreren Städten (Erik 23:17) ---------- */
 const rvAktiveStaedte=()=>Object.keys(C.RIVAL_STAEDTE.staedte).filter(k=>NEUESTAEDTE||['tokio','yokohama'].includes(k));
 export function rvHeimat(c){const h=C.RIVAL_STAEDTE.heimat[c]||'tokio';return rvAktiveStaedte().includes(h)?h:'tokio';}
@@ -106,19 +113,125 @@ function rvStaedteInit(s,r,c,n0){if(!r.staedte){r.staedte={[rvHeimat(c)]:n0+(r.v
 // Umsatzabschlag in neuen Städten (Vorschlag Bob): Läden in Städten, die die Kette vor < 52 Wochen betreten hat
 function rvNeuAbzug(s,r){const N=C.RIVAL_STAEDTE.neuStadt;if(!N.an)return 0;let a=0;for(const [k,w0] of Object.entries(r.neuStadt||{}))if(s.week-w0<N.wochen)a+=(r.staedte[k]||0)*(1-N.umsatzFaktor);return a;}
 const rvRate=a=>{const K=C.RIVAL_KREDIT,i=K.zins/52;return a*i/(1-Math.pow(1+i,-K.laufWochen));};
-function rvWeek(s,fz,rep){const w=s.week,L=C.RIVAL_LADEN,K=C.RIVAL_KREDIT;
+// Jede Kette eigenes Umsatzniveau (Seed aus der ID) + Wochenrauschen → keine identischen Werte
+const rvFaktor=c=>{const P=rvProfil(c);return P?P.f*C.RIVAL_PROFIL[P.p].umsatz:1;};
+// Profil je Spiel (state.fz.profil): beim ersten Mal zufällig verteilt, neue Ketten bekommen nachträglich eins
+let PF=null;const rvProfil=c=>PF&&PF[c];
+function rvProfileVerteilen(s,fz){const P=C.RIVAL_PROFIL;fz.profil=fz.profil||{};PF=fz.profil;const neu=rvChains(s).filter(c=>!PF[c]&&!(fz.rv&&fz.rv[c]&&fz.rv[c].weg));if(!neu.length)return;
+ const f=()=>1+(Math.random()*2-1)*P.streu,mix=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+ if(!Object.keys(PF).length){const a=mix(neu.slice()),ns=1+(Math.random()<.5&&a.length>=5?1:0),nw=1+(Math.random()<.5&&a.length>=5?1:0);
+  a.forEach((c,i)=>PF[c]={p:i<ns?'stark':i<ns+nw?'schwach':'solide',f:f()});return;}
+ for(const c of neu){const x=Math.random();PF[c]={p:Math.random()<.5?'schwach':x<.25?'stark':x<.6?'solide':'schwach',f:f()};}}// Bob 23.10.: Nachfolger zu 50 % Wackelig
+function rvProfilWechsel(s,fz,rep){const P=C.RIVAL_PROFIL;if(!s.week||s.week%P.wechselWochen||Math.random()>=P.wechselChance)return;
+ const lebt=c=>!((fz.rv||{})[c]&&fz.rv[c].weg),nm=c=>(H.CHAINS[c]||{name:c}).name,say=m=>{news(s,m);if(rep&&rep.news)rep.news.push(m);};
+ const st=Object.keys(PF).filter(c=>PF[c].p==='stark'&&lebt(c)),sw=Object.keys(PF).filter(c=>PF[c].p==='schwach'&&lebt(c));let b=null;
+ if(st.length&&sw.length){const a=st[Math.floor(Math.random()*st.length)];b=sw[Math.floor(Math.random()*sw.length)];PF[a].p='solide';PF[b].p='stark';
+  say({chain:b,text:`🐾 Kobo: Wende in der Branche – <b>${nm(b)}</b> hat sich neu aufgestellt und greift an, <b>${nm(a)}</b> verliert an Schwung.`});}
+ const lf=Object.keys(PF).filter(c=>lebt(c)).sort((x,y)=>rvN(s,y)-rvN(s,x))[0];// Marktführer kann straucheln (Whitebeard 23.10.)
+ if(lf&&lf!==b&&PF[lf].p!=='schwach'&&Math.random()<P.fuehrerFall){PF[lf].p='schwach';
+  if(!Object.keys(PF).some(c=>lebt(c)&&PF[c].p==='stark')){const k=Object.keys(PF).filter(c=>lebt(c)&&PF[c].p==='solide');if(k.length)PF[k[Math.floor(Math.random()*k.length)]].p='stark';}
+  say({chain:lf,text:`🐾 Kobo: Marktführer <b>${nm(lf)}</b> wirkt satt und träge – die Konkurrenz holt auf.`});}
+ for(let i=0;i<5&&Object.keys(PF).filter(c=>lebt(c)&&PF[c].p==='schwach').length<P.minWackelig;i++){if(i===0&&lf&&lf!==b&&PF[lf].p!=='schwach'&&Math.random()<.5){PF[lf].p='schwach';continue;}const k=Object.keys(PF).filter(c=>lebt(c)&&PF[c].p==='solide'&&c!==b);if(!k.length)break;PF[k[Math.floor(Math.random()*k.length)]].p='schwach';}}// Bob: immer ≥2 Wackelige
+// Ereignis je Kette (Skandal, Lieferkrise, Managementwechsel, Erfolgsprodukt) – einmalige Kobo-Meldung beim Start
+function rvEvent(s,r,c,rep){const E=C.RIVAL_EVENT;if(r.ev&&s.week>=r.ev.bis)r.ev=null;if(r.ev||s.week<E.abWoche||Math.random()>=E.chance)return;
+ const sum=E.typen.reduce((a,t)=>a+t.gewicht,0);let x=Math.random()*sum,t=E.typen[0];for(const y of E.typen){if((x-=y.gewicht)<0){t=y;break;}}
+ r.ev={t:t.id,bis:s.week+Math.round(t.wochen[0]+Math.random()*(t.wochen[1]-t.wochen[0]))};const m={id:'ev:'+c+':'+s.week,chain:c,text:t.text.replace('{k}',(H.CHAINS[c]||{name:c}).name)};news(s,m);if(rep&&rep.news)rep.news.push(m);}
+const rvEv=r=>r.ev?C.RIVAL_EVENT.typen.find(t=>t.id===r.ev.t)||null:null;
+/* ---------- Insolvenzverfahren (Erik 23.10. 09:39) ---------- */
+// Zustand fz.ins={c,start,frist,ende,phase:'frist'|'bieten',info,mindest,gebote:{kette:betrag},max:{kette:limit},runde,spieler}
+const say=(s,m,rep)=>{news(s,m);if(rep&&rep.news)rep.news.push({...m,week:s.week});};
+function insStaedte(s,c){const o={},home=s.city||'tokio',n0=s.stores.filter(x=>x.chain===c).length;if(n0)o[home]=n0;
+ for(const [k,a] of Object.entries(s.away||{})){const n=(a.stores||[]).filter(x=>x.chain===c).length;if(n)o[k]=(o[k]||0)+n;}
+ const r=(ensure(s).rv||{})[c];if(r&&r.virt)o.weitere=(o.weitere||0)+r.virt;return o;}
+function rvVerkauf(s,fz,rep){if(!fz.rv)return;const V=C.RIVAL_VERKAUF,ak=rvChains(s).filter(k=>fz.rv[k]&&!fz.rv[k].weg&&!fz.rv[k].ins);if(ak.length<2)return;
+ const N=k=>rvN(s,k),lf=ak.slice().sort((a,b)=>N(b)-N(a))[0],r=fz.rv[lf],p=(rvProfil(lf)||{p:'solide'}).p;
+ if(!(p==='schwach'||r.krise>0)||Math.random()>=V.chance)return;const eig=s.stores.filter(x=>x.chain===lf);if(eig.length<V.minLaeden)return;
+ const preis=Math.round(C.RIVAL_LADEN.buchwert*V.preisQuote/1e5)*1e5,kauf=ak.filter(k=>k!==lf&&fz.rv[k].kasse>=preis+C.RIVAL_KREDIT.reserve);if(!kauf.length)return;
+ const k=kauf[Math.floor(Math.random()*kauf.length)],st=eig[Math.floor(Math.random()*eig.length)],w=fz.rv[k];
+ st.chain=k;fz.verkaufN=(fz.verkaufN||0)+1;w.kasse-=preis;r.kasse+=preis;r.laeden=rvStores(s,lf).length;w.laeden=rvStores(s,k).length;
+ say(s,{id:'verkauf:'+lf+':'+s.week,chain:k,text:`🔁 <b>${(H.CHAINS[lf]||{name:lf}).name}</b> verkauft einen Laden an <b>${(H.CHAINS[k]||{name:k}).name}</b> für ${fY(preis)}.`},rep);}
+const insStadt=(s,c)=>{const o=insStaedte(s,c);delete o.weitere;return Object.keys(o).sort((a,b)=>o[b]-o[a])[0]||s.city||'tokio';};
+function insFrei(s,fz,c){if(fz.ins)return false;const st=insStadt(s,c);return !(fz.insLog||[]).some(x=>x.stadt===st&&s.week-x.week<C.INSOLVENZ.stadtWochen);}
+function rvInsolvenz(s,fz,c,rep){const r=rvState(s,fz,c),I=C.INSOLVENZ,h=r.hist.slice(-52),n=rvN(s,c),ev=rvEv(r);
+ const schuld=(r.loans||[]).reduce((a,l)=>a+l.rest,0);r.ins=s.week;(fz.insLog=fz.insLog||[]).push({c,stadt:insStadt(s,c),week:s.week,kasse:r.kasse});
+ const grund=`${r.minus||C.RIVAL_PLEITE.wochen} Wochen in Folge Verlust und Kasse im Minus`+(r.krise>0?' – mitten in einer Branchenkrise':'')+(({skandal:' – nach einem Skandal',lieferkrise:' – nach einer Lieferkrise',management:' – nach einem Managementwechsel'})[ev&&ev.id]||'');
+ fz.ins={c,start:s.week,frist:s.week+1+I.frist,ende:s.week+1+I.frist+I.bieterWochen,/* +1: Meldung kommt am Wochenende, Countdown ab der neuen Woche */phase:'frist',grund,
+  info:{staedte:insStaedte(s,c),umsatz:h.reduce((a,x)=>a+x.rev,0),ergebnis:h.reduce((a,x)=>a+x.g,0),kasse:r.kasse,schulden:schuld,wert:rvWert(s,c),n},
+  mindest:Math.max(1e6,Math.round(n*C.RIVAL_LADEN.buchwert*I.mindestQuote/1e6)*1e6),gebote:{},max:{},runde:0,spieler:null};
+ fz.insZeigen=true;say(s,{id:'ins:'+c+':'+s.week,chain:c,text:`⚖️ <b>${(H.CHAINS[c]||{name:c}).name}</b> meldet Insolvenz an. Die ${n} Läden laufen weiter – in ${I.frist} Wochen startet das Bietverfahren.`},rep);}
+const insSchritt=I=>Math.max(1e6,Math.round(I.mindest*C.INSOLVENZ.schritt/1e6)*1e6);
+const insHoch=I=>Object.entries(I.gebote).sort((a,b)=>b[1]-a[1])[0]||null;
+function insBieter(s,fz){const I=fz.ins,Q=C.INSOLVENZ,vk=I.info.n*C.RIVAL_LADEN.buchwert*Q.wertQuote;
+ for(const k of rvChains(s)){if(k===I.c)continue;const r=(fz.rv||{})[k];if(!r||r.weg||r.ins)continue;// nur zahlungsfähige Ketten
+  const W=rvWert(s,k),avg=r.hist.slice(-13).reduce((a,x)=>a+x.g,0)/Math.max(1,Math.min(13,r.hist.length)),raten=(r.loans||[]).reduce((a,l)=>a+l.rate,0),kred=Math.max(0,avg/Q.cfRegel-raten)/rvRate(1);// 1,5×-Regel nach Gebot
+  const lim=Math.min(Math.max(0,r.kasse-Q.reserve)+kred,vk*(Q.rivalSpanne[0]+Math.random()*(Q.rivalSpanne[1]-Q.rivalSpanne[0])),W>0?W*.5:Infinity);
+  if(lim>=I.mindest)I.max[k]=Math.floor(lim/1e6)*1e6;}}
+function insRivalRunde(I){const st=insSchritt(I);for(const k of Object.keys(I.max).sort(()=>Math.random()-.5)){const h=insHoch(I);if(h&&h[0]===k)continue;
+  const ziel=h?h[1]+st:I.mindest;if(I.max[k]>=ziel)I.gebote[k]=ziel;}}
+function insWoche(s,fz,rep){const I=fz.ins;if(!I)return;
+ if(I.phase==='frist'&&s.week>=I.frist){I.phase='bieten';insBieter(s,fz);insRivalRunde(I);fz.insZeigen=true;
+  say(s,{id:'insbiet:'+I.c,chain:I.c,text:`⚖️ Bietverfahren für <b>${(H.CHAINS[I.c]||{name:I.c}).name}</b> eröffnet – Mindestgebot ${fY(I.mindest)}.`},rep);}
+ else if(I.phase==='bieten'&&s.week>=I.ende)insAbschluss(s,fz,rep);}
+export function insAktion(s,a){const fz=ensure(s),I=fz.ins;if(!I||I.phase!=='bieten')return;
+ if(a==='bieten'){const h=insHoch(I),b=h?h[1]+insSchritt(I):I.mindest;if(h&&h[0]==='player')return;if(b>s.cash){H.toast('Nicht genug Geld 💸 – Aktien verkaufen oder Kredit aufnehmen');return;}
+  I.gebote.player=b;I.runde++;insRivalRunde(I);if(I.runde>=C.INSOLVENZ.runden)insAbschluss(s,fz);}
+ else if(a==='passen'){I.spieler='pass';delete I.gebote.player;
+  for(let i=0;i<20;i++){const v=JSON.stringify(I.gebote);insRivalRunde(I);if(JSON.stringify(I.gebote)===v)break;}insAbschluss(s,fz);}}
+function insAbschluss(s,fz,rep){const I=fz.ins,c=I.c,r=rvState(s,fz,c),h=insHoch(I),kn=(H.CHAINS[c]||{name:c}).name;fz.ins=null;r.ins=null;
+ fz.insErgebnis={c,sieger:h?h[0]:null,betrag:h?h[1]:0,week:s.week};
+ if(!h){const Q=C.INSOLVENZ,pl=s.stores.filter(x=>x.chain===c).map(x=>({d:x.d,slot:x.slot,bis:s.week+Q.sperrWochen})),erl=I.info.n*C.RIVAL_LADEN.buchwert*Q.liquidQuote;
+  rvPleite(s,c,rep);fz.sperre=(fz.sperre||[]).filter(x=>x.bis>s.week).concat(pl);
+  say(s,{id:'liquidation:'+c,chain:c,text:`🏚️ Kein Gebot für <b>${kn}</b>: Die Läden werden für ${fY(erl)} liquidiert (${Math.round(Q.liquidQuote*100)} % Buchwert). Die Standorte sind ${Q.sperrWochen} Wochen gesperrt.`},rep);return;}// niemand bietet → Kette schließt, Nachfolger wie bisher
+ if(h[0]==='player'){s.cash-=h[1];const vorher=s.stores.filter(x=>x.chain==='player');const n=uebernahme(s,c);const J=UE.ON?ueIntegration(s,c,vorher):{zu:0};
+  say(s,{chain:'player',text:`⚖️ Zuschlag! Wir übernehmen <b>${kn}</b> aus der Insolvenz für ${fY(h[1])}${J.zu?` – ${J.zu} doppelte Läden geschlossen`:''}.`},rep);return;}
+ const k=h[0],w=rvState(s,fz,k);let n=0,zu=0;const alle=[];
+ for(const st of s.stores.filter(x=>x.chain===c)){st.chain=k;alle.push(st);n++;}
+ for(const a of Object.values(s.away||{}))for(const st of (a.stores||[]).filter(x=>x.chain===c)){st.chain=k;n++;}
+ for(const st of alle){if(s.stores.some(o=>o!==st&&o.chain===k&&!alle.includes(o)&&S.storeDist(o,st)<UE.INTEGRATION.untereinander)||alle.some(o=>o!==st&&s.stores.includes(o)&&alle.indexOf(o)<alle.indexOf(st)&&S.storeDist(o,st)<UE.INTEGRATION.untereinander)){s.stores=s.stores.filter(x=>x!==st);zu++;n--;}}
+ w.virt=(w.virt||0)+(r.virt||0);n+=r.virt||0;{const bar=Math.max(0,Math.min(h[1],w.kasse-C.INSOLVENZ.reserve)),kr=h[1]-bar;if(kr>0){(w.loans=w.loans||[]).push({rest:kr,rate:rvRate(kr)});}w.kasse-=bar;}w.laeden=rvStores(s,k).length;for(const [q,m] of Object.entries(r.staedte||{}))w.staedte&&(w.staedte[q]=(w.staedte[q]||0)+m);
+ r.weg=true;r.uebernommen=s.week;r.virt=0;const i=H.RIVALS.indexOf(c);if(i>=0)H.RIVALS.splice(i,1);if(s.priceActs)delete s.priceActs[c];
+ say(s,{chain:k,text:`⚖️ <b>${(H.CHAINS[k]||{name:k}).name}</b> übernimmt <b>${kn}</b> aus der Insolvenz für ${fY(h[1])} – ${n} Läden${zu?`, ${zu} doppelte geschlossen`:''}.`},rep);
+ NK.nachfolger(s,c,'uebernommen',rep);}
+export function zeigeInsolvenz(){V.tab='konkurrenz';V.view='insolvenz';}
+function pInsolvenz(s,fz){const I=fz.ins;if(!I)return pKonkurrenz(s,fz);const c=I.c,ch=H.CHAINS[c]||{name:c},f=I.info,RS=C.RIVAL_STAEDTE.staedte;
+ const kar=(ic,l,v,cls='')=>`<div class="fzc"><small>${ic} ${l}</small><b class="${cls}">${v}</b></div>`;
+ const st=Object.entries(f.staedte).map(([k,n])=>`${k==='weitere'?'weitere Städte':(RS[k]||{name:k}).name} ${n}`).join(' · ')||'keine';
+ let x=`<div class="fzc fzneu c"><small class="n">⚖️ INSOLVENZ · KW ${I.start}</small><div class="fzneulogo">${H.chainLogo(c,104)}</div><b class="big">${ch.name} meldet Insolvenz an</b><small>${H.esc(I.grund)}</small></div>
+ <div class="fzc"><small>🏪 Läden je Stadt (${f.n})</small><b>${st}</b></div>
+ <div class="fzg2">${kar('📊','Umsatz letztes Jahr',fY(f.umsatz))}${kar('📉','Gewinn/Verlust letztes Jahr',fY(f.ergebnis,1),f.ergebnis<0?'n':'p')}${kar('💴','Kasse',fY(f.kasse),f.kasse<0?'n':'')}${kar('🏦','Schulden',fY(f.schulden),f.schulden>0?'n':'')}${kar('🏷️','Firmenwert',fY(f.wert))}${kar('🔨','Mindestgebot',fY(I.mindest),'y')}</div>`;
+ if(I.phase==='frist'){const w=Math.max(0,I.frist-s.week);
+  x+=`<div class="fzc c fzins"><small>⏳ Bietverfahren startet in</small><b class="big">${w} ${w===1?'Woche':'Wochen'}</b><small>Deine Kasse: ${fY(s.cash)} · Jetzt Geld besorgen: Aktien verkaufen oder Kredit aufnehmen.</small></div>
+  <div class="fzg2"><button class="fzbtn" data-act="fz" data-v="tab" data-x="boerse">📈 Aktien verkaufen</button><button class="fzbtn" data-act="fz" data-v="inskredit">🏦 Kredit</button></div>`;}
+ else{const h=insHoch(I),b=h?h[1]+insSchritt(I):I.mindest,L=Object.entries(I.gebote).sort((a,b)=>b[1]-a[1]);
+  x+=`<div class="fzh">🔨 Bietverfahren · Runde ${Math.min(I.runde+1,C.INSOLVENZ.runden)}/${C.INSOLVENZ.runden} · endet KW ${I.ende}</div><div class="fzc fzlist">${L.length?L.map(([k,v],i)=>`<div class="fzrow t">${H.chainLogo(k,32)}<div class="grow"><b>${k==='player'?'Du':(H.CHAINS[k]||{name:k}).name}</b><small>${i===0?'👑 Höchstgebot':'überboten'}</small></div><b class="${i===0?'y':''}">${fY(v)}</b></div>`).join(''):'<div class="fzrow"><span>Noch keine Gebote</span></div>'}</div>
+  <div class="fzc fzline">Deine Kasse: <b>${fY(s.cash)}</b>${b>s.cash?' · reicht nicht für das nächste Gebot':''}</div>
+  <div class="fzg2"><button class="fzbtn" data-act="fz" data-v="insbieten" ${h&&h[0]==='player'?'disabled':''}>${h&&h[0]==='player'?'👑 Du führst':`🔨 Bieten: ${fY(b)}`}</button><button class="fzbtn ghost" data-act="fz" data-v="inspassen">✋ Passen</button></div>`;}
+ return `<button class="fzlink" data-act="fz" data-v="back">◀ Konkurrenz</button>`+x;}
+function rvWeek(s,fz,rep){const w=s.week,L=C.RIVAL_LADEN,K=C.RIVAL_KREDIT;insWoche(s,fz,rep);rvProfileVerteilen(s,fz);rvProfilWechsel(s,fz,rep);
+ rvVerkauf(s,fz,rep);
  for(const c of rvChains(s)){const r=rvState(s,fz,c);if(r.weg)continue;r.loans=r.loans||[];r.virt=r.virt||0;
   const n0=rvStores(s,c).length;if(n0>r.laeden)r.kasse-=(n0-r.laeden)*L.ladenKosten;r.laeden=n0;// Läden, die anders entstanden sind, aus der Kasse
-  if(!r.startKredit){r.startKredit=true;r.loans.push({rest:K.start,rate:rvRate(K.start)});r.kasse+=K.start;}// Startkredit für den ersten Laden
-  rvStaedteInit(s,r,c,n0);const n=n0+r.virt,rev=(n-rvNeuAbzug(s,r))*L.umsatzWoche;let zins=0,inst=0;
-  for(const l of r.loans){const z=l.rest*K.zins/52,t=Math.min(l.rest,l.rate-z);l.rest-=t;zins+=z;inst+=z+t;}r.loans=r.loans.filter(l=>l.rest>1);
-  const g=rev*L.gewinnQuote-zins;r.kasse+=rev*L.gewinnQuote-inst;r.hist.push({rev,g});if(r.hist.length>104)r.hist.shift();
+  rvStaedteInit(s,r,c,n0);rvEvent(s,r,c,rep);const k0=r.kasse;const EV=rvEv(r),n=n0+r.virt,rev=Math.max(0,n-rvNeuAbzug(s,r))*L.umsatzWoche*rvFaktor(c)*(EV?EV.umsatz:1)*(1+(Math.random()-.5)*C.RIVAL_STREU.woche);let zins=0,inst=0;
+  for(const l of r.loans){const z=l.rest*(l.zins??K.zins)/52,t=Math.min(l.rest,l.rate-z);l.rest-=t;zins+=z;inst+=z+t;}r.loans=r.loans.filter(l=>l.rest>1);
+  const KR=C.RIVAL_KRISE;if(r.krise>0)r.krise--;else if(n>0&&r.hist.length>=KR.abWoche&&Math.random()<((rvProfil(c)||{p:'solide'}).p==='schwach'?(KR.chanceSchwach??KR.chance):KR.chance)*C.RIVAL_PROFIL[(rvProfil(c)||{p:'solide'}).p].krise){r.krise=Math.round(KR.dauer[0]+Math.random()*(KR.dauer[1]-KR.dauer[0]));}
+  const PP=C.RIVAL_PROFIL[(rvProfil(c)||{p:'solide'}).p],marge=r.krise>0?KR.marge+(PP===C.RIVAL_PROFIL.schwach?KR.schwach:0):L.gewinnQuote+PP.marge;
+  const g=rev*marge-zins;r.kasse+=rev*marge-inst;r.hist.push({rev,g});if(r.hist.length>104)r.hist.shift();
+  if(r.ins)continue;// im Insolvenzverfahren: arbeitet weiter, keine Expansion
+  {const I=C.INSOLVENZ,a13=r.hist.slice(-13).reduce((a,x)=>a+x.g,0),gr=I.aktiv?I.grenze:C.RIVAL_PLEITE.dispo;r.minus=r.kasse<-gr&&a13<0?(r.minus||0)+1:0;
+   const faellig=r.minus>=C.RIVAL_PLEITE.wochen||(I.aktiv&&r.kasse<-I.hart&&a13<0);
+   if(faellig){if(!I.aktiv){rvPleite(s,c,rep);continue;}
+    if(!r.notkredit&&(rvProfil(c)||{p:'solide'}).p!=='schwach'){r.notkredit=s.week;const a=I.notkredit,i=I.notZins/52;r.loans.push({rest:a,zins:I.notZins,rate:a*i/(1-Math.pow(1+i,-C.RIVAL_KREDIT.laufWochen))});r.kasse+=a;r.minus=0;r.wartet=0;
+     const m={id:'notkredit:'+c,chain:c,text:`🏦 <b>${(H.CHAINS[c]||{name:c}).name}</b> bekommt einen Notkredit über ${fY(a)} zu ${de(I.notZins*100,0)} % – letzte Chance vor der Insolvenz.`};news(s,m);if(rep&&rep.news)rep.news.push({...m,week:s.week});continue;}
+    if(insFrei(s,fz,c)){r.wartet=0;rvInsolvenz(s,fz,c,rep);}else{r.wartet=(r.wartet||0)+1;r.kasse=Math.max(r.kasse,k0);}// Warteschlange: Verluste eingefroren
+    continue;}}
   // Expansion: Chance/Woche; bar bezahlen oder Kredit nach 1,5×-Regel
   const avg=r.hist.slice(-13).reduce((a,x)=>a+x.g,0)/Math.min(13,r.hist.length),raten=r.loans.reduce((a,l)=>a+l.rate,0);
-  let neu=false;if(n===0&&r.kasse>=L.ladenKosten){r.kasse-=L.ladenKosten;neu=true;}
-  else if(Math.random()<(C.RIVAL_WACHSTUM[c]??.1)){if(r.kasse>=L.ladenKosten+K.reserve){r.kasse-=L.ladenKosten;neu=true;}
-   else if(n>0&&avg>=K.regel*(raten+rvRate(L.ladenKosten))){r.loans.push({rest:L.ladenKosten,rate:rvRate(L.ladenKosten)});neu=true;}}
-  if(neu){const stadt=rvStadtWahl(r,c),RS=C.RIVAL_STAEDTE,erst=!(r.staedte[stadt]>0);r.staedte[stadt]=(r.staedte[stadt]||0)+1;
+  if(!r.startKredit){r.startKredit=true;r.loans.push({rest:K.start,rate:rvRate(K.start)});r.kasse+=K.start;}// Startkredit (wie Spieler ¥20 Mio) für den ersten Laden – erst hier, damit die erste Rate nicht vorher abgeht
+  let neu=false;const darf=!(r.krise>0)&&w-(r.letzte??-99)>=(C.RIVAL_EXPANSION.abstand?Math.max(C.RIVAL_EXPANSION.abstand*(EV&&EV.abstand||1),PP.abstand*(EV&&EV.abstand||1)):0)&&!(EV&&EV.wachstum===0);
+  if(darf&&n===0&&r.kasse>=L.ladenKosten){r.kasse-=L.ladenKosten;neu=true;}
+  else if(darf&&Math.random()<((C.RIVAL_WACHSTUM[c]??0)>=1?1:PP.wachstum*(EV?EV.wachstum:1))){if(r.kasse>=L.ladenKosten+K.reserve){r.kasse-=L.ladenKosten;neu=true;}
+   else if(n>0&&r.kasse>=K.reserve&&avg>=K.regel*(raten+rvRate(L.ladenKosten))){r.loans.push({rest:L.ladenKosten,rate:rvRate(L.ladenKosten)});neu=true;}}
+  if(neu){r.letzte=w;const stadt=rvStadtWahl(r,c),RS=C.RIVAL_STAEDTE,erst=!(r.staedte[stadt]>0);r.staedte[stadt]=(r.staedte[stadt]||0)+1;
    if(erst&&stadt!==rvHeimat(c)){if(RS.neuStadt.an)r.kasse-=RS.neuStadt.einmal;r.neuStadt[stadt]=w;const kn=(H.CHAINS[c]||{name:c}).name;(n=>{news(s,n);if(rep&&rep.news)rep.news.push(n);})({chain:c,text:`🐾 Kobo: <b>${kn}</b> eröffnet den ersten Laden in ${RS.staedte[stadt].name}!${stadt===(s.city||'tokio')?' Jetzt auch bei uns in der Stadt.':''}`});}
    let o=null;if(stadt===(s.city||'tokio')&&Math.random()<C.RIVAL_KARTE.anteil&&S.freeTotal()>C.RIVAL_KARTE.freiLassen&&H.RIVALS.includes(c))o=S.rivalOpen(c,w);
    if(o){r.laeden++;const ch=H.CHAINS[c];(n=>{news(s,n);if(rep&&rep.news)rep.news.push(n);})({chain:c,near:!!o.near,text:o.near?`<b>${ch.name}</b> eröffnet ${o.gegenueber?'gegenüber':'in der Nähe'} deiner Filiale in ${H.dname(o.st.d)}.`:`<b>${ch.name}</b> eröffnet eine neue Filiale in ${H.dname(o.st.d)}.`});}else r.virt++;}
@@ -139,14 +252,19 @@ function rvWeek(s,fz,rep){const w=s.week,L=C.RIVAL_LADEN,K=C.RIVAL_KREDIT;
     if(UE.ON?(eigen<=UE.KONTROLLE&&Math.random()<ueChance(auf*100,true)):eigen<U.eigenMin){s.lost=true;s.lostReason=tx('uebernahme_erfolgt',{kette:kn});news(s,{chain:c,text:s.lostReason});H.gameOver&&H.gameOver();}
     else news(s,{chain:'player',text:tx('angebot_abgelehnt',{kette:kn})});}}}}
 /* ---------- Realistische Übernahme (Bob, Erik 22:34): 5 % Meldung, Börse bis 29,9 %, ab 30 % nur Angebot an alle ---------- */
-export function ueChance(p,feind){const T=UE.CHANCE;let c=T[0][1];if(p<=T[0][0])c=T[0][1]*p/T[0][0];else if(p>=T[T.length-1][0])c=T[T.length-1][1];else for(let i=1;i<T.length;i++)if(p<=T[i][0]){const [a,ca]=T[i-1],[b,cb]=T[i];c=ca+(cb-ca)*(p-a)/(b-a);break;}return Math.max(0,Math.min(1,c-(feind?UE.FEINDLICH_MINUS:0)));}
+export const ueBoden=p=>p>0?UE.BODEN*ueKurve(p):0;
+export function ueChance(p,feind){const c=ueKurve(p);return Math.max(ueBoden(p),Math.min(1,c-(feind?UE.FEINDLICH_MINUS:0)));}
+function ueKurve(p){const T=UE.CHANCE;let c=T[0][1];if(p<=0)return 0;if(p<=T[0][0])c=T[0][1];else if(p>=T[T.length-1][0])c=T[T.length-1][1];else for(let i=1;i<T.length;i++)if(p<=T[i][0]){const [a,ca]=T[i-1],[b,cb]=T[i];c=ca+(cb-ca)*(p-a)/(b-a);break;}return Math.max(0,Math.min(1,c));}
 const ueSchnitt=q=>{const h=(q.h||[q.k]).slice(-UE.SCHNITT_WOCHEN);return h.reduce((a,x)=>a+x,0)/h.length;};
 const ueStabil=c=>{const r=rnd(seedOf(c)+7)();return UE.STABIL.min+r*(UE.STABIL.max-UE.STABIL.min);};
 const vorstandLehntAb=p=>p<UE.VORSTAND_EMPFIEHLT_AB;const ueFeind=vorstandLehntAb;// feindlich = Vorstand des Ziels lehnt ab
 export function ueAngebot(s,fz,c,praemie,wochen){const id=RVK(c),f=rvFirma(s,c),q=fz.kurse[id],r=rvState(s,fz,c);if(!f||!q)return null;
  const have=(fz.depot[id]||0)/f.aktien,preis=ueSchnitt(q)*(1+praemie/100),rest=(1-have)*f.aktien*preis,kosten=Math.max(UE.KOSTEN.beraterMin,UE.KOSTEN.berater*rest)+UE.KOSTEN.pruefung,feind=ueFeind(praemie);
  return {c,id,have,preis,rest,kosten,feind,chance:ueChance(praemie,feind),praemie,wochen,stabil:ueStabil(c),laeden:rvN(s,c)};}
+// Vorschlag: kleinste Prämie, bei der wir erwartet ≥ 60 % Ja-Stimmen bekommen
+export function ueVorschlag(s,fz,c){const P=UE.PRAEMIE;for(let p=P.min;p<=P.max;p+=P.schritt){const A=ueAngebot(s,fz,c,p,V.wochen);if(A.have+Math.max(0,1-A.have-A.stabil)*A.chance>=.6)return p;}return P.max;}
 function ueStart(s,fz,c){const A=ueAngebot(s,fz,c,V.praemie,V.wochen);if(!A)return;if(fz.tender){H.toast('Es läuft schon ein Übernahmeangebot');return;}
+ const rs=rvState(s,fz,c);if((rs.ueSperre||0)>s.week){H.toast(`Gesperrt – noch ${rs.ueSperre-s.week} Wochen kein neues Angebot`);return;}
  if(V.praemie<UE.PRAEMIE.min){H.toast(`Mindestens +${UE.PRAEMIE.min} % Prämie`);return;}
  if(s.cash<A.rest+A.kosten){H.toast(`Nicht genug Geld 💸 (${fY(A.rest+A.kosten)})`);return;}
  s.cash-=A.kosten;fz.tender={c,praemie:V.praemie,preis:A.preis,ende:s.week+V.wochen,start:s.week,kosten:A.kosten,feind:A.feind};
@@ -156,18 +274,21 @@ function ueIntegration(s,c,vorher){const I=UE.INTEGRATION;let n=0,zu=0;const neu
  for(const a of Object.values(s.away||{}))for(const st of (a.stores||[]))if(st.chain==='player'&&st.von===c&&!st.integ){s.cash-=I.jeLaden;st.integ={bis:s.week+I.wochen,kunden:I.kunden,ek:I.ekDanach};n++;}
  for(const st of neu){s.cash-=I.jeLaden;st.integ={bis:s.week+I.wochen,kunden:I.kunden,ek:I.ekDanach};n++;
   const nah=vorher.find(o=>S.storeDist&&S.storeDist(o,st)<I.abstandFelder);if(nah){s.stores=s.stores.filter(x=>x!==st);zu++;}}
+ // Bob V4: übernommene Läden < 4 Felder voneinander – der zweite wird geschlossen
+ const bleib=[];for(const st of neu){if(!s.stores.includes(st))continue;if(S.storeDist&&bleib.some(o=>S.storeDist(o,st)<I.untereinander)){s.stores=s.stores.filter(x=>x!==st);zu++;}else bleib.push(st);}
  return {n,zu};}
 function ueWoche(s,fz){const T=fz.tender;if(!T||s.week<T.ende)return;const c=T.c,id=RVK(c),f=rvFirma(s,c),r=rvState(s,fz,c),kn=H.CHAINS[c]?H.CHAINS[c].name:c;fz.tender=null;
  if(!f){return;}const have=(fz.depot[id]||0)/f.aktien,stabil=ueStabil(c);let ch=ueChance(T.praemie,T.feind),grund='';
  const ritter=T.feind&&Object.entries(fz.rv||{}).some(([k,x])=>k!==c&&!x.weg&&x.kasse>=(1-have)*f.aktien*T.preis*(1+UE.ABWEHR.ritterAufschlag));
- if(ritter&&Math.random()<UE.ABWEHR.weisserRitter){fz.ueLog={c,ok:false,grund:'weißer Ritter'};news(s,{chain:c,text:`🛡️ Weißer Ritter: Ein befreundeter Investor kauft <b>${kn}</b> – unser Angebot ist gescheitert. Die Beraterkosten (${fY(T.kosten)}) sind weg.`});return;}
+ if(ritter&&Math.random()<UE.ABWEHR.weisserRitter){r.ueSperre=s.week+UE.SPERRE_WOCHEN;fz.ueLog={c,ok:false,grund:'weißer Ritter'};news(s,{chain:c,text:`🛡️ Weißer Ritter: Ein befreundeter Investor kauft <b>${kn}</b> – unser Angebot ist gescheitert. Die Beraterkosten (${fY(T.kosten)}) sind weg.`});return;}
  let hv=have;if(T.feind&&have>=UE.ABWEHR.giftpilleAb){hv=have*UE.ABWEHR.giftpilleFaktor;fz.depot[id]=(fz.depot[id]||0)*UE.ABWEHR.giftpilleFaktor;grund=' (Abwehr: neue Aktien für die Altaktionäre halbieren unseren Anteil)';}// Spielvereinfachung, nicht als echte Regel beschriftet
- const angeboten=Math.max(0,1-hv-stabil),acc=angeboten*ch,tot=hv+acc;
- if(tot<=UE.KONTROLLE){fz.ueLog={c,ok:false,anteil:tot};news(s,{chain:c,text:`❌ Übernahmeangebot für <b>${kn}</b> gescheitert: nur ${Math.round(tot*100)} % angedient${grund}. Beraterkosten ${fY(T.kosten)} verloren.`});return;}
- let teil=tot>=UE.SQUEEZE_OUT?1-hv:acc;const preis=teil*f.aktien*T.preis;s.cash-=preis;
+ const z=Math.max(ueBoden(T.praemie),Math.min(1,ch+(Math.random()*2-1)*UE.ZUFALL)),angeboten=Math.max(0,1-hv-stabil),acc=angeboten*z,tot=hv+acc,prog=hv+angeboten*ch;
+ if(tot<=UE.KONTROLLE){r.ueSperre=s.week+UE.SPERRE_WOCHEN;fz.ueLog={c,ok:false,anteil:tot,eigen:hv,prog,week:s.week};news(s,{chain:c,text:`❌ Übernahmeangebot für <b>${kn}</b> abgelehnt: ${de(tot*100,1)} % Ja-Stimmen (Prognose ${Math.round(prog*100)} %, davon ${Math.round(hv*100)} % unsere)${grund}. Beraterkosten ${fY(T.kosten)} verloren, ${UE.SPERRE_WOCHEN} Wochen kein neues Angebot.`});return;}
+ // Erik 23.10.: bei Erfolg alle fremden Aktien zum Angebotspreis
+ let teil=1-hv;const preis=teil*f.aktien*T.preis;s.cash-=preis;
  const vorher=s.stores.filter(x=>x.chain==='player');const n=uebernahme(s,c);delete fz.depot[id];const I=ueIntegration(s,c,vorher);
- fz.ueLog={c,ok:true,anteil:tot,preis,n,zu:I.zu};
- news(s,{chain:'player',text:`🏆 Übernahme von <b>${kn}</b> gelungen: ${Math.round(tot*100)} % angedient${tot>=UE.SQUEEZE_OUT?', Rest per Squeeze-out':''}. ${n} Läden, Integration ${fY(I.n*UE.INTEGRATION.jeLaden)}${I.zu?`, ${I.zu} Läden zu nah an eigenen – geschlossen`:''}.`});}
+ fz.ueLog={c,ok:true,anteil:tot,eigen:hv,prog,preis,n,zu:I.zu,week:s.week,text:''};
+ news(s,{chain:c,text:`🏆 Übernahme von <b>${kn}</b> gelungen: ${de(tot*100,1)} % Ja-Stimmen (Prognose ${Math.round(prog*100)} %${hv>0?`, davon ${Math.round(hv*100)} % unsere`:''}), alle übrigen Aktien für ${fY(preis)} gekauft. ${n} Läden, Integration ${fY(I.n*UE.INTEGRATION.jeLaden)}${I.zu?`, ${I.zu} Läden zu nah an eigenen – geschlossen`:''}.`});}
 // Spieler kauft Rivalen-Aktien: je 5 % Anteil steigt der Kurs ~3 %; ohne Gründer-Verkauf nur Streubesitz kaufbar
 function rvMax(r){if(UE.ON)return Math.min(UE.MARKT_MAX,r.boerse.streu);return C.GRUENDER_VERKAUF?1:r.boerse.streu;}
 function rvKauf(s,fz,c,anteil){const r=rvState(s,fz,c),id=RVK(c),f=rvFirma(s,c),q=fz.kurse[id],have=(fz.depot[id]||0)/f.aktien;
@@ -177,8 +298,7 @@ function rvKauf(s,fz,c,anteil){const r=rvState(s,fz,c),id=RVK(c),f=rvFirma(s,c),
  if(cost>s.cash){H.toast(`Nicht genug Geld 💸 (${fY(cost)})`);return false;}
  s.cash-=cost;fz.depot[id]=(fz.depot[id]||0)+a*f.aktien;q.ch=k1/q.k-1;q.k=k1;r.boerse.k=k1;H.toast(`📈 ${f.name}: ${pc(a)} für ${fY(cost)} gekauft`);
  const nh=fz.depot[id]/f.aktien;if(UE.ON&&have<UE.MELDE_SCHWELLE&&nh>=UE.MELDE_SCHWELLE)news(s,{chain:'player',text:`📋 Kobo: Meldepflicht! Wir halten jetzt ${de(nh*100,1)} % an ${f.name} – das ist jetzt öffentlich.`});
- if(!UE.ON&&(fz.depot[id]/f.aktien)>=C.UEBERNAHME_AB-1e-9){const n=uebernahme(s,c);delete fz.depot[id];H.toast(`🏆 ${f.name} übernommen – ${n} Läden!`);V.view=null;V.tab='konkurrenz';}
- S.save();return true;}
+  S.save();return true;}
 // Kaufangebot an private Kette (Schalter ?kaufangebot=1): Chance linear 0 % bei 100 % → 100 % bei 130 % des Firmenwerts
 export const angebotChance=f=>Math.max(0,Math.min(1,(f-C.ANGEBOT.von)/(C.ANGEBOT.bis-C.ANGEBOT.von)));
 function angebot(s,fz,c,f){const r=rvState(s,fz,c),w=rvWert(s,c),preis=w*f;if(!C.KAUFANGEBOT)return;if(rvN(s,c)<C.ANGEBOT.abLaeden){H.toast(`Kaufangebot erst, wenn die Kette ${C.ANGEBOT.abLaeden} Läden hat`);return;}if(r.sperre>0){H.toast(`Gesperrt – noch ${r.sperre} Wochen`);return;}
@@ -188,14 +308,16 @@ function angebot(s,fz,c,f){const r=rvState(s,fz,c),w=rvWert(s,c),preis=w*f;if(!C
 function ueKarte(s,fz,f,c,r,have,frei,btn){const T=fz.tender,L=fz.ueLog&&fz.ueLog.c===c?fz.ueLog:null;
  return `<div class="fzc"><b>📈 Aktien über die Börse</b><div class="fzsm">Bis ${de(UE.MARKT_MAX*100,1)} % frei kaufbar · ab ${Math.round(UE.MELDE_SCHWELLE*100)} % wird es öffentlich gemeldet · noch frei: ${de(frei*100,1)} %</div><div class="fzbtns">${[.01,.05,.1].map(btn).join('')}</div></div>
  ${T&&T.c===c?`<div class="fzc fzline">📣 <b>Übernahmeangebot läuft</b><span class="grow"></span><small>+${T.praemie} % · noch ${Math.max(0,T.ende-s.week)} Wo.</small></div>`
- :`<button class="fzbtn full" data-act="fz" data-v="tender" ${T?'disabled':''}>📣 Übernahmeangebot an alle Aktionäre</button>`}
- ${L?`<div class="fzc ${L.ok?'':'fzwarn'}">${L.ok?'🏆 Übernahme gelungen':'❌ Letztes Angebot gescheitert'}${L.anteil!=null?` · ${Math.round(L.anteil*100)} % angedient`:''}${L.grund?` · ${L.grund}`:''}</div>`:''}
- ${kobo(`Über die Börse bekommst du höchstens ${de(UE.MARKT_MAX*100,1)} %. Für die Mehrheit brauchst du ein Angebot an alle – je höher die Prämie, desto mehr verkaufen.`)}`;}
-function pTender(s,fz){const f=FM[V.id],c=f.rival,A=ueAngebot(s,fz,c,V.praemie,V.wochen),P=UE.PRAEMIE,Lz=UE.LAUFZEIT,ges=A.rest+A.kosten,ok=s.cash>=ges;
+ :(r.ueSperre||0)>s.week?`<div class="fzc fzline">⏳ Nächstes Übernahmeangebot erst in ${r.ueSperre-s.week} Wochen</div>`:`<button class="fzbtn full" data-act="fz" data-v="tender" ${T?'disabled':''}>📣 Übernahmeangebot für alle Aktien</button>`}
+ ${L?`<div class="fzc ${L.ok?'':'fzwarn'}">${L.ok?'🏆 Übernahme gelungen':'❌ Letztes Angebot abgelehnt'}${L.anteil!=null?` · ${de(L.anteil*100,1)} % Ja-Stimmen${L.prog!=null?` · Prognose ${Math.round(L.prog*100)} %`:''}${L.eigen?` · davon ${Math.round(L.eigen*100)} % unsere`:''}`:''}${L.grund?` · ${L.grund}`:''}</div>`:''}
+ ${kobo(`Über die Börse bekommst du höchstens ${de(UE.MARKT_MAX*100,1)} %. Für die Mehrheit machst du ein Angebot für alle Aktien – unsere Aktien zählen als Ja, je höher die Prämie, desto mehr Streubesitz stimmt zu.`)}`;}
+function pTender(s,fz){const f=FM[V.id],c=f.rival,A=ueAngebot(s,fz,c,V.praemie,V.wochen),P=UE.PRAEMIE,Lz=UE.LAUFZEIT,ges=A.rest+A.kosten,ok=s.cash>=ges,q=fz.kurse[f.id],vp=ueVorschlag(s,fz,c),ja=A.have+Math.max(0,1-A.have-A.stabil)*A.chance;
  return `<button class="fzlink" data-act="fz" data-v="firma" data-x="${f.id}">◀ ${f.name}</button><div class="fzc fzdet">${H.chainLogo(c,56)}<div class="grow"><b class="big">Übernahmeangebot</b><small>an alle Aktionäre von ${f.name}</small></div></div>
  <div class="fzc"><div class="fzrow t"><span>Prämie <small>auf den ${UE.SCHNITT_WOCHEN}-Wochen-Schnitt</small></span><b class="y">+${V.praemie} %</b></div><input type="range" class="fzrange" min="${P.min}" max="${P.max}" step="${P.schritt}" value="${V.praemie}" data-fzin="praemie">
- <div class="fzsm">Annahmefrist ${V.wochen} Wochen. Ab ${de(UE.SQUEEZE_OUT*100,1)} % werden die letzten Aktionäre herausgekauft.</div></div>
- <div class="fzc fzlist"><div class="fzrow"><span>🎯 Annahmechance</span><b class="${A.chance>=.6?'p':A.chance>=.3?'y':'n'}">${Math.round(A.chance*100)} %</b></div>
+ <div class="fzrow"><span>📈 Börsenkurs</span><b>${fK(q.k)}</b></div><div class="fzrow"><span>💴 Unser Preis je Aktie</span><b class="y">${fK(A.preis)}</b></div>
+ <div class="fzline">💡 Vorschlag: <b class="y">+${vp} %</b><span class="grow"></span>${vp!==V.praemie?`<button class="fzbtn s" data-act="fz" data-v="praemieset" data-x="${vp}">übernehmen</button>`:'<small>✓ gewählt</small>'}</div>
+ <div class="fzsm">Annahmefrist ${V.wochen} Wochen. Über 50 % Ja-Stimmen = Übernahme, dann kaufen wir alle übrigen Aktien. Sonst ${UE.SPERRE_WOCHEN} Wochen Sperre.</div></div>
+ <div class="fzc fzlist"><div class="fzrow"><span>🗳️ Unsere Stimmen</span><b class="${A.have>0?'p':''}">${de(A.have*100,1)} %</b></div><div class="fzrow"><span>🗳️ Erwartet Ja <small>(±${Math.round(UE.ZUFALL*100)})</small></span><b class="${ja>.5?'p':'n'}">${Math.round(ja*100)} %</b></div><div class="fzrow"><span>🎯 Zustimmung Streubesitz</span><b class="${A.chance>=.6?'p':A.chance>=.3?'y':'n'}">${Math.round(A.chance*100)} %</b></div>
  ${A.feind?`<div class="fzsm n">🛑 Vorstand lehnt ab → feindliches Angebot: −${Math.round(UE.FEINDLICH_MINUS*100)} Punkte Chance, Abwehr möglich.</div>`:`<div class="fzsm">✅ Vorstand empfiehlt das Angebot (freundlich).</div>`}
  <div class="fzrow"><span>💴 Kosten: Kaufpreis bei Erfolg</span><b>${fY(A.rest)}</b></div><div class="fzrow"><span>🧾 Kosten: Berater + Prüfung</span><b class="n">${fY(-A.kosten)}</b></div><div class="fzsm">Die Kosten sind weg, wenn das Angebot scheitert.</div></div>
 
@@ -227,7 +349,7 @@ export function weekHook(s,rep,T){if(!ON)return;const fz=ensure(s);const w=s.wee
  for(const [id,m] of Object.entries(fz.messe))if(m.holder!=='player'&&d>new Date(m.ende))delete fz.messe[id];
  if(fz.ipo&&T.net>0){const div=PV.dividende(s,T.net);cash-=div;net-=div;}// Spieler: freiwillige Dividende (Erik 22:07), Rivalen bleiben bei 30 %
  if(fz.ipo){fz.pwert=(fz.pwert||[]).concat(companyValue(s,fz).wert).slice(-52);}
- {const o=startKredit(s,fz);if(o.ok&&!fz.startKreditInfo){fz.startKreditInfo=s.week;const t=`🐾 Kobo: Die Bank gibt dir jetzt einen <b>Startkredit über ${fY(WG.STARTKREDIT.betrag)}</b> – genug für den zweiten Laden! (Finanzen › Börse › Kredite)`;if(rep.events)rep.events.push(t);news(s,{chain:'player',text:t});}}
+ {const o=startKredit(s,fz);if(o.ok&&!fz.startKreditInfo){fz.startKreditInfo=s.week;if(!C.tippProfi(s)){const t=`🐾 Kobo: Die Bank gibt dir jetzt einen <b>Startkredit über ${fY(WG.STARTKREDIT.betrag)}</b> – genug für den zweiten Laden! (Finanzen › Börse › Kredite)`;if(rep.events)rep.events.push(t);news(s,{chain:'player',text:t});}}}
  rvWeek(s,fz,rep);if(UE.ON)ueWoche(s,fz);
  s.cash+=cash;T.net+=net;rep.fz={cash,net,extra};}
 /* ---------- Aktionen ---------- */
@@ -240,6 +362,7 @@ export function act(b){const s=S.state,fz=ensure(s),a=b.dataset.v,x=b.dataset.x;
  case 'rueckkauf':{if(!C.RUECKKAUF)break;const fr=fz.fremd||{},tot=Object.values(fr).reduce((a,x)=>a+x,0),a=Math.min(C.FREMD.rueckkauf,tot);if(a<=0){H.toast('Keine fremden Aktien');break;}const cost=companyValue(s,fz).wert*a;if(cost>s.cash){H.toast(`Nicht genug Geld 💸 (${fY(cost)})`);break;}
   s.cash-=cost;for(const k in fr)fr[k]-=fr[k]/tot*a;H.toast(`🛡️ ${pc(a)} eigene Aktien zurückgekauft`);S.save();break;}
  case 'tender':V.view='tender';break;
+ case 'praemieset':V.praemie=+x;break;
  case 'tenderstart':ueStart(s,fz,FM[V.id].rival);break;
  case 'rvkauf':rvKauf(s,fz,FM[V.id].rival,+x);break;
  case 'kaufangebot':V.tab='konkurrenz';V.view='angebot';V.id=x;V.angebot=1.1;break;
@@ -278,6 +401,10 @@ export function act(b){const s=S.state,fz=ensure(s),a=b.dataset.v,x=b.dataset.x;
  case 'einnein':PV.ensure(s).frage=null;break;
  case 'bu':BU.act(x);break;
  case 'neukette':V.tab='konkurrenz';V.view='neukette';V.id=x;break;
+ case 'insolvenz':V.tab='konkurrenz';V.view='insolvenz';break;
+ case 'insbieten':insAktion(s,'bieten');break;
+ case 'inspassen':insAktion(s,'passen');break;
+ case 'inskredit':V.tab='boerse';V.view='kredite';break;
  case 'ipostart':{const r=ipoReq(s,fz);if(!r.ok){H.toast('Voraussetzungen noch nicht erfüllt');break;}const cap=r.wert*V.streu/100*(1-C.IPO.gebuehr);s.cash+=cap;fz.ipo={streu:V.streu,week:s.week,cap,dividende:V.div};S.save();H.toast(`🔔 Börsengang: ${fY(cap)}`);break;}
  }
  H.rerender();if(v0!==V.view+'|'+V.tab){const el=document.getElementById('fz');if(el){el.scrollTop=0;requestAnimationFrame(()=>{el.scrollTop=0;});}}}
@@ -426,20 +553,22 @@ function pBieten(s,fz){const a=fz.auktion,m=MM[V.id];if(!a)return pDeal(s,fz);co
  <div class="fzc">${tierBox(o.tp,o.si,m.einheit,o.n)}<div class="fzsm">VK ¥${m.vk} · Marge <b class="p">¥${marge} (${Math.round(marge/o.net*100)} %)</b></div>${laufzeitBtns(fy)}</div>
  ${ertrag(`Erwarteter Ertrag · bis ${dly(endDate(fy,a.jahre))}`,[[`${H.ladenN(o.n)} × ≈${o.fc.u} × ¥${marge} × ${o.wk} Wo. × ${Math.round(C.MEHRERTRAG*100)} % Mehrertrag`,fY(o.fc.mehr,1),'p'],['− Dein Gebot',fY(-V.gebot),'n']],netto,`<div class="fzrow"><span>Gewinnschwelle / max. sinnvolles Gebot</span><b class="y">${fY(o.fc.mehr)}</b></div>`)}
  <div class="fzbtns"><div class="fzc fzbid"><small>Dein Gebot</small><b>${fY(V.gebot)}</b><div><button data-act="fz" data-v="gebot" data-x="-1">−</button> ${fY(C.BIETEN.schritt,1)} <button data-act="fz" data-v="gebot" data-x="1">+</button></div></div><button class="fzbtn" data-act="fz" data-v="bieten">🔨 Bieten</button></div>`;}
-function pKonkurrenz(s,fz){const news=(s.news||[]).find(n=>n.chain&&n.chain!=='player'),A=C.ANGEBOT.abLaeden;
- const known=C.KONKURRENZ.map(k=>k.c),liste=C.KONKURRENZ.filter(k=>H.CHAINS[k.c]&&!(NK.cfg(k.c)&&!NK.aktiv(s).includes(k.c))&&!(fz.rv&&fz.rv[k.c]&&fz.rv[k.c].weg)).map(k=>NK.cfg(k.c)?{...k,neu:1}:k).concat(NK.aktiv(s).filter(c=>!known.includes(c)).map(c=>({c,neu:1}))).concat(rvChains(s).filter(c=>!known.includes(c)&&!rvState(s,fz,c).weg).map(c=>({c})));
+function pKonkurrenz(s,fz){const nkC=c=>NK.cfg(c)&&((s.nk||{}).chains||{})[c]&&NK.cfg(c);// ausländische Nachrücker sind normale Rivalen
+const news=(s.news||[]).find(n=>n.chain&&n.chain!=='player'),A=C.ANGEBOT.abLaeden;
+ const known=C.KONKURRENZ.map(k=>k.c),liste=C.KONKURRENZ.filter(k=>H.CHAINS[k.c]&&!(nkC(k.c)&&!NK.aktiv(s).includes(k.c))&&!(fz.rv&&fz.rv[k.c]&&fz.rv[k.c].weg)).map(k=>nkC(k.c)?{...k,neu:1}:k).concat(NK.aktiv(s).filter(c=>!known.includes(c)).map(c=>({c,neu:1}))).concat(rvChains(s).filter(c=>!known.includes(c)&&!rvState(s,fz,c).weg).map(c=>({c})));
  const fremd=fz.ipo&&fz.fremd?Object.values(fz.fremd).reduce((a,x)=>a+x,0):0,nb=liste.filter(k=>!k.neu&&C.RIVAL_START[k.c]!=null&&rvState(s,fz,k.c).boerse).length;
  const rows=liste.map(k=>{const ch=H.CHAINS[k.c],rv=!k.neu&&C.RIVAL_START[k.c]!=null?rvState(s,fz,k.c):null,f=rv&&rv.boerse&&rvFirma(s,k.c),q=f&&fz.kurse[f.id],wert=k.neu?NK.wert(s,k.c):rv?rvWert(s,k.c):null,n=rvN(s,k.c),frei=n>=A;
-  const sub=k.neu?`neu · ${NK.cfg(k.c).land} · <button class="fzlink y" data-act="fz" data-v="neukette" data-x="${k.c}">Eilmeldung ›</button>`:`${rv?`Start ${fY(C.RIVAL_START[k.c]).replace(',00 ',' ')} · `:''}Firmenwert ≈ ${fY(q?q.k*f.aktien:wert||0).replace(',00 ',' ')}`;
-  const pill=q?'<span class="fzpill b">📈 börsennotiert</span>':rv?`<span class="fzpill ${frei&&C.KAUFANGEBOT?'g':'k'}">${frei&&C.KAUFANGEBOT?'🤝 Kaufangebot möglich':'🔒 privat'} · ${n>=A?H.ladenN(n):n+"/"+A+" Läden"}</span>`:'<span class="fzpill k">🔒 privat</span>';
+  const sub=k.neu?`neu · ${nkC(k.c).land} · <button class="fzlink y" data-act="fz" data-v="neukette" data-x="${k.c}">Eilmeldung ›</button>`:`${rv?`Start ${fY(C.RIVAL_START[k.c]).replace(',00 ',' ')} · `:''}Firmenwert ≈ ${fY(q?q.k*f.aktien:wert||0).replace(',00 ',' ')}`;
+  const pill=q?'<span class="fzpill b">📈 börsennotiert</span>':rv?`<span class="fzpill ${frei&&C.KAUFANGEBOT?'g':'k'}">${frei&&C.KAUFANGEBOT?'🤝 Kaufangebot möglich':'🔒 privat'} · ${n>=A?H.ladenN(n):n===0?"0 Läden":n+"/"+A+" Läden"}</span>`:'<span class="fzpill k">🔒 privat</span>';
   const btn=q?`<button class="fzpill y fzbtnpill" data-act="fz" data-v="rvaktie" data-x="${f.id}">📈 Aktie kaufen ›</button>`:rv&&C.KAUFANGEBOT?(frei?`<button class="fzpill y fzbtnpill" data-act="fz" data-v="kaufangebot" data-x="${k.c}">🤝 Kaufangebot machen ›</button>`:'<span class="fzpill k fzoff">🤝 Kaufangebot machen</span>'):'';
-  return `<div class="fzkrow"><div class="fzrow t">${ch?H.chainLogo(k.c,40):''}<div class="grow"><b>${ch?ch.name:k.c}</b><small>${sub}</small></div></div>${rv&&!q?`<div class="fzbar"><i style="width:${Math.min(100,n/A*100)}%" class="${frei?'g':''}"></i></div>`:''}<div class="fzkbtn">${pill}${btn}</div></div>`;}).join('');
- return `<div class="fzh">Konkurrenz · ${liste.length} Ketten · ${nb?nb+' an der Börse':'keine an der Börse'}</div><div class="fzc fzlist">${rows}<div class="fzsm c">➕ weitere Ketten können später auftauchen</div></div>
- <div class="fzc"><b>🎯 Übernahme</b>${C.KAUFANGEBOT?`<div class="fzsm">🤝 ab <b class="y">${A} Läden</b>: Kaufangebot an den Besitzer</div>`:''}<div class="fzsm">📈 geht eine Kette an die Börse: <b class="y">${Math.round(C.UEBERNAHME_AB*100)} %</b> der Aktien kaufen</div></div>
+  return `<div class="fzkrow"><div class="fzrow t">${ch?H.chainLogo(k.c,40):''}<div class="grow"><b>${ch?ch.name:k.c}</b><small>${sub}</small></div></div>${rv&&!q&&n>0?`<div class="fzbar"><i style="width:${Math.min(100,n/A*100)}%" class="${frei?'g':''}"></i></div>`:''}<div class="fzkbtn">${pill}${btn}</div></div>`;}).join('');
+  const leer=NK.wartend(s).map(p=>{const c=p.id&&NK.nfCfg(p.id);return `<div class="fzkrow"><div class="fzrow t"><span style="width:40px;height:40px;border-radius:50%;border:2px dashed #888;display:inline-flex;align-items:center;justify-content:center;flex:none">🕳️</span><div class="grow"><b>Freier Platz</b><small>früher ${p.altName} · ${c?`angekündigt: <b>${c.name}</b> · Start ab KW ${p.ab}`:`Nachfolger frühestens ab KW ${p.week+NK.NF_START}`}</small></div></div><div class="fzkbtn"><span class="fzpill k">${c?'📣 kommt nächstes Jahr':'⏳ noch offen'}</span></div></div>`;}).join('');
+return `${fz.ueLog&&fz.ueLog.ok&&s.week-(fz.ueLog.week||0)<=8?`<div class="fzc fzline fzuegut">🏆 <span style="flex:1 1 200px;min-width:0"><b>Übernahme von ${(H.CHAINS[fz.ueLog.c]||{name:fz.ueLog.c}).name} gelungen</b><br><small>${de(fz.ueLog.anteil*100,1)} % Ja-Stimmen (Prognose ${Math.round((fz.ueLog.prog||0)*100)} %, davon ${Math.round((fz.ueLog.eigen||0)*100)} % unsere) · ${fz.ueLog.n} Läden · ${fY(fz.ueLog.preis)} für die übrigen Aktien${fz.ueLog.zu?` · ${fz.ueLog.zu} zu nah, geschlossen`:''}</small></span><span class="grow"></span><small>KW ${fz.ueLog.week}</small></div>`:''}<div class="fzh">Konkurrenz · ${liste.length} Ketten · ${nb?nb+' an der Börse':'keine an der Börse'}</div><div class="fzc fzlist">${rows}${leer}<div class="fzsm c">➕ weitere Ketten können später auftauchen</div></div>
+ <div class="fzc"><b>🎯 Übernahme</b>${C.KAUFANGEBOT?`<div class="fzsm">🤝 ab <b class="y">${A} Läden</b>: Kaufangebot an den Besitzer</div>`:''}<div class="fzsm">📈 geht eine Kette an die Börse: Aktien kaufen oder <b class="y">Übernahmeangebot für alle Aktien</b> – über 50 % Ja-Stimmen</div></div>
  ${fz.ipo&&fremd>0?`<div class="fzc fzline ${fremd>=C.FREMD.warnung?'n':''}">⚠️ Konkurrenten halten zusammen ${pc(fremd)} unserer Aktien<span class="grow"></span>${C.RUECKKAUF?`<button class="fzbtn s" data-act="fz" data-v="rueckkauf">🛡️ ${pc(Math.min(C.FREMD.rueckkauf,fremd))} zurückkaufen</button>`:''}</div>`:''}
- ${news?`<div class="fzc fzline">🔔 ${news.text}<span class="grow"></span><small>KW ${news.week}</small></div>`:''}
+ ${news?`<div class="fzc fzline"><span style="flex:1 1 200px;min-width:0">🔔 ${news.text}</span><span class="grow"></span><small>KW ${news.week}</small></div>`:''}
  <button class="fzc fzline fzipo" data-act="fz" data-v="ipo">🔔 <b>Eigener Börsengang</b><span class="grow"></span>${fz.ipo?`<span class="p">✅ ${fz.ipo.streu} % an der Börse</span>`:'Bewertung &amp; Voraussetzungen ›'}</button>
- ${kobo(fremd>=C.FREMD.warnung?tx('warnung_fremdbesitz',{kette:'Die Konkurrenz',anteil:Math.round(fremd*100)}):C.KAUFANGEBOT?`Ab ${A} Läden kannst du ein Kaufangebot machen. Geht eine Kette an die Börse, übernimmst du sie mit ${Math.round(C.UEBERNAHME_AB*100)} %.`:`Geht eine Kette an die Börse, übernimmst du sie mit ${Math.round(C.UEBERNAHME_AB*100)} %.`)}`;}
+ ${kobo(fremd>=C.FREMD.warnung?tx('warnung_fremdbesitz',{kette:'Die Konkurrenz',anteil:Math.round(fremd*100)}):C.KAUFANGEBOT?`Ab ${A} Läden kannst du ein Kaufangebot machen. Geht eine Kette an die Börse, kannst du allen Aktionären ein Angebot machen.`:`Geht eine Kette an die Börse, kannst du allen Aktionären ein Angebot machen.`)}`;}
 // Eilmeldung neue Kette (Yuki Mockup k_neue_kette.png)
 function pNeuKette(s,fz){const id=V.id,c=NK.cfg(id),st=((s.nk||{}).chains||{})[id];if(!c||!st)return pKonkurrenz(s,fz);const R=NK.K.REGELN,ch=H.CHAINS[id];
  const jahr=Math.floor((st.start-1)/52)+1,kw=st.start,later=NK.K.AUSLAND.filter(x=>x.id!==id&&!((s.nk.chains||{})[x.id])),pr=NK.K.BEISPIELE.map(b=>{const k=H.CATS.find(x=>x.id===b.cat);return k?{...b,wir:k.price,die:Math.round(k.price*(1-R.preisMinus))}:null;}).filter(Boolean);
@@ -462,14 +591,15 @@ export function render(){const s=S.state,fz=ensure(s);let b;if(V.zentrale&&BU.ON
  if(V.tab==='filialen')b=V.view==='vermoegen'?pVermoegen(s,fz):pFilialen(s,fz);
  else if(V.tab==='boerse')b=V.view==='tender'&&FM[V.id]&&FM[V.id].rv?pTender(s,fz):V.view==='firma'?(FM[V.id]&&FM[V.id].rv?pRival(s,fz):pFirma(s,fz)):V.view==='kredite'?pKredite(s,fz):pBoerse(s,fz);
  else if(V.tab==='produkte')b=V.view==='zuklein'?pZuKlein(s,fz):V.view==='verhandeln'?pVerhandeln(s,fz):V.view==='messe'?pMesse(s,fz):V.view==='deal'?pDeal(s,fz):V.view==='bieten'?pBieten(s,fz):pProdukte(s,fz);
- else b=V.view==='ipo'?pIPO(s,fz):V.view==='angebot'?pAngebot(s,fz):V.view==='neukette'?pNeuKette(s,fz):pKonkurrenz(s,fz);
+ else b=V.view==='ipo'?pIPO(s,fz):V.view==='angebot'?pAngebot(s,fz):V.view==='neukette'?pNeuKette(s,fz):V.view==='insolvenz'?pInsolvenz(s,fz):(fz.ins?`<button class="fzc fzline fzinsbar" data-act="fz" data-v="insolvenz">⚖️ Insolvenzverfahren ${(H.CHAINS[fz.ins.c]||{name:fz.ins.c}).name} · ${fz.ins.phase==='frist'?`Bieten ab KW ${fz.ins.frist}`:'Bietverfahren läuft'} ▶</button>`:'')+pKonkurrenz(s,fz);
  return head(s)+`<div class="fzbody">${b}</div>`;}
 export function init(sim,helpers){S=sim;H=helpers;PV.init(sim,{texte:helpers.texte,firmenwert:s=>companyValue(s,ensure(s)).wert,depot:s=>depotWert(ensure(s))});
  const plans={};if(BU.ON)for(const k of ['000','001','010','011','100','101','110','111'])fetch(`grafik/buero/plan/plan_${k}.svg`).then(r=>r.ok?r.text():'').then(t=>plans[k]=t).catch(()=>{});
  BU.init(sim,{allMine,esc:helpers.esc,fY,toast:helpers.toast,ladenN:helpers.ladenN,dtype:id=>helpers.dtype?helpers.dtype(id):'standard',typName:t=>({office:'🏢 Büroviertel',station:'🚉 Bahnhof',tourist:'⛩️ Tourismus',nightlife:'🌃 Ausgehviertel',residential:'🏘️ Wohnviertel',uni:'🎓 Uni'})[t]||t,
   produktName:id=>{const v=ensure(S.state).vertraege[id];if(v&&v.artikel)return v.artikel;const b=String(id).split('#')[0];return (MM[b]||FM[b]||{name:id}).name;},messeTermin:C.MESSE_TERMIN,planSvg:k=>plans[k]||'',zuFinanzen:tab=>{V.zentrale=false;if(tab==='messe'){V.tab='produkte';V.view='messe';}else{V.tab=tab;V.view=null;}H.rerender();}});if(!ON)return;
  if(!document.getElementById('fzcss')){const l=document.createElement('link');l.id='fzcss';l.rel='stylesheet';l.href='css/finanzen.css';document.head.appendChild(l);}
- fetch('daten/DIVIDENDEN.json').then(r=>r.json()).then(j=>{for(const d of j.firmen)DIV[d.firma]=d;H.rerender();}).catch(()=>{});
+ S.setRivalUmsatz&&S.setRivalUmsatz((st,c)=>{const r=st.fz&&st.fz.rv&&st.fz.rv[c];return r&&!r.weg&&r.hist.length?r.hist[r.hist.length-1].rev:null;});// Award: Ketten-Umsatz aller Städte
+ fetch('daten/DIVIDENDEN.json').then(r=>r.json()).then(j=>{for(const d of j.firmen)DIV[d.firma]=d;H.rerender();/* Firmen, die es im Spiel nicht mehr gibt, werden nie abgefragt (nur über FM) */}).catch(()=>{});
  document.addEventListener('input',e=>{if(e.target.dataset&&e.target.dataset.fzin)onInput(e.target);});}
 export const ui=V;// für Tests/Screens
 export const firmenwert=s=>companyValue(s,ensure(s));

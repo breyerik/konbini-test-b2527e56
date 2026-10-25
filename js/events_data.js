@@ -48,6 +48,9 @@ export const RIVAL_RULES={
  anteilMax:.5,         // PH: Rivalen belegen höchstens 50 % der freigeschalteten Standorte
  freiLassen:3,         // PH: so viele Standorte bleiben immer für den Spieler frei
  nahFelder:4,          // PH: „gegenüber/nah“ = Abstand ≤ 4 Felder (ca. 40 m)
+ eigenAbstand:8,        // Bob V4: Rivalen bauen ≥ 8 Felder von eigenen Läden (außer Bahnhof/Bürolage)
+ kannibMax:.25,         // Bob V4: kein Neubau, wenn ≥ 25 % vom eigenen Umsatz kannibalisiert
+ mehrUmsatzMin:.75,     // Bob V4 (Erik): erwarteter Mehrumsatz ≥ 0,75 × Ø-Laden – Stadtrand (0,8) bleibt auch mit einem eigenen Laden in 10–30 F möglich × Ø-Laden (¥2,2 Mio/Woche, City = 1)
  umfeldFelder:10,      // PH: „in der Nähe“ = Abstand ≤ 10 Felder (ca. 100 m)
  verlustUmfeld:.03,    // Bob V2: −3 % je Rivalen-Filiale im Umfeld (statt Stadtteil-Wert)
  nahBevorzugt:.6,      // PH: Chance, dass eine Kette gezielt neben einer Spieler-Filiale eröffnet

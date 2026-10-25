@@ -327,7 +327,7 @@
     {
       "id": "ev_konkurrenz_nebenan",
       "figur": "kobo-besorgt",
-      "text": "{kette} eröffnet direkt gegenüber von {laden}!",
+      "text": "{rivale} eröffnet direkt gegenüber von {laden}!",
       "option_a": "Preise kurz senken und dagegenhalten",
       "option_b": "Ruhig bleiben und auf Stammkunden setzen"
     },
@@ -439,7 +439,7 @@
     {
       "id": "ev_filialleitung_abwerbung",
       "figur": "kobo-besorgt",
-      "text": "{kette} will deine Filialleitung aus {laden} abwerben.",
+      "text": "{rivale} will deine Filialleitung aus {laden} abwerben.",
       "option_a": "Mehr Gehalt anbieten",
       "option_b": "Gehen lassen und neu einstellen"
     },
@@ -452,11 +452,11 @@
     }
   ],
   "uebernahme": {
-    "warnung_fremdbesitz": "Kobo: Pass auf! {kette} besitzt schon {anteil} % unserer Aktien. Behalte das im Blick.",
-    "eilmeldung_uebernahme_droht": "🚨 Eilmeldung: Übernahme droht! {kette} hält bereits {anteil} % von {laden}.",
-    "angebot_eingang": "{kette} bietet {betrag} für alle Aktien. Das sind {aufschlag} % über dem Kurs.",
-    "angebot_abgelehnt": "Kobo: Puh! Wir halten die Mehrheit und haben das Angebot von {kette} abgelehnt.",
-    "uebernahme_erfolgt": "💀 {kette} hat dein Imperium übernommen. Die Aktionäre haben verkauft.",
+    "warnung_fremdbesitz": "Kobo: Pass auf! {rivale} besitzt schon {anteil} % unserer Aktien. Behalte das im Blick.",
+    "eilmeldung_uebernahme_droht": "🚨 Eilmeldung: Übernahme droht! {rivale} hält bereits {anteil} % von {kette}.",
+    "angebot_eingang": "{rivale} bietet {betrag} für alle Aktien. Das sind {aufschlag} % über dem Kurs.",
+    "angebot_abgelehnt": "Kobo: Puh! Wir halten die Mehrheit und haben das Angebot von {rivale} abgelehnt.",
+    "uebernahme_erfolgt": "💀 {rivale} hat dein Imperium übernommen. Die Aktionäre haben verkauft.",
     "ipo_warnung": "Achtung: Verkaufst du 50 % oder mehr, können Rivalen dich übernehmen. Auch später kannst du durch den Verkauf eigener Aktien unter 51 % fallen.",
     "ipo_streubesitz_rot": "Mehr Geld, aber Übernahme möglich",
     "ipo_dividende": "Nach dem Börsengang entscheidest du selbst, wie viel Dividende du an die Aktionäre ausschüttest. Dein Anteil fließt in dein Privatvermögen."
@@ -470,5 +470,37 @@
     "einlage_eigenkapital": "Als Eigenkapital: Das Geld bleibt in der Firma. Nach dem Börsengang bekommst du dafür neue Aktien zum aktuellen Kurs.",
     "gehalt_erhalten": "💼 {betrag} Gehalt als Geschäftsführung sind auf deinem Privatkonto.",
     "dividende_steuer_hinweis": "Von deiner Dividende gehen 20 % Steuer ab."
+  },
+  "mitemite": {
+    "post_neuer_laden": "Neu in {stadtteil}: {laden} hat eröffnet! Kommt vorbei!",
+    "post_aktion": "Diese Woche bei {laden}: unsere neue Aktion. Nicht verpassen!",
+    "post_neues_produkt": "Frisch im Regal: {produkt}. Schon probiert?",
+    "post_award": "{laden} hat {geister} BuuHuu-Geister bekommen. Danke an euch alle!",
+    "post_messe_deal": "Messe-Deal: {produkt} gibt es bis 30.4. nur bei {laden}.",
+    "rivale_eroeffnung": "{rivale} eröffnet in {stadtteil}. Die Konkurrenz rückt näher!",
+    "rivale_boersengang": "{rivale} ist jetzt an der Börse.",
+    "rivale_uebernahme": "{rivale} hat eine andere Kette übernommen.",
+    "kommentare_positiv": [
+      "Endlich ein Konbini um die Ecke!",
+      "Das Onigiri hier ist das beste in {stadtteil}.",
+      "Super freundliche Leute an der Kasse.",
+      "Nachts um 3 noch warmes Essen. Danke!",
+      "Mein neuer Lieblingsladen"
+    ],
+    "kommentare_neutral": [
+      "Ganz okay, aber etwas teuer.",
+      "Mal schauen, ob die das Niveau halten.",
+      "Gibt es hier auch Parkplätze?"
+    ],
+    "kommentare_negativ": [
+      "Schon wieder ausverkauft…",
+      "Die Schlange an der Kasse war viel zu lang.",
+      "Bei {rivale} ist es günstiger."
+    ],
+    "kommentare_rivale": [
+      "Noch ein Konbini? Mal sehen, wer gewinnt.",
+      "Ich bleibe bei {laden}!",
+      "Oh, {rivale} ist jetzt auch hier."
+    ]
   }
 }

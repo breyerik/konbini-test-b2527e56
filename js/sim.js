@@ -1,6 +1,7 @@
 // Konbini Empire v2 – Wirtschaftssimulation
 import {SLOT_MIGRATION,PLAN_REV,lotSlot,OMA_SHOP,starterBuild,slotOpen,unlockedCount,PLAN_SLOTS,SAVE_KEY,START,MONTHS,CATS,DISTRICTS,DMAP,INIT_RIVALS,BASE_CUST,COST,PRICE,SERVICES,SVC_KEYS,SVC_TYPE_MUL,CHAINS,RIVALS,TRAITS,FAMILY,GIVEN_F,GIVEN_M,defaultLogo,START_CASH,BUILD_WEEKS,BUILD,EQUIP_KEYS,defaultBuild,buildCost,optPrice,MGR_TIERS,CAMPAIGNS,TIERS,tierOf,TAX,LOAN,CONV,STOCK_INIT,WARDS,AREAS,RIVAL_START,MGR_STD_SALARY} from './data.js';
 import {GFX} from './gfx.js';
+import {tippProfi} from './finanzen_cfg.js';
 import * as SO from './sortiment.js';
 const SOK=(s,k)=>s.chain!=='player'||SO.offen(state,k);
 const SOW=(s,k)=>s.chain!=='player'||!SO.K.ON?1:SO.offen(state,k)?SO.breite(state,k):(SO.K.ERSATZ_ART==='kunden'?SO.K.ERSATZ:SO.K.KUNDEN_SANFT);// Gewicht für Kundenzahl/Auswahl
@@ -128,7 +129,7 @@ export function bookValue(s){const age=Math.max(0,state.week-(s.opened||0));retu
 export function equity(){return state.cash+sum(mine().map(s=>bookValue(s)+(s.deposit||0)))-state.loan;}
 export const brand=c=>c==='player'?0.9+state.rep/300:CHAINS[c].brand;
 export const chainName=c=>c==='player'?state.logo.name:CHAINS[c].name;
-export function freeSlots(did){const used=new Set(inD(did).map(s=>s.slot));return Array.from({length:DMAP[did].slots},(_,i)=>i).filter(i=>!used.has(i)&&slotOpen(did,i,state.week));}
+export function freeSlots(did){const used=new Set(inD(did).map(s=>s.slot));return Array.from({length:DMAP[did].slots},(_,i)=>i).filter(i=>!used.has(i)&&slotOpen(did,i,state.week)&&!((state.fz&&state.fz.sperre)||[]).some(x=>x.d===did&&x.slot===i&&x.bis>state.week));}// Liquidation: Standort 26 Wo. gesperrt
 export const openCount=()=>unlockedCount(state.week);
 export const freeTotal=()=>sum(DISTRICTS.map(d=>freeSlots(d.id).length));
 export function storeLabel(s){return s.name||`${DMAP[s.d].name} #${s.no||1}`}
@@ -269,7 +270,7 @@ function custFor(s,d,ev){
  const avgpx=sum(CATS.map(k=>(s.cfg.px&&s.cfg.px[k.id])||1))/CATS.length;
  const offered=CATS.filter(k=>s.cfg.cats[k.id]&&SOK(s,k.id)&&!(k.id==='coffee'&&s.b.coffee<0)&&!(k.id==='oden'&&s.b.oden<0));
  const tot=sum(CATS.map(k=>k.p*k.price*d.w[k.id])),off=sum(offered.map(k=>k.p*k.price*d.w[k.id]))+sum(CATS.filter(k=>s.cfg.cats[k.id]&&!SOK(s,k.id)).map(k=>k.p*k.price*d.w[k.id]*(SO.K.ERSATZ_ART==='kunden'?SO.K.ERSATZ:SO.K.KUNDEN_SANFT)));
- let a=si.pass*CONV*ghostMul(s.bh?s.bh.overall:3)*brand('player')*(ev.tm[d.type]||1)*(ev.tm.all||1)*(1-rivalLoss(s))*evMul(s)/(1+.12*own)*ramp*camp*(1+sb*d.svc)*(1+fx.attr)*m.sf/.94;
+ let a=si.pass*CONV*ghostMul(s.bh?s.bh.overall:3)*brand('player')*(ev.tm[d.type]||1)*(ev.tm.all||1)*(1-lossTotal(s))*evMul(s)*ramp*camp*(1+sb*d.svc)*(1+fx.attr)*m.sf/.94;
  a*=Math.max(.5,1-(avgpx-1)*1.2*d.ps);a*=.5+.5*(off/tot);
  if(state.campaigns.some(x=>x.chain==='player'))a*=1;
  return a;
@@ -278,6 +279,11 @@ function custFor(s,d,ev){
 export const slotPos=(d,i)=>{const sh=PLAN_SLOTS[d]&&PLAN_SLOTS[d][i];return sh?{x:sh.x,z:sh.z}:null;};
 export const storeDist=(a,b)=>{const p=slotPos(a.d,a.slot),q=slotPos(b.d,b.slot);return p&&q?Math.hypot(p.x-q.x,p.z-q.z)/FELD:99;};// in Feldern
 export function nearRivals(s){return state.stores.filter(x=>x.chain!=='player'&&storeDist(s,x)<=RIVAL_RULES.nahFelder);}
+// Bob V4: Kannibalisierung eigener Läden nach Abstand (je Laden ≤4 F .15, ≤10 F .08, ≤30 F .04, max .25)
+export const KANNIB={stufen:[[4,.15],[10,.08],[30,.04]],max:.25,gesamtMax:.30};
+export function kannib(s,list){let l=0;for(const o of list){if(o===s||o.build)continue;const dd=storeDist(s,o);const st=KANNIB.stufen.find(x=>dd<=x[0]);if(st)l+=st[1];}return Math.min(KANNIB.max,l);}
+export const ownLoss=s=>kannib(s,mine());
+export const lossTotal=s=>Math.min(KANNIB.gesamtMax,rivalLoss(s)+ownLoss(s));// Rivalen + eigene zusammen höchstens 30 %
 export function rivalLoss(s){const R=RIVAL_RULES;let l=0,nearUsed=false;const act=state.priceActs||{};
  for(const x of state.stores){if(x.chain==='player')continue;const dd=storeDist(s,x),near=dd<=R.nahFelder;
   if(near&&!(R.nahMaxEinmal&&nearUsed)){nearUsed=true;l+=(state.week-(x.opened||0)<R.verlustNahWochen?R.verlustNahNeu:R.verlustNah)+(act[x.chain]>0?R.aktionVerlust:0);}else if(dd<=R.umfeldFelder)l+=R.verlustUmfeld+(act[x.chain]>0?R.aktionVerlust/2:0);else if(x.d===s.d)l+=R.verlustBezirk;}
@@ -305,11 +311,12 @@ export function endWeek(){
    if(s.chain==='player'){
     const ce=custFor(s,dd,ev),cu=ce*rnd(.96,1.04);
     const r=runStore(s,dd,ev,ce,cu,rep.events);r.bh=null;s.prev=s.last;s.last=r;rep.stores.push(r);cust.player+=r.cust;
-    s.bh=rateStore(s,r);r.ghosts=s.bh.overall;managerWeek(s,r,rep.events);
+    s.bh=rateStore(s,r);r.ghosts=s.bh.overall;kdjAdd('player',s.bh.overall);managerWeek(s,r,rep.events);
     for(const id in s.cfg.camps){const st=s.cfg.camps[id],cp=CAMPAIGNS.find(x=>x.id===id);st.fresh=false;if(cp&&cp.dur>0){st.left=(st.left??cp.dur)-1;if(st.left<=0){delete s.cfg.camps[id];rep.events.push(`📣 Kampagne „${cp.name}“ in ${storeLabel(s)} ist zu Ende.`);}}}
     for(const k in r.cats)T[GROUP[k]]+=r.cats[k];
    }else{
     const n=ds.length,cu=TIERS[s.tier||tierOf(s.d,s.slot)].pass*CONV*CHAINS[s.chain].brand*rnd(.9,1.1)/(1+.1*(n-1));s.lastCust=cu;cust[s.chain]+=cu;
+    s.bhG=Math.round(clamp((KDJ.rivalBh[s.chain]||3.3)+rnd(-.35,.35),1,5)*10)/10;kdjAdd(s.chain,s.bhG);
    }
   }
  }
@@ -332,12 +339,12 @@ export function endWeek(){
  for(const r of rep.stores){if(r.building)continue;const s=state.stores.find(x=>x.id===r.id);dr+=.25+((s.bh?s.bh.overall:3)-3)*.15-r.stockout*5-r.queue*3;}
  state.rep=clamp(state.rep+dr,0,100);
  // Tipps
- const nx=seasonInfo(w+1);
+ const nx=seasonInfo(w+1),profi=tippProfi(state);
  for(const r of rep.stores){if(r.building)continue;const s=state.stores.find(x=>x.id===r.id),n=storeLabel(s);
   if(r.queue>.04)rep.tips.push(`🧾 <b>${n}</b>: ${pct(r.queue)} der Kunden gingen wegen Warteschlangen. Bessere Kasse oder Selbstbedienungskasse einbauen?`);
   if(r.stockout>.08)rep.tips.push(`🍙 In <b>${n}</b> war Frischware oft ausverkauft. Ein Filialleiter mit Produkt-Skill bestellt treffsicherer.`);
   else if(r.wasteRate>.12)rep.tips.push(`🗑️ <b>${n}</b>: ${pct(r.wasteRate)} Abschrift. Preise oder Menü anpassen.`);
-  if(!s.mgr)rep.tips.push(`👔 <b>${n}</b> hat noch keinen Filialleiter. Stell einen ein und delegiere Aufgaben.`);
+  if(!s.mgr){if(!profi)rep.tips.push(`👔 <b>${n}</b> hat noch keinen Filialleiter. Stell einen ein und delegiere Aufgaben.`);}
   else if(s.mgr.morale<40)rep.tips.push(`😟 ${s.mgr.name} ist unzufrieden. Mehr Gehalt, sonst droht die Kündigung.`);
   if(s.b.oden>=0&&!s.cfg.cats.oden&&seasonFactor(CATS.find(k=>k.id==='oden'),ev)>1.3)rep.tips.push(`🍢 Oden-Saison! In <b>${n}</b> ist Oden nicht im Menü.`);
  }
@@ -368,39 +375,95 @@ export function endWeek(){
  state.hist.push({week:w,rev:T.rev,net:T.net,cash:state.cash,share:rep.share.player});
  if(state.hist.length>104)state.hist.shift();
  checkMilestones(rep,T);
+ konbiniDesJahres(rep,w,cust);
+ rep.quits=state.quits||[];rep.quitWarn=state.quitWarn||[];state.quits=[];state.quitWarn=[];
+ if(rep.kdjText)rep.paper.unshift({id:'awards:'+w,tab:'top',text:rep.kdjText});
+ for(const q of rep.quits)rep.paper.unshift({id:'quit:'+q.sid+':'+q.name+':'+q.week,tab:'top',text:`Filialleitung weg: ${q.name} hat ${q.laden} verlassen${q.grund?` – ${q.grund}`:''}.`});
  state.week++;state.lastReport=rep;save();
  return rep;
 }
+// Konbini des Jahres (Erik 22.10. 22:32): Ø BuuHuu je Kette über alle Läden & Wochen des Geschäftsjahres.
+// Vergabe zum Ende des japanischen Geschäftsjahres (Ende März) = alle 52 Wochen ab Spielstart (KW 1 ≈ Anfang April).
+export const KDJ={alle:52,ruf:3,rivalBh:{eight:3.9,lawsun:3.6,familia:3.5,minihalt:3.1}};
+// Nur Ketten, die es noch gibt (gleiche Regel wie die Konkurrenz-Liste): übernommen/pleite → keine Award-Wertung
+const kdjAktiv=c=>c==='player'||(RIVALS.includes(c)&&!(state.fz&&state.fz.rv&&state.fz.rv[c]&&state.fz.rv[c].weg));
+function kdjAdd(c,v){const k=state.kdj=state.kdj||{};const e=k[c]=k[c]||{sum:0,n:0};e.sum+=v;e.n++;}
+// Wachstum (Erik 22.10. 23:49): Umsatzwachstum ggü. Vorjahr (52 Wochen). Spieler = echter Umsatz (inkl. Provisionen);
+// Rivalen (Erik 23.10.): alle starten bei null – nur der Umsatz der eigenen Läden zählt, summiert über alle 5 Spielstädte (inkl. state.away),
+// kein bundesweiter Grundumsatz. Quelle: Ketten-GuV des Finanzmenüs (rivalUmsatz-Hook), sonst Läden auf der Karte (Kunden × Ø-Bon) + Läden in den anderen Städten.
+// Wertung nur für Ketten, die zu Beginn des Geschäftsjahres ≥1 Laden hatten (Whitebeard 23.10.).
+// Kein volles Vorjahr (Kette jünger als 52 Wochen): Basis = erste 4 Wochen des Geschäftsjahres × 13.
+// Erstes Geschäftsjahr ohne Vorjahr: Basis = erste 4 Wochen × 13 (hochgerechnet).
+export const KDJ_UMS={bon:700,ladenWoche:2.2e6};
+let rivalUmsatz=null;export function setRivalUmsatz(f){rivalUmsatz=f;}
+export function kdjRivalUmsatz(c,cust){if(rivalUmsatz){const v=rivalUmsatz(state,c);if(v!=null)return v;}
+ const aw=sum(Object.values(state.away||{}).map(a=>(a.stores||[]).filter(x=>x.chain===c).length));return (cust[c]||0)*KDJ_UMS.bon+aw*KDJ_UMS.ladenWoche;}
+function kdjUmsWoche(rep,w,cust){const U=state.kdjU=state.kdjU||{cur:{},first:{}};U.start=U.start||{};U.nw=U.nw||{};U.f4=U.f4||{};const add=(c,v)=>{if(!(c in U.cur))U.start[c]=v>0;U.cur[c]=(U.cur[c]||0)+v;U.nw[c]=(U.nw[c]||0)+1;if(U.nw[c]<=4)U.f4[c]=(U.f4[c]||0)+v;if(w<=4)U.first[c]=(U.first[c]||0)+v;};
+ add('player',(rep.T.rev||0)+(rep.T.fees||0));for(const c of RIVALS)add(c,kdjRivalUmsatz(c,cust));}
+function kdjWachstum(){const U=state.kdjU,nm=c=>c==='player'?state.logo.name:(CHAINS[c]||{name:c}).name;
+ const W=Object.keys(U.cur).filter(c=>kdjAktiv(c)&&(c==='player'||U.start[c])).map(c=>{const bis=U.cur[c],voll=U.prev&&(U.prevNw||{})[c]>=52&&U.prev[c]>0,von=voll?U.prev[c]:U.prev?(U.f4[c]||0)*13:(U.first[c]||0)*13;return {chain:c,name:nm(c),von,bis,pct:von>0?Math.round((bis/von-1)*1000)/10:0};}).sort((x,y)=>y.pct-x.pct);
+ U.prev=U.cur;U.prevNw=U.nw;U.cur={};U.start={};U.nw={};U.f4={};return W;}
+function konbiniDesJahres(rep,w,cust){kdjUmsWoche(rep,w,cust);if(w%KDJ.alle||!state.kdj)return;
+ for(const c of RIVALS)if(!state.kdj[c]&&rivalUmsatz&&(rivalUmsatz(state,c)||0)>0){const b=KDJ.rivalBh[c]||3.3;state.kdj[c]={sum:b,n:1};}// Läden nur in anderen Städten: Basiswert; Ketten ohne Läden: keine Wertung (BuuHuu –)
+ const W=kdjWachstum();
+ const nm=c=>c==='player'?state.logo.name:CHAINS[c].name;
+ const L=Object.entries(state.kdj).filter(([c,e])=>e.n&&kdjAktiv(c)).map(([c,e])=>({chain:c,name:nm(c),avg:Math.round(e.sum/e.n*100)/100})).sort((a,b)=>b.avg-a.avg);
+ state.kdj={};if(!L.length)return;const _y=weekDate(w).getFullYear(),jahr=`${_y-1}/${String(_y%100).padStart(2,'0')}`,top=L.slice(0,3);
+ const G=v=>'👻'.repeat(Math.round(v))+` ${v.toFixed(1).replace('.',',')}`;
+ rep.kdj={jahr,top,rang:L.findIndex(x=>x.chain==='player')+1,n:L.length,wachs:W.slice(0,3),wrang:W.findIndex(x=>x.chain==='player')+1};
+ (state.kdjHist=state.kdjHist||[]).push(rep.kdj);
+ const wt=W.filter(x=>x.pct>0).slice(0,3);rep.kdj.wachs=wt;rep.kdj.wrang=wt.length?rep.kdj.wrang:0;
+ rep.kdjText=`🏆 Konbini-Awards ${jahr} – Konbini des Jahres (Ø BuuHuu): ${top.map((x,i)=>`${i+1}. ${x.name} ${G(x.avg)}`).join(' · ')}. Am schnellsten wachsender Konbini (Umsatzwachstum ggü. Vorjahr): ${!wt.length?'In diesem Jahr nicht vergeben':wt.map((x,i)=>`${i+1}. ${x.name} Umsatz +${x.pct.toFixed(1).replace('.',',')} %`).join(' · ')}.`;
+ if(wt[0]&&wt[0].chain==='player'&&wt[0].pct>0){state.rep=clamp(state.rep+KDJ.ruf,0,100);rep.events.push(`🐾 Kobo: Wir sind der am schnellsten wachsende Konbini ${jahr}! Ruf +${KDJ.ruf}.`);}
+ if(top[0].chain==='player'){state.rep=clamp(state.rep+KDJ.ruf,0,100);rep.events.push(`🐾 Kobo: Wir sind Konbini des Jahres ${jahr}! Die BuuHuu-Gäste lieben uns – Ruf +${KDJ.ruf}.`);}
+ else if(rep.kdj.rang)rep.events.push(`🐾 Kobo: Konbini des Jahres ${jahr} wurde ${top[0].name}. Wir sind auf Platz ${rep.kdj.rang} von ${L.length} – bessere BuuHuu-Bewertungen bringen uns nach vorn.`);}
+// Kündigung (Erik 22.10. 22:31): 2 Wochen Frist mit Vorwarnung, danach deutliche Meldung zum Wochenbeginn
+export const KUENDIGUNG={frist:2,zurueckAbLaune:40};
+function quitGrund(s,r){const m=s.mgr;if(m.salary<m.expect*.95)return 'Gehalt unter Marktniveau';if(r&&r.net<0)return 'Der Laden macht Verlust';if(r&&r.queue>.1)return 'Überlastung (lange Schlangen an der Kasse)';return 'Unzufrieden mit der Arbeit';}
+export function mgrQuit(s,grund){const m=s.mgr;if(!m)return;const q={sid:s.id,laden:storeLabel(s),name:m.name,grund:grund||'',week:state.week};
+ state.quits=(state.quits||[]).concat(q);s.quit=q;s.mgr=null;s.deleg={staff:false,prod:false,mkt:false,inc:false};}
 function managerWeek(s,r,events){
  const m=s.mgr;if(!m)return;m.weeks++;
  m.xp+=(m.traits.includes('ehrgeiz')?1.6:1)*(r.net>0?1.3:1);
  if(m.xp>=10){m.xp-=10;const ks=Object.keys(m.skills).filter(k=>m.skills[k]<5);if(ks.length){const k=pick(ks);m.skills[k]=Math.min(5,m.skills[k]+.5);events.push(`📈 ${m.name} (${storeLabel(s)}) wird besser.`);}}
  let target=65+(m.salary/m.expect-1)*120+(r.net>0?8:-12)-r.queue*40;if(m.traits.includes('gelassen'))target=Math.max(target,62);
  m.morale=clamp(m.morale+(target-m.morale)*.25,0,100);
- if(m.morale<25&&Math.random()<.35){events.push(`😢 ${m.name} hat in ${storeLabel(s)} gekündigt.`);s.mgr=null;s.deleg={staff:false,prod:false,mkt:false,inc:false};}
+ const K=KUENDIGUNG;
+ if(m.kuendigt){m.kuendigt.left--;
+  if(m.morale>=K.zurueckAbLaune){events.push(`😊 ${m.name} (${storeLabel(s)}) bleibt doch – Kündigung zurückgezogen.`);m.kuendigt=null;}
+  else if(m.kuendigt.left<=0){const g=m.kuendigt.grund;mgrQuit(s,g);events.push(`😢 ${m.name} hat ${storeLabel(s)} verlassen (${g}).`);}}
+ else if(m.morale<25&&Math.random()<.35){m.kuendigt={left:K.frist,grund:quitGrund(s,r),zum:state.week+K.frist};
+  (state.quitWarn=state.quitWarn||[]).push({sid:s.id,laden:storeLabel(s),name:m.name,grund:m.kuendigt.grund,zum:m.kuendigt.zum});
+  events.push(`⚠️ ${m.name} hat in ${storeLabel(s)} gekündigt – letzte Woche ist KW ${m.kuendigt.zum-1}. Grund: ${m.kuendigt.grund}. Mehr Gehalt oder bessere Zahlen können sie halten.`);}
 }
-function fill(t,o){return t.replace(/\{(\w+)\}/g,(m,k)=>o[k]!=null?o[k]:m);}
+// {rivale}=Rivale, {kette}=eigene Kette; alte Rivalen-Texte mit {kette} (ohne {rivale}) bekommen weiter den Rivalen.
+function fill(t,o){if(o.rivale!=null)o={...o,kette:t.includes('{rivale}')?state.logo.name:o.rivale};return t.replace(/\{(\w+)\}/g,(m,k)=>o[k]!=null?o[k]:m);}
 function makePaper(rep,ev,w){
- const _P=makePaper0(rep,ev,w);if(rep.unlocked)_P.unshift({tab:'top',text:`Neue Standorte verfügbar: ${rep.unlocked}. Makler melden freie Ladenflächen in ganz Tokio.`});return _P;}
+ const _P=makePaper0(rep,ev,w);if(rep.unlocked)_P.unshift({id:'unlock:'+w,tab:'top',text:`Neue Standorte verfügbar: ${rep.unlocked}. Makler melden freie Ladenflächen in ganz Tokio.`});return newsOnce(_P,w);}
+// Jede Meldung nur einmal (Erik 22.10. 22:38): ID = Typ + Woche/Geschäftsjahr (+ Laden/Person); gesehen-Map id→Woche,
+// Einträge älter als 2 Jahre werden entfernt (IDs enthalten Jahr/Woche, können danach nicht wiederkommen).
+function newsOnce(P,w){let S=state.newsSeen;if(!S||Array.isArray(S))S={};const out=P.filter(p=>{const id=p.id||('t:'+w+':'+p.text);if(id in S)return false;S[id]=w;return true;});
+ for(const k in S)if(S[k]<w-104)delete S[k];state.newsSeen=S;return out;}
 function makePaper0(rep,ev,w){
  const P=[],tx=TEXTE&&TEXTE.shimbun,name=state.logo.name,own=mine().filter(s=>!s.build);
  const first=own[0],dn=first?DMAP[first.d].name:'Tokio';
- const o={kette:name,stadtteil:dn,anzahl:own.length,geister:first&&first.bh?first.bh.overall:3};
+ const o={kette:name,stadtteil:dn,anzahl:own.length,geister:first&&first.bh?first.bh.overall:3},Y=Math.floor((w-1)/52);
+ const pickI=(A,k)=>{const seen=state.newsSeen||{},f=A.map((_,i)=>i).filter(i=>!(k+':'+i+':'+Y in seen));const i=f.length?f[Math.floor(Math.random()*f.length)]:-1;return i;};
  if(tx){
-  if(rep.ready.length||rep.opened.length&&0)P.push({tab:'top',text:fill(tx.eigene[0],o)});
-  if(own.length>=2&&state.milestones.two===w)P.push({tab:'top',text:fill(tx.eigene[1],o)});
-  if(first&&first.bh&&first.bh.overall>=4)P.push({tab:'top',text:fill(tx.eigene[2],{...o,stadtteil:dn})});
-  if(rep.T.net>(state.hist.reduce((a,h)=>Math.max(a,h.net),0)))P.push({tab:'top',text:fill(tx.eigene[3],o)});
+  if(rep.ready.length||rep.opened.length&&0)P.push({id:'ready:'+rep.ready.join(',')+':'+w,tab:'top',text:fill(tx.eigene[0],o)});
+  if(own.length>=2&&state.milestones.two===w)P.push({id:'two',tab:'top',text:fill(tx.eigene[1],o)});
+  if(first&&first.bh&&first.bh.overall>=4)P.push({id:'bh4:'+first.id+':'+Y,tab:'top',text:fill(tx.eigene[2],{...o,stadtteil:dn})});
+  if(rep.T.net>(state.hist.reduce((a,h)=>Math.max(a,h.net),0)))P.push({id:'rekord:'+Math.floor((w-1)/13),tab:'top',text:fill(tx.eigene[3],o)});
   const season=ev.key==='hanami'||ev.label==='Hanami'?'fruehling':ev.label==='Golden Week'?'golden_week':ev.key==='winter'?'winter':ev.key==='autumn'?'herbst':ev.key==='summer'?'sommer':'fruehling';
-  (tx.saison[season]||[]).slice(0,1).forEach(t=>P.push({tab:'markt',text:t}));
-  P.push({tab:'einzel',text:fill(pick(tx.konkurrenz),{stadtteil:pick(DISTRICTS).name})});
-  rep.news.forEach(n=>P.push({tab:'einzel',text:n.text.replace(/<\/?b>/g,'')}));
-  P.push({tab:'wirt',text:pick(tx.wirtschaft)});
+  (tx.saison[season]||[]).slice(0,1).forEach(t=>P.push({id:'saison:'+season+':'+Y,tab:'markt',text:t}));
+  {const i=pickI(tx.konkurrenz,'konk');if(i>=0)P.push({id:'konk:'+i+':'+Y,tab:'einzel',text:fill(tx.konkurrenz[i],{stadtteil:pick(DISTRICTS).name})});}
+  rep.news.forEach((n,i)=>P.push({id:'rn:'+w+':'+i,tab:'einzel',text:n.text.replace(/<\/?b>/g,'')}));
+  {const i=pickI(tx.wirtschaft,'wirt');if(i>=0)P.push({id:'wirt:'+i+':'+Y,tab:'wirt',text:tx.wirtschaft[i]});}
  }
- if(foodTaxCut(w)&&w<=3)P.push({tab:'wirt',text:'Spielregel (angenommen, nicht real bestätigt): Im Spiel gilt ab April 2027 vorübergehend ein Steuersatz von 1 % auf Lebensmittel. Das bringt etwas mehr Absatz.'});
- P.push({tab:'markt',text:`Marktanteil von ${name}: ${pct(rep.share.player||0)}. ${rep.share.eight>.3?'Eight bleibt Marktführer.':'Das Rennen ist offen.'}`});
- for(const s of own){if(s.bh&&s.bh.overall<=2)P.push({tab:'top',text:`BuuHuu-Ranking: ${name} in ${DMAP[s.d].name} nur ${s.bh.overall} Geister – Kunden meckern.`});}
- if(!P.some(p=>p.tab==='top'))P.push({tab:'top',text:`${ev.emoji} ${ev.label}: ${ev.desc}`});
+ if(foodTaxCut(w)&&w<=3)P.push({id:'foodtax',tab:'wirt',text:'Spielregel (angenommen, nicht real bestätigt): Im Spiel gilt ab April 2027 vorübergehend ein Steuersatz von 1 % auf Lebensmittel. Das bringt etwas mehr Absatz.'});
+ P.push({id:'share:'+Math.floor((w-1)/13),tab:'markt',text:`Marktanteil von ${name}: ${pct(rep.share.player||0)}. ${rep.share.eight>.3?'Eight bleibt Marktführer.':'Das Rennen ist offen.'}`});
+ for(const s of own){if(s.bh&&s.bh.overall<=2)P.push({id:'bh2:'+s.id+':'+Y,tab:'top',text:`BuuHuu-Ranking: ${name} in ${DMAP[s.d].name} nur ${s.bh.overall} Geister – Kunden meckern.`});}
+ if(!P.some(p=>p.tab==='top'))P.push({id:'ev:'+w,tab:'top',text:`${ev.emoji} ${ev.label}: ${ev.desc}`});
  return P;
 }
 export const MILESTONES=[
@@ -444,7 +507,7 @@ export function toggleCamp(s,id){
  s.cfg.camps[id]={fresh:true,left:cp.dur||0};
  save();return {on:1,first};
 }
-export function hire(s,m,salary){s.mgr={...m,salary,morale:75,weeks:0,xp:0};s.deleg=s.deleg||{staff:false,prod:false,mkt:false,inc:false};save();}
+export function hire(s,m,salary){s.mgr={...m,salary,morale:75,weeks:0,xp:0};s.quit=null;s.deleg=s.deleg||{staff:false,prod:false,mkt:false,inc:false};save();}
 export function offerResult(m,salary){const ratio=salary/m.expect;if(ratio>=1)return true;if(ratio<.88)return false;return Math.random()<(ratio-.88)/.12;}
 export function fireManager(s){if(!s.mgr)return;const c=Math.round(s.mgr.salary/52*2);state.cash-=c;s.mgr=null;s.deleg={staff:false,prod:false,mkt:false,inc:false};save();return c;}
 export function designOf(s){
@@ -456,11 +519,19 @@ export function designOf(s){
 /* ---------- Rivalen eröffnen (bevorzugt nahe Spieler-Filialen) ---------- */
 export function rivalOpen(c,w){const R=RIVAL_RULES,own=mine().filter(s=>!s.build);const all=[];
  for(const d of DISTRICTS){if(rivalNur[c]&&!rivalNur[c].includes(d.type))continue;for(const i of freeSlots(d.id))all.push({d:d.id,i});}if(!all.length)return null;
+ const eig=state.stores.filter(x=>x.chain===c),dt=id=>(DISTRICTS.find(d=>d.id===id)||{}).type;
  let best=null,bs=-1,near=null,nearD=99;const wantNear=own.length&&Math.random()<R.nahBevorzugt;
  for(const q of all){const tmp={d:q.d,slot:q.i};let nd=99,nn=null;for(const s of own){const dd=storeDist(s,tmp);if(dd<nd){nd=dd;nn=s;}}
-  let sc=TIERS[tierOf(q.d,q.i)].pass/Math.pow(1+inD(q.d).filter(x=>x.chain===c).length,1.5)*rnd(.6,1.4);
-  if(wantNear)sc*=nd<=R.nahFelder?8:nd<=R.umfeldFelder?4:1/(1+nd/10);
+  const tp=dt(q.d),dicht=tp==='station'||tp==='office',nEig=inD(q.d).filter(x=>x.chain===c).length;
+  // Bob V4: ≥8 Felder Abstand zu eigenen Läden (außer Bahnhof/Bürolage)
+  if(!dicht&&eig.some(x=>storeDist(x,tmp)<R.eigenAbstand))continue;
+  // Bob V4: nur bauen, wenn Mehrumsatz > 0,8 × Ø-Laden und < 25 % kannibalisiert
+  const ka=kannib(tmp,eig),pass=TIERS[tierOf(q.d,q.i)].pass;
+  const tr=tierOf(q.d,q.i);if(ka>=R.kannibMax||(tr!=='rand'&&pass/TIERS.city.pass*(1-ka)<R.mehrUmsatzMin-1e-9))continue;// Stadtrand (Erik): nur Kannibalisierungs-Grenze
+  let sc=pass*(1-ka)/Math.pow(1+nEig,1.5)*rnd(.6,1.4);
+  if(wantNear&&nEig<2)sc*=nd<=R.nahFelder?8:nd<=R.umfeldFelder?4:1/(1+nd/10);// ×8 nur solange < 2 eigene Läden im Bezirk
   if(sc>bs){bs=sc;best=q;near=nd<=R.umfeldFelder?nn:null;nearD=nd;}}
+ if(!best)return null;
  const st={id:state.nextId++,chain:c,d:best.d,slot:best.i,tier:tierOf(best.d,best.i),opened:w,cfg:rivalCfg(),b:defaultBuild(),build:0};
  state.stores.push(st);return {st,near,gegenueber:near&&nearD<=R.nahFelder};}
 /* ---------- Wochen-Entscheidungen (Texte: Ito, Zahlen: events_data.js) ---------- */
@@ -478,7 +549,7 @@ export function rollEvent(w,force){state.event=null;
   const chain=EVENTS[id].rivalKette?pick(RIVALS):(nearRivals(s)[0]||{}).chain||pick(RIVALS);state.event={id,sid:s.id,chain,w};return state.event;}
  return null;}
 export function eventView(e=state.event){if(!e)return null;const t=eventText(e.id),s=state.stores.find(x=>x.id===e.sid);if(!t||!s)return null;
- const o={kette:CHAINS[e.chain]?CHAINS[e.chain].name:'Eight',laden:storeLabel(s),stadtteil:DMAP[s.d].name};
+ const o={rivale:CHAINS[e.chain]?CHAINS[e.chain].name:'Eight',laden:storeLabel(s),stadtteil:DMAP[s.d].name};
  const cap=v=>evCost(v);
  const eff=opt=>{const x=EVENTS[e.id][opt],p=[];if(x.cash)p.push(`${fmtY(-cap(x.cash))}`);for(const m of x.mods||[]){const v=Math.round((m.cust-1)*100);p.push(`${m.p?Math.round(m.p*100)+' % Chance: ':''}Umsatz ${v>=0?'+':'−'}${Math.abs(v)} % (${m.wk} Wo.)`);}
   if(x.marge)p.push(`Marge −${String(x.marge.pp).replace('.',',')} % (${x.marge.wk} Wo.)`);if(x.cashWk)p.push(`${fmtY(-x.cashWk.v)}/Wo. (${x.cashWk.wk} Wo.)`);if(x.feeMul)p.push(`Paketprovision ×${String(x.feeMul.m).replace('.',',')} (${x.feeMul.wk} Wo.)`);
@@ -496,6 +567,6 @@ export function chooseEvent(opt,log){const e=state.event;if(!e||e.done)return nu
  if(x.rep)state.rep=clamp(state.rep+x.rep,0,100);
  if(x.bh&&s.bh)for(const k in x.bh)if(s.bh[k]!=null)s.bh[k]=clamp(s.bh[k]+x.bh[k],1,5);
  if(s.mgr){if(x.morale)s.mgr.morale=clamp(s.mgr.morale+x.morale,0,100);if(x.salary)s.mgr.salary=Math.round(s.mgr.salary*x.salary/10000)*10000;
-  if(x.quit){s.mgr=null;s.deleg={staff:false,prod:false,mkt:false,inc:false};}}
+  if(x.quit)mgrQuit(s,'nach deiner Entscheidung im Ereignis');}
  const msg=`🗳️ ${v?v.text.replace(/<[^>]+>/g,''):''} → ${opt==='a'?v.a:v.b}${cost?` (${fmtY(-cost)})`:''}`;
  if(log)log.push(msg+' (automatisch Option B, weil nichts gewählt wurde)');save();return {cost,cust,msg};}

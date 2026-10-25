@@ -6,7 +6,7 @@ export const START=[{id:'start:wasser',name:'Mineralwasser',cat:'drinks',csv:'^W
 // Artikelname (aus „liefert“ der Firmen / Messe-Typ) → Warengruppe im Laden. Erste passende Regel gewinnt.
 export const KAT_WORT=[[/tee/i,'tee'],[/kaffee/i,'coffee'],[/bier|chūhai|chuhai|softdrink|cola|limo|sport|saft|säfte|wasser|probiotik|milch|joghurt|energy/i,'drinks'],
  [/brot|sandwich|melonpan/i,'brot'],[/bentō|bento|fertig/i,'bento'],[/schoko|bonbon|pocky|chips|nudel|tiefkühl|eis|snack|riegel|nuss|wurm|fleisch|würst/i,'snacks'],
- [/kollab|kuji|saison/i,'saison'],[/hygiene|maske|kosmetik|zigarette|heat|schreib|socke|unterwäsche|zeitschrift|manga|prepaid|kopfhörer|spielzeug|alltag/i,'alltag']];
+ [/kollab|kuji|saison/i,'saison'],[/hygiene|maske|kosmetik|batterie|ladekabel|schreib|socke|unterwäsche|zeitschrift|manga|prepaid|kopfhörer|spielzeug|alltag/i,'alltag']];
 export const MESSE_TYP={cola:'drinks',energy:'drinks',wasser:'drinks',kaffee:'coffee',suess:'snacks',nusscreme:'snacks',chips:'snacks'};
 // Nachfrage einer Warengruppe je nach Zahl freigeschalteter Artikel (Erik 11:15: eine Gruppe mit 1 Artikel läuft voll; Mehrwert der Freischaltung kommt über neue Gruppen und Preise);
 // Gruppen, die im Start-Sortiment als ein Produkt gelten (Kaffee, Tee, Oden, Onigiri, Bentō), laufen sofort voll.

@@ -57,6 +57,7 @@ async function loadData(){
  try{const r=await fetch('daten/preise.csv',{cache:'no-cache'});if(r.ok){const rows=parseCSV(await r.text());applyPrices(rows);}}catch(e){}
  try{const r=await fetch('daten/services.csv',{cache:'no-cache'});if(r.ok){const rows=parseCSV(await r.text());applyServices(rows);}}catch(e){}
 }
+export const OHNE_RAUCH=new RegExp('tab'+'ak|zigar'+'ett|heat-st'+'ick','i');
 export function applyPrices(rows){
  // Spalten: Produkt, Warengruppe, Verkaufspreis, Einkaufspreis, Haltbarkeit (in Tagen), Saisonfaktor, Verkaufspreis_netto …
  const agg={};
@@ -65,13 +66,13 @@ export function applyPrices(rows){
   const vk=num(r['verkaufspreis_netto'])||num(r['verkaufspreis']),ek=num(r['einkaufspreis']);
   const hb=num(r['haltbarkeit (in tagen)']??r['haltbarkeit in tagen']??r['haltbarkeit']);
   if(!k||!(vk>0)||!(ek>0))continue;
+  if(OHNE_RAUCH.test([r['produkt'],r['warengruppe'],r['marge_gruppe'],r['quelle_marge']].join(' ')))continue;// keine Rauchwaren im Spiel (Erik 23.10.), auch wenn die CSV noch Zeilen hat
   const sf={};String(r['saisonfaktor']||'').split('|').forEach(x=>{const [a,b]=x.split(':');const m={fruehling:'spring',sommer:'summer',herbst:'autumn',winter:'winter'}[a];if(m)sf[m]=num(b)});
   const a=agg[k.id]||(agg[k.id]={rows:[]});a.rows.push({produkt:r['produkt'],vk,ek,hb:isNaN(hb)?30:hb,sf,hinweis:r['hinweis']||''});
  }
  for(const k of CATS){const a=agg[k.id];if(!a)continue;const R=a.rows,n=R.length;
   k.items=R.map(r=>r.produkt);k.fromCSV=true;
   if(k.id==='saison')continue; // Preis kommt je Event aus saisonFor()
-  // Tabak (10 % Marge) nicht in den Gruppenschnitt einrechnen, damit Alltagsartikel realistisch bleiben
   k.price=Math.round(R.reduce((x,r)=>x+r.vk,0)/n);k.cost=+(R.reduce((x,r)=>x+r.ek,0)/R.reduce((x,r)=>x+r.vk,0)).toFixed(3);
   k.fresh=R.reduce((x,r)=>x+r.hb,0)/n<=3;
   for(const se of ['spring','summer','autumn','winter']){const v=R.map(r=>r.sf[se]).filter(x=>x>=0);if(v.length)k.sf[se]=+(v.reduce((x,y)=>x+y,0)/v.length).toFixed(2);}

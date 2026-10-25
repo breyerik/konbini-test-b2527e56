@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<rect x="16" y="16" width="480" height="480" rx="72" fill="#FBF8F2" stroke="#D3C8B4" stroke-width="4"/>
+<circle cx="256" cy="196" r="137" fill="none" stroke="#C0614A" stroke-width="6"/>
+<text x="256" y="198" text-anchor="middle" dominant-baseline="central" font-family="'M PLUS Rounded 1c'" font-weight="700" font-size="112" fill="#3A3632">気楽</text>
+<line x1="176" y1="380" x2="336" y2="380" stroke="#D3C8B4" stroke-width="4" stroke-linecap="round"/>
+<text x="256" y="420" text-anchor="middle" dominant-baseline="central" font-family="Nunito, 'M PLUS Rounded 1c'" font-weight="800" font-size="44" fill="#3A3632">KIRAKU SHŌJI</text>
+<text x="256" y="464" text-anchor="middle" dominant-baseline="central" font-family="'M PLUS Rounded 1c'" font-size="26" fill="#726B64">気楽商事 · 卸売</text>
+</svg>

@@ -173,23 +173,6 @@
    "stand": "2026-10-21"
   },
   {
-   "firma": "Kemuri Kōsha",
-   "original": "Japan Tobacco",
-   "code": "2914",
-   "rendite_prozent": 3.63,
-   "ausschuettungen_pro_jahr": 2,
-   "stichtag_monate": [
-    "Jun",
-    "Dez"
-   ],
-   "auszahlung_monate_ca": [
-    "Sep",
-    "Mär"
-   ],
-   "quelle": "https://kabutan.jp/stock/?code=2914 (Abruf 2026-10-21, 配当利回り Prognose)",
-   "stand": "2026-10-21"
-  },
-  {
    "firma": "Taishō Kashi",
    "original": "Meiji Holdings",
    "code": "2269",
@@ -661,6 +644,40 @@
    ],
    "quelle": "https://kabutan.jp/stock/?code=2871 (Abruf 2026-10-21, 配当利回り Prognose)",
    "stand": "2026-10-21"
+  },
+  {
+   "firma": "Hotaru Denchi",
+   "firma_jp": "蛍電池",
+   "original": null,
+   "ticker": "HTRD",
+   "code": "6999",
+   "branche": "Batterie-Hersteller",
+   "fiktiv": true,
+   "rendite_prozent": 2.5,
+   "ausschuettungen_pro_jahr": 2,
+   "stichtag_monate": [
+    "Mär",
+    "Sep"
+   ],
+   "auszahlung_monate_ca": [
+    "Jun",
+    "Dez"
+   ],
+   "dividende_yen_pro_jahr": 60,
+   "ausschuettungsquote_prozent": 40,
+   "startkurs_yen": 2400,
+   "aktien_mio": 120,
+   "marktkap_mrd_yen": 288,
+   "umsatz_mrd_yen": 320,
+   "nettomarge_prozent": 5.6,
+   "gewinn_mrd_yen": 18,
+   "eps_yen": 150,
+   "kgv": 16,
+   "volatilitaet_tag_prozent": 1.6,
+   "beta": 0.9,
+   "quelle": "frei erfunden (Name von Erik bestätigt 23.10.2026 00:28 JST)",
+   "status": "vorschlag",
+   "stand": "2026-10-23"
   }
  ],
  "regel_konbini": "Keine Konbini-Kette ist an der Börse (alle starten zeitgleich mit dem Spieler; Erik 21.10.2026). Daher stehen Eight, Lawsun, Familia, Minihalt, Asayake Mart, Tsubame Eki und spätere Ketten nicht in dieser Liste und zahlen keine Dividende."

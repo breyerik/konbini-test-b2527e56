@@ -149,21 +149,6 @@ export const FIRMEN=[
 "sonder": "10 %: Shop-in-Shop (wie Muji bei Lawson)"
 },
 {
-"id": "kemuri-kosha",
-"name": "Kemuri Kōsha",
-"code": "2914",
-"branche": "Tabak",
-"kurs": 5626.5,
-"aktien": 2000000000.0,
-"logo": "grafik/logos/firmen/kemuri-kosha.svg",
-"desc": "Tabakkonzern für Zigaretten und Heat-Sticks. Kaum Marge, aber viele Stammkunden kommen täglich vorbei.",
-"vol": 0.25,
-"bank": false,
-"rival": null,
-"liefert": "Zigaretten, Heat-Sticks",
-"sonder": "Kaum Marge (≈10 %), dafür +Kundenfrequenz. 10 %: Raucherecke-Partner"
-},
-{
 "id": "taisho-kashi",
 "name": "Taishō Kashi",
 "code": "2269",
@@ -580,29 +565,18 @@ export const FIRMEN=[
 "sonder": "5 %: Bentō/Onigiri Einkauf −3 % zusätzlich"
 },
 {
-"id": "eight",
-"name": "Eight",
-"code": "3382",
-"branche": "Konbini-Kette",
-"kurs": 1570.5,
-"aktien": 2320000000.0,
-"logo": "grafik/logos/eight.svg",
-"desc": "",
+"id": "hotaru-denchi",
+"name": "Hotaru Denchi",
+"code": "6999",
+"branche": "Batterien",
+"kurs": 2400.0,
+"aktien": 120000000.0,
+"logo": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%232F3B2E%22/%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2234%22%20r%3D%2213%22%20fill%3D%22%23E8D86A%22/%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2234%22%20r%3D%2220%22%20fill%3D%22%23E8D86A%22%20opacity%3D%22.25%22/%3E%3Ctext%20x%3D%2232%22%20y%3D%2240%22%20font-size%3D%2216%22%20text-anchor%3D%22middle%22%20fill%3D%22%232F3B2E%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22700%22%3E%E8%9B%8D%3C/text%3E%3C/svg%3E",
+"desc": "Frei erfundener Batterie-Hersteller (蛍電池). Liefert Batterien und Ladekabel für das Alltagsregal.",
 "vol": 0.25,
 "bank": false,
-"rival": "eight"
-},
-{
-"id": "minihalt",
-"name": "Minihalt",
-"code": "9946",
-"branche": "Konbini-Kette",
-"kurs": 1335.8,
-"aktien": 29000000.0,
-"logo": "grafik/logos/minihalt.svg",
-"desc": "",
-"vol": 0.25,
-"bank": false,
-"rival": "minihalt"
+"rival": null,
+"liefert": "Batterien, Ladekabel",
+"sonder": "10 %: Batterie-Aufsteller an der Kasse"
 }
 ];
