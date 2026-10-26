@@ -1,0 +1,107 @@
+/* GENERIERT von tools/washi_gen.py – nicht von Hand ändern. Washi-Farben für Finanzmenü (#fz) und Bahnhof (#bf). */
+/* finanzen.css */
+html #fz{background:#F4EFE6!important;color:#3A3632!important}
+html #fz small{color:#726B64!important}
+html #fz .p{color:#5B7357!important}
+html #fz .n{color:#9F5A4F!important}
+html #fz .y{color:#A85541!important}
+html .fzx{background:#EDE5D8!important}
+html .fztabs{background:#EDE5D8!important}
+html .fztabs button.on{background:#FBF8F2!important;color:#3A3632!important}
+html .fzh{color:#726B64!important}
+html .fzc{background:#FBF8F2!important;border:1px solid #D3C8B4!important}
+html .fzrow{border-top:1px solid #D3C8B4!important}
+html .fzrow.hd{color:#726B64!important}
+html .fzlist{border-top:1px solid #D3C8B4!important}
+html .fzpill{background:#EDE5D8!important;color:#3A3632!important}
+html .fzpill.g,html #fz .fzpill.g{background:#5B7357!important}
+html #fz .fzpill.y{background:#F3DED6!important;color:#3A3632!important}
+html .fzpill.b{background:#E6E9EE!important}
+html .fzpill.k{background:#EDE5D8!important}
+html .fzchev{color:#726B64!important}
+html .fzlink{color:#726B64!important}
+html .fzlink.y{color:#A85541!important}
+html .fzinfo{background:#FBF3E6!important;color:#3A3632!important;border:2px solid #C0614A!important}
+html .fzinfo b{color:#A85541!important}
+html .fzbtn{background:linear-gradient(90deg,#A85541,#A85541)!important}
+html .fzbtn.d{background:#EDE5D8!important}
+html .fzsm{color:#726B64!important}
+html .fzbank.best{border:1.5px solid #C0614A!important}
+html .fzkobo div{background:#FBF8F2!important;color:#3A3632!important}
+html .fzquote{background:#FBF3E6!important;color:#3A3632!important}
+html .fzsale{background:#E9EFE5!important;border:2px solid #6E8B6A!important}
+html .fzsub.p{color:#5B7357!important}
+html .fzsub.n{color:#9F5A4F!important}
+html .fztiers div{background:#EDE5D8!important}
+html #fz .fztiers .on{background:#F3DED6!important;color:#3A3632!important}
+html .fztiers .on small{color:#3A3632!important}
+html .fzrange{accent-color:#C0614A!important}
+html .fztog{background:#EDE5D8!important}
+html .fztog.on{background:#5B7357!important}
+html .fzert{background:#E9EFE5!important;border:2px solid #6E8B6A!important}
+html .fzert.neg{background:#F6E7E2!important;border-color:#B5675A!important}
+html .fzwarn{background:#F6E7E2!important;border:1px solid #B5675A!important;color:#9F5A4F!important}
+html .fzmesse{background:linear-gradient(90deg,#A85541,#A85541)!important}
+html .fzstand.mine{border:1.5px solid #8A8279!important}
+html .fzblue{border:1.5px solid #8A8279!important}
+html .fzyrs button{background:#EDE5D8!important}
+html #fz .fzyrs .on{background:#F3DED6!important;color:#3A3632!important}
+html .fzyrs .on small{color:#3A3632!important}
+html .fzav{background:#F3DED6!important}
+html #fz .fztiers .on small,html #fz .fzyrs .on small{color:#3A3632!important}
+html #fz .fzc{background:#FBF8F2!important}
+html #fz .fzinfo{background:#FBF3E6!important}
+html #fz .fzsale,html #fz .fzert{background:#E9EFE5!important}
+html #fz .fzert.neg{background:#F6E7E2!important}
+html #fz .fzlist{background:#FBF8F2!important;border:1px solid #D3C8B4!important}
+html #fz .fzlist>.fzc,html #fz .fzlist .fzfirm{border-top:1px solid #D3C8B4!important}
+html #fz .fzav{background:#F4EFE6!important}
+html #fz .fzneu{background:#F6E7E2!important;border:2px solid #B5675A!important}
+html #fz .fzneu small.n{color:#9F5A4F!important}
+html #fz .fzkrow{border-top:1px solid #D3C8B4!important}
+html #fz .fzbar{background:#EDE5D8!important}
+html #fz .fzbar i{background:#F3DED6!important}
+html #fz .fzbar i.g{background:#5B7357!important}
+html #fz .fzipowarn{background:#F6E7E2!important;border:2px solid #B5675A!important}
+html #fz .fzzone{background:linear-gradient(90deg,#F3DED6 0 var(--z,50%),#9F5A4F 0)!important}
+html #fz .fzzone i{background:#9F5A4F!important}
+html #fz button.fzc.fzline{background:#FBF8F2!important;border:1px solid #D3C8B4!important}
+html #fz .buimg{background:#EDE5D8!important}
+html #fz .buy{border:1.5px solid #C0614A!important}
+html #fz .bug{border:1.5px solid #6E8B6A!important}
+html #fz .buhint{border:1.5px solid #8A8279!important}
+html #fz .buper.on{border:1.5px solid #6E8B6A!important}
+html #fz .buper .fzav,html #fz .buhead .fzav{background:#FBF8F2!important}
+html #fz .buauf .fzc.on{background:#F3DED6!important;color:#3A3632!important}
+html #fz .bupk{background:#FBF8F2!important}
+html #fz .butog{background:#CFC4B1!important}
+html #fz .butog i{background:#FBF8F2!important}
+html #fz .butog.on{background:#5B7357!important}
+html #fz .fzbtn.gr{background:#E9EFE5!important;border:1px solid #6E8B6A!important}
+html #fz .buauf .fzc.on small{color:#3A3632!important}
+html #fz .pvart.on{border:1.5px solid #C0614A!important;background:#F3DED6!important}
+html #pvname{background:linear-gradient(#FBF8F2,#F4EFE6)!important;color:#3A3632!important}
+html #pvname>.pvn-in>small{color:#726B64!important}
+html #pvname label{color:#726B64!important}
+html #pvname input{border:2px solid #C0614A!important;background:#FBF8F2!important;color:#3A3632!important}
+html #pvname input.dark{background:#FBF8F2!important;color:#3A3632!important;border:1px solid #D3C8B4!important}
+html #pvname .pvn-hint{color:#726B64!important}
+html #pvname .pvn-kobo div{background:#FBF8F2!important;color:#3A3632!important}
+html #fz .fzarts button.fzpill.k{background:#EDE5D8!important;color:#3A3632!important}
+html #fz .fzarts button.fzpill.y{background:#F3DED6!important;color:#3A3632!important}
+html #fz .fzarts button.fzpill.b{background:#E6E9EE!important;color:#3A3632!important}
+/* bahnhof.css */
+html #bf{background:#F4EFE6!important;color:#3A3632!important}
+html .bfroof{background:#ECE4D6!important;border-bottom:4px solid #3A3632!important}
+html .bfhead small{color:#726B64!important}
+html .bfback{background:#FBF8F2!important;border:3px solid #3A3632!important;color:#3A3632!important}
+html .bfcard{background:#FBF8F2!important;border:3px solid #3A3632!important}
+html .bfcard.here{border-color:#C0614A!important}
+html .bfic{background:#EDE5D8!important;border:3px solid #3A3632!important}
+html .bfname small{color:#726B64!important}
+html .bfinfo small{color:#726B64!important}
+html .bfbtn{background:#A85541!important;border:3px solid #3A3632!important}
+html .bfbtn.off{background:#E2C7BC!important;border-color:#E2C7BC!important}
+html .bfnow{background:#A85541!important}
+html .bfkobo div{background:#FBF8F2!important;border:3px solid #3A3632!important}
+html #bfload{background:linear-gradient(#DCD3C3 0 50%,#F4EFE6 50% 100%)!important}

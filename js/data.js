@@ -1,22 +1,22 @@
 // Konbini Empire v2 – Spieldaten
 export const SAVE_KEY='konbini-empire-v2';
-export const START=new Date(2027,2,29); // Mo, 29. März 2027
+export const START=new Date(2026,9,19); // Mo, 19. Oktober 2026 (Erik 25.10.: echte KW 43)
 export const WAGE=1150;
 export const MONTHS=['Jan.','Feb.','März','Apr.','Mai','Juni','Juli','Aug.','Sep.','Okt.','Nov.','Dez.'];
 
 // 9 Warengruppen nach Bobs preise.csv (Preise netto, Werte werden beim Start aus daten/preise.csv überschrieben)
 // p = Kaufwahrscheinlichkeit pro Kunde, sf = Saisonfaktor (Frühling/Sommer/Herbst/Winter)
 export const CATS=[
- {id:'onigiri',name:'Onigiri',csv:'Onigiri',jp:'おにぎり',emoji:'🍙',icon:'onigiri',p:.40,price:207,cost:.68,fresh:true,sf:{spring:1,summer:1,autumn:1,winter:1}},
- {id:'bento',name:'Bentō',csv:'Bentō',jp:'弁当',emoji:'🍱',icon:'bento',p:.17,price:569,cost:.68,fresh:true,sf:{spring:1,summer:1,autumn:1,winter:1}},
- {id:'brot',name:'Sandwiches & Brot',csv:'Sandwiches/Brot',jp:'パン',emoji:'🥪',icon:'sandwich',p:.16,price:227,cost:.70,fresh:true,sf:{spring:1,summer:1,autumn:1,winter:1}},
- {id:'oden',name:'Oden',csv:'Oden',jp:'おでん',emoji:'🍢',icon:'oden',p:.10,price:146,cost:.50,fresh:true,sf:{spring:.4,summer:0,autumn:1.4,winter:2}},
- {id:'coffee',name:'Kaffee',csv:'Kaffee',jp:'コーヒー',emoji:'☕',icon:'kaffee',p:.26,price:169,cost:.25,fresh:false,sf:{spring:1,summer:.5,autumn:1.3,winter:1.6}},
- {id:'tee',name:'Tee',csv:'Tee',jp:'お茶',emoji:'🍵',icon:'tee',p:.14,price:162,cost:.62,fresh:false,sf:{spring:1,summer:1.1,autumn:1,winter:1}},// Erik 22.10.: Tee eigenes Start-Produkt, aus Getränke herausgelöst (p .62 → .48 + .14)
- {id:'drinks',name:'Getränke',csv:'Getränke',jp:'飲み物',emoji:'🥤',icon:'getraenke',p:.48,price:151,cost:.65,fresh:false,sf:{spring:1,summer:1.6,autumn:.9,winter:.5}},
- {id:'snacks',name:'Snacks & Heißes',csv:'Snacks/Süßes',jp:'おやつ',emoji:'🍫',icon:'snacks',p:.55,price:221,cost:.60,fresh:false,sf:{spring:1,summer:1,autumn:1,winter:1}},
- {id:'saison',name:'Saisonware',csv:'Saisonware',jp:'季節限定',emoji:'🌸',icon:'saisonware',p:.12,price:300,cost:.70,fresh:true,sf:{spring:1,summer:1,autumn:1,winter:1}},
- {id:'alltag',name:'Alltagsartikel',csv:'Alltagsartikel',jp:'日用品',emoji:'🧴',icon:'alltagsartikel',p:.22,price:449,cost:.65,fresh:false,sf:{spring:1,summer:1.4,autumn:1.2,winter:.7}},
+ {id:'onigiri',name:'Onigiri',csv:'Onigiri',jp:'おにぎり',emoji:'🍙',icon:'onigiri',p:.40,price:207,cost:.68,sf:{spring:1,summer:1,autumn:1,winter:1}},
+ {id:'bento',name:'Bentō',csv:'Bentō',jp:'弁当',emoji:'🍱',icon:'bento',p:.17,price:569,cost:.68,sf:{spring:1,summer:1,autumn:1,winter:1}},
+ {id:'brot',name:'Sandwiches & Brot',csv:'Sandwiches/Brot',jp:'パン',emoji:'🥪',icon:'sandwich',p:.16,price:227,cost:.70,sf:{spring:1,summer:1,autumn:1,winter:1}},
+ {id:'oden',name:'Oden',csv:'Oden',jp:'おでん',emoji:'🍢',icon:'oden',p:.10,price:146,cost:.50,sf:{spring:.4,summer:0,autumn:1.4,winter:2}},
+ {id:'coffee',name:'Kaffee',csv:'Kaffee',jp:'コーヒー',emoji:'☕',icon:'kaffee',p:.26,price:169,cost:.25,sf:{spring:1,summer:.5,autumn:1.3,winter:1.6}},
+ {id:'tee',name:'Tee',csv:'Tee',jp:'お茶',emoji:'🍵',icon:'tee',p:.14,price:162,cost:.62,sf:{spring:1,summer:1.1,autumn:1,winter:1}},// Erik 22.10.: Tee eigenes Start-Produkt, aus Getränke herausgelöst (p .62 → .48 + .14)
+ {id:'drinks',name:'Getränke',csv:'Getränke',jp:'飲み物',emoji:'🥤',icon:'getraenke',p:.48,price:151,cost:.65,sf:{spring:1,summer:1.6,autumn:.9,winter:.5}},
+ {id:'snacks',name:'Snacks & Heißes',csv:'Snacks/Süßes',jp:'おやつ',emoji:'🍫',icon:'snacks',p:.55,price:221,cost:.60,sf:{spring:1,summer:1,autumn:1,winter:1}},
+ {id:'saison',name:'Saisonware',csv:'Saisonware',jp:'季節限定',emoji:'🌸',icon:'saisonware',p:.12,price:300,cost:.70,sf:{spring:1,summer:1,autumn:1,winter:1}},
+ {id:'alltag',name:'Alltagsartikel',csv:'Alltagsartikel',jp:'日用品',emoji:'🧴',icon:'alltagsartikel',p:.22,price:449,cost:.65,sf:{spring:1,summer:1.4,autumn:1.2,winter:.7}},
 ];
 export const CATMAP=Object.fromEntries(CATS.map(c=>[c.id,c]));
 // Gewichtung der Warengruppen je Viertel-Typ
@@ -91,15 +91,16 @@ export const MKT=[{label:'Keins',cost:0,f:1},{label:'Flyer',cost:40000,f:1.05},{
 // sign = Freischaltkosten, monthly = laufende Kosten/Monat, commission = Provision pro Vorgang, perDay = Vorgänge/Tag beim Start,
 // bonus = Kundenbonus, work = Personalminuten pro Vorgang (Spielwert), min = Mindestlaufzeit in Wochen
 export const SERVICES={
- parcelIn:{label:'Paketannahme',icon:'paket-abgabe',emoji:'📦',partner:'Shironeko Express',plogo:'shironeko',sign:300000,monthly:0,commission:100,perDay:15,bonus:.03,work:4,min:12,csv:'Shironeko Express Paketannahme',pitch:'Kunden geben Pakete ab. Gute Provision, aber Arbeit am Schalter.'},
- parcelOut:{label:'Paketabholung',icon:'paket-abholung',emoji:'📬',partner:'Shironeko Express',plogo:'shironeko',sign:150000,monthly:0,commission:50,perDay:10,bonus:.02,work:3,min:12,csv:'Shironeko Express Paketabholung',pitch:'Online-Bestellungen werden hier abgeholt. Lager nötig.'},
- atm:{label:'Geldautomat',icon:'geldautomat',emoji:'🏧',partner:'Ginga Bank',sign:0,monthly:3000,commission:16,perDay:109,bonus:.05,work:.15,min:26,csv:'Geldautomat (Partnerbank)',pitch:'Viele Vorgänge, kaum Arbeit, bringt Laufkundschaft.'},
+ parcelIn:{label:'Paketservice',icon:'paket-abgabe',emoji:'📦',partner:'Shironeko Express',plogo:'shironeko',sign:0,monthly:0,commission:80,perDay:25,bonus:.05,work:3.6,min:12,csv:'Shironeko Express Paketannahme',pitch:'Paketannahme und -abholung in einem Vertrag (V6: zusammengelegt). Bringt Stammkundschaft aus der Nachbarschaft.'},
+ atm:{label:'Geldautomat',icon:'geldautomat',emoji:'🏧',partner:'Futatsuboshi Bank',plogo:'futatsuboshi',sign:0,monthly:0,commission:16,perDay:109,bonus:.05,work:.15,min:26,csv:'Geldautomat (Partnerbank)',pitch:'Viele Vorgänge, kaum Arbeit, bringt Laufkundschaft.'},
  bills:{label:'Rechnungen bezahlen',icon:'rechnungen',emoji:'🧾',partner:'Shiharai Plus',sign:50000,monthly:0,commission:60,perDay:40,bonus:.03,work:1.5,min:8,csv:'Rechnungen bezahlen',pitch:'Strom, Steuern, Online-Shopping bar zahlen. Stammkunden!'},
  tickets:{label:'Tickets',icon:'tickets',emoji:'🎫',partner:'Kippu Plaza',sign:100000,monthly:5000,commission:40,perDay:8,bonus:.02,work:3,min:12,csv:'Tickets (Konzert/Event)',pitch:'Konzert- und Eventtickets am Terminal, stark in Nachtleben & Tourismus.'},
  copy:{label:'Kopierer & Drucker',icon:'kopierer',emoji:'🖨️',partner:'Fukusha Print',sign:800000,monthly:30000,commission:60,perDay:25,bonus:.02,work:.5,min:26,csv:'Kopierer/Drucker',pitch:'Drucken, Kopieren, Fotos. Teuer, läuft bei Unis und Büros.'},
 };
+// V6 (Erik 25.10.): diese Werte gelten auch dann, wenn daten/services.csv etwas anderes sagt – Geldautomat ohne Monatskosten, Paketservice zusammengelegt (25 Vorgänge/Tag, +5 %), ohne Freischaltkosten
+export const SVC_FIX={parcelIn:{sign:0,monthly:0,commission:80,perDay:25,bonus:.05},atm:{monthly:0}};
 export const SVC_KEYS=Object.keys(SERVICES);
-export const SVC_TYPE_MUL={tickets:{nightlife:1.8,tourist:1.5,station:1.2},parcelIn:{residential:1.4,office:1.1},parcelOut:{residential:1.5,uni:1.2},bills:{residential:1.5},copy:{uni:1.6,office:1.3},atm:{tourist:1.2,station:1.1}};
+export const SVC_TYPE_MUL={tickets:{nightlife:1.8,tourist:1.5,station:1.2},parcelIn:{residential:1.45,office:1.05,uni:1.1},bills:{residential:1.5},copy:{uni:1.6,office:1.3},atm:{tourist:1.2,station:1.1}};
 
 // Ladendesign: jede Option einmal kaufen, danach frei umschaltbar
 export const FACADES=[
@@ -152,13 +153,12 @@ export function defaultDesign(){return {facade:'white',building:0,sign:0,awning:
 // Bobs personal.csv: Menschen, Produkt, Marketing, Ethik (1–5; UI zeigt 0–100)
 export const SKILLS=[
  {id:'service',label:'Menschen',icon:'🤝',desc:'Personalplanung, Service & Kapazität'},
- {id:'einkauf',label:'Produkt',icon:'📦',desc:'Treffsichere Bestellungen: Frische, weniger Abschrift'},
+ {id:'einkauf',label:'Produkt',icon:'📦',desc:'Treffsichere Bestellungen und volle Regale'},
  {id:'verkauf',label:'Marketing',icon:'📣',desc:'Größerer Warenkorb, lokales Marketing'},
  {id:'effizienz',label:'Ethik',icon:'⚖️',desc:'Sauberkeit, Zwischenfälle, schlanke Kosten'},
 ];
 export const TRAITS={
  nachteule:{label:'Nachteule',icon:'🦉',desc:'Übernimmt einen Teil der Nachtschicht: Nachtkraft −25 % Kosten',good:true},
- frische:{label:'Frische-Profi',icon:'🥬',desc:'30 % präzisere Frischware-Bestellung',good:true},
  sparfuchs:{label:'Sparfuchs',icon:'🦊',desc:'Personalkosten −6 %',good:true},
  charme:{label:'Charmant',icon:'🌟',desc:'+4 % Attraktivität, stärkt den Ruf',good:true},
  trend:{label:'Trendscout',icon:'📈',desc:'Saisonware +25 %',good:true},
@@ -257,7 +257,7 @@ export const EQUIP_KEYS=['shelf','fridge','freezer','coffee','oden','fryer','ste
 export const BUILD_CSV={'Fassade':'fac','Innenausbau':'inn','Regale (einfache Ladeneinbauten)':'shelf','Kühlregal (Modul)':'fridge','Tiefkühltruhe':'freezer','Kaffeemaschine':'coffee','Oden-Topf':'oden','Fritteuse':'fryer','Dampfgarer Nikuman':'steamer','Smoothie-Maschine':'smoothie','Hot-Drink-Warmer (Flaschentee/Dosenkaffee)':'hot','Selbstbedienungskasse':'self','Kasse (POS)':'pos'};
 export const STOCK_INIT=1500000;// Bob, final
 // Neue Ausstattung: Index je Kategorie, -1 = nicht eingebaut
-export function starterBuild(){return {fac:0,inn:0,shelf:0,fridge:0,freezer:-1,coffee:0,oden:-1,fryer:-1,steamer:-1,smoothie:-1,hot:-1,pos:0,self:-1}}
+export function starterBuild(){return {fac:0,inn:0,shelf:0,fridge:0,freezer:-1,coffee:0,oden:0,fryer:-1,steamer:-1,smoothie:-1,hot:-1,pos:0,self:-1}}// V6: Omas Laden hat den Oden-Topf (alle 6 Startprodukte verkaufen ab Woche 1)
 export function defaultBuild(){return {fac:0,inn:0,shelf:0,fridge:1,freezer:0,coffee:1,oden:0,fryer:-1,steamer:-1,smoothie:-1,hot:-1,pos:0,self:-1}}
 export const optPrice=(k,i)=>{if(i<0)return 0;const o=BUILD[k].opts[i];return o.price*(o.n||1)};
 export const buildCost=b=>Object.keys(BUILD).reduce((a,k)=>a+optPrice(k,b[k]??-1),0);
@@ -272,20 +272,20 @@ export const SHIFT_WAGE=1280;
 export const CAMPAIGNS=[
  {id:'wlan',name:'Kostenloses WLAN',icon:'wlan',weekly:5000,setup:30000,dur:0,cust:.02,bh:{service:.1},night:.05,tourist:.05},
  {id:'lade',name:'Handy-Ladestation',icon:'ladestation',weekly:1000,setup:60000,dur:0,cust:.01,bh:{service:.1},night:.03},
- {id:'onigiri',name:'Onigiri-Aktion 2+1 gratis',icon:'onigiri-aktion',revPct:.10,revCat:'onigiri',dur:4,cust:.02,cat:{onigiri:1.25},bh:{auswahl:.1},waste:{onigiri:.7}},
- {id:'punkte',name:'Punktekarte / App',icon:'punktekarte',weekly:30000,revPct:.005,dur:0,cust:.03,stamm:.05,bh:{},waste:{all:.95}},
+ {id:'onigiri',name:'Onigiri-Aktion 2+1 gratis',icon:'onigiri-aktion',revPct:.10,revCat:'onigiri',dur:4,cust:.02,cat:{onigiri:1.25},bh:{auswahl:.1}},
+ {id:'punkte',name:'Punktekarte / App',icon:'punktekarte',weekly:30000,revPct:.005,dur:0,cust:.03,stamm:.05,bh:{}},
  {id:'flyer',name:'Flyer und Plakate',icon:'flyer',once:100000,dur:2,cust:.04,decay:true},
  {id:'bahn1',hidden:!FEATURES.rail,name:'Bahnwerbung Yamanote (Plakat)',icon:'bahnwerbung',once:1990000,dur:3,cust:.06,chain:true,big:1.5},
  {id:'bahn2',hidden:!FEATURES.rail,name:'Bahnwerbung Yamanote (Screen 15 s)',icon:'bahnwerbung',once:3500000,dur:3,cust:.09,chain:true,big:1.5,generic:false},
  {id:'hanami',name:'Saisonaktion Hanami-Bentō',icon:'saisonaktion',once:150000,dur:3,cust:.03,cat:{saison:1.4},bh:{auswahl:.2},season:'hanami'},
- {id:'odenw',name:'Saisonaktion Oden-Wochen',icon:'saisonaktion',once:100000,dur:2,cust:.04,cat:{oden:1.6},bh:{frische:.1},season:'odenzeit',odenPrice:.8},
+ {id:'odenw',name:'Saisonaktion Oden-Wochen',icon:'saisonaktion',once:100000,dur:2,cust:.04,cat:{oden:1.6},bh:{auswahl:.1},season:'odenzeit',odenPrice:.8},
  {id:'xmas',name:'Saisonaktion Weihnachtskuchen',icon:'saisonaktion',once:200000,dur:4,cust:.02,cat:{saison:2},season:'xmas'},
  {id:'anime',name:'Anime-/Idol-Kollaboration',icon:'kollaboration',once:5000000,dur:3,cust:.25,cat:{snacks:1.3,drinks:1.3},bh:{auswahl:.3},after:-.05},
  {id:'social',name:'Social Media',icon:'soziale-medien',weekly:30000,dur:0,cust:.03,young:.06},
  {id:'buuhuu',name:'Anzeige im BuuHuu-Ranking',icon:'buuhuu-anzeige',weekly:50000,dur:0,cust:.03},
 ];
 export const CAMP_CSV={'Kostenloses WLAN':'wlan','Handy-Ladestation':'lade','Onigiri-Aktion 2+1 gratis':'onigiri','Punktekarte / App':'punkte','Flyer und Plakate':'flyer','Bahnwerbung Yamanote (Hängeplakat)':'bahn1','Bahnwerbung Yamanote (Bildschirm 15 s)':'bahn2','Saisonaktion Hanami-Bentō':'hanami','Saisonaktion Oden-Wochen':'odenw','Saisonaktion Weihnachtskuchen':'xmas','Anime-/Idol-Kollaboration mit Sammelstickern':'anime','Social Media':'social','Anzeige im BuuHuu-Ranking':'buuhuu'};
-export const BH_CATS=[{id:'sauber',label:'Sauberkeit'},{id:'frische',label:'Frische'},{id:'service',label:'Service'},{id:'auswahl',label:'Auswahl'}];
+export const BH_CATS=[{id:'sauber',label:'Sauberkeit'},{id:'auswahl',label:'Auswahl'},{id:'service',label:'Service'}];
 // Verkehrsknoten für spätere Reisen zwischen Städten
 export const HUBS=[{id:'tokyo-st',name:'Tokio Hauptbahnhof',sub:'Shinkansen nach Osaka & Kyōto',x:(lm(_CITY.hub)||{cx:0}).cx,z:(lm(_CITY.hub)||{cz:0}).cz,icon:'🚄'},{id:'haneda',name:'Flughafen Haneda',sub:'Flüge in andere Städte',x:(lm('haneda')||{cx:0}).cx,z:(lm('haneda')||{cz:110}).cz,icon:'✈️'}];
 // Straßennamen-Generator für Adressen (Stadtteil-Chōme-Nummer)

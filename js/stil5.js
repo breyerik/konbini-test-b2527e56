@@ -9,7 +9,7 @@ export const PIN_V2=QS.get('pin')!=='v1';
 export function seeded(seed){return()=>(seed=(seed*16807)%2147483647)/2147483647;}
 export const PAL={dach:['#7A5A48','#9C4A3C','#B0573F','#7A5A48','#3E4E6A','#75675E','#8E6A52','#9C4A3C'],fass:['#F7F3E9','#F2EFE6','#EFE4CC','#E8DCC4','#F5EBDD'],ziegel:'#A85E48',buero:'#DCE3EA',navy:'#2F3F66',kauf:'#F2E9DC',
  fHaus:'#6E8BAA',fBlock:'#5C7FA6',glas:'#7FA3C4',licht:'#F2E3A8',laden:'#7FB3C8',balkon:'#F7F5EF',tuer:'#5A4636',technik:'#9A9DA2',rot:'#E94F4F',blau:'#3D7BD9',gruen:'#5DBB73',gelb:'#FFC93C',halle:'#5F6B5A',
- gras:'#BFD271',ufer:'#A9CC55',asphalt:'#4A4D52',linie:'#F4F1EA',strich:'#D8DBE0',wasser:'#236E81',bord:'#F4F1EA'};
+ gras:'#BFD271',ufer:'#9CCB3E',asphalt:'#4A4D52',linie:'#F4F1EA',strich:'#D8DBE0',wasser:'#1F667C',bord:'#F4F1EA'};
 function canvasTex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;}
 const texC={},fM={},cM={};
 const facTex=(wall,win,cols=1,big=false)=>{const k=wall+win+cols+big;return texC[k]||(texC[k]=canvasTex(64,64,(g,w,h)=>{g.fillStyle=wall;g.fillRect(0,0,w,h);g.fillStyle=win;
@@ -102,9 +102,13 @@ export function drawGround(g,PX,N,cellAt,isRoad){
    else if(v>h+1&&h<=3){const cx=(x-runStart(x,y,1,0))*PX+h*PX/2;if(cx>=X&&cx<=X+PX)g.fillRect(cx-lw/2,Y+PX*.3,lw,PX*.4);}
   }else if(L(x,y)){// Bordstein zur Straße, gelbgrüne Uferkante zum Wasser
    g.fillStyle=PAL.bord;const k=Math.max(2,PX/12);if(R(x,y-1))g.fillRect(X,Y,PX,k);if(R(x,y+1))g.fillRect(X,Y+PX-k,PX,k);if(R(x-1,y))g.fillRect(X,Y,k,PX);if(R(x+1,y))g.fillRect(X+PX-k,Y,k,PX);
-   g.fillStyle=PAL.ufer;const u=PX*.22;if(Wt(x,y-1))g.fillRect(X,Y,PX,u);if(Wt(x,y+1))g.fillRect(X,Y+PX-u,PX,u);if(Wt(x-1,y))g.fillRect(X,Y,u,PX);if(Wt(x+1,y))g.fillRect(X+PX-u,Y,u,PX);
+   g.fillStyle=PAL.ufer;const u=PX*.3;// V6 (Vorlage m26): türkises Wasser, breitere grüne Uferstreifen
+   if(Wt(x,y-1))g.fillRect(X,Y,PX,u);if(Wt(x,y+1))g.fillRect(X,Y+PX-u,PX,u);if(Wt(x-1,y))g.fillRect(X,Y,u,PX);if(Wt(x+1,y))g.fillRect(X+PX-u,Y,u,PX);
   }}
  parkPaths(g,PX,N,cellAt);
+ // V6 (Whitebeard 4816e73, Vorlage): durchgehender grüner Uferstreifen auf der Wasserseite jeder Land-/Straßenkante (auch wo eine Straße am Wasser liegt), Brücken ausgenommen
+ {const us=PX*.22;g.fillStyle=PAL.ufer;for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(cellAt(x,y)!=='wasser')continue;const X=x*PX,Y=y*PX,Lk=(a,b)=>{const c=cellAt(a,b);return c!=='wasser'&&c!=='aussen'&&c!=='bruecke'};
+  if(Lk(x,y-1))g.fillRect(X,Y,PX,us);if(Lk(x,y+1))g.fillRect(X,Y+PX-us,PX,us);if(Lk(x-1,y))g.fillRect(X,Y,us,PX);if(Lk(x+1,y))g.fillRect(X+PX-us,Y,us,PX);}}
  // Grünstreifen zwischen parallelen Straßen verschiedenen Typs (Ring neben Hauptstraße) – keine Asphaltflächen über ganze Blöcke
  const T=(x,y)=>cellAt(x,y),MW2=PX*.36,par=(c,d)=>c!==d&&(c==='ringstrasse'||d==='ringstrasse'||c==='gasse'||d==='gasse');
  for(let y=0;y<N;y++)for(let x=0;x<N;x++){const c=T(x,y);if(!isRoad(c)||c==='bruecke')continue;

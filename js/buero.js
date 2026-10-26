@@ -1,9 +1,16 @@
 // Paket 2 – Zentrale (Büro, Team, Entwicklung, Preise). Läuft im Finanzmenü-Overlay (#fz), eigene Tabs wie Yukis b1–b8.
 import * as B from './buero_cfg.js';
+import * as SO from './sortiment.js';
+import {CATS} from './data.js';
 let S=null,H=null;const V={tab:'buero',view:null,id:null,auftrag:'chiki'};
 export const ON=B.ON;
 const W=m=>m*12/52;// Monat → Woche
-export function ensure(s){if(!s.buero)s.buero={office:null,kauf:false,seit:0,mieteBezahlt:0,staff:{},pb:{},cmo:false,erl:{}};return s.buero;}
+export function ensure(s){if(!s.buero)s.buero={office:null,kauf:false,seit:0,mieteBezahlt:0,staff:{},pb:{},cmo:false,erl:{}};const b=s.buero;
+ // R36: alter Spielstand mit Büro außerhalb Shibuya → kostenlos nach Shibuya verlegen (Kauf bleibt Kauf, Wert/Personal/Miet-Anrechnung bleiben), einmalige Meldung
+ if(b.office&&!OF(b.office)){const alt=B.ALT_BUEROS[b.office]||b.office;b.verlegt={von:b.office,woche:s.week};b.office=B.BUEROS[0].id;
+  const txt=`🏢 Deine Zentrale ist umgezogen: <b>${alt}</b> → <b>${B.BUEROS[0].name}</b> (Tokio). Es gibt nur noch ein Büro – der Umzug kostet nichts.`;
+  if(Array.isArray(s.news))s.news.unshift({chain:'player',text:txt,week:s.week});}
+ return b;}
 const mine=s=>H.allMine(s);
 export const verfuegbar=s=>ON&&mine(s).length>=B.AB_LAEDEN;
 const OF=id=>B.BUEROS.find(o=>o.id===id);
@@ -11,20 +18,30 @@ const ST=id=>B.PERSONAL.find(p=>p.id===id);
 const EM=id=>B.EIGENMARKEN.find(e=>e.id===id);
 const netto=e=>e.vk/(1+e.steuer);
 const pbMarge=e=>netto(e)-e.ek,frMarge=e=>netto(e)*e.fremd.marge;
-const mehrWoche=(s,e)=>mine(s).length*e.stueck*(pbMarge(e)-frMarge(e));
+// V6: keine Pauschale mehr – die Eigenmarke ist ein eigenes Produkt im Regal (sortiment 'eigen:id') mit eigenem Umsatz.
+// mehrWoche bleibt nur als Planungsschätzung für die Anzeige (Läden mit Gerät × Stück × Margenvorteil).
+const devL=(s,e)=>{const P=SO.K.EIGEN_PRODUKT[e.id]||{dev:[]};return mine(s).filter(x=>SO.devOk(x,P.dev));};
+const mehrWoche=(s,e)=>devL(s,e).length*e.stueck*(pbMarge(e)-frMarge(e));
 const amort=(s,e)=>{const m=mehrWoche(s,e);return m>0?Math.ceil(e.kosten/m):null;};
+const ALT={wasser:{name:'Kobo Wasser 500 ml',kosten:8e5},onigiri:{name:'Kobo Onigiri',kosten:1.5e6}};// V6 gestrichen (Erik) – Entwicklungskosten werden erstattet (Annahme, Bob prüft)
 export function kostenWoche(s){const b=ensure(s);let k=0;const o=OF(b.office);if(o)k+=b.kauf?W(B.KAUF.unterhalt):W(o.miete);for(const id in b.staff)k+=W(ST(id).gehalt);return k;}
 const kaufPreis=(s,o)=>{const b=ensure(s);let p=o.kauf;if(b.office===o.id&&!b.kauf&&s.week-b.seit>=B.KAUF.anrechnungAbWochen)p-=b.mieteBezahlt*B.KAUF.anrechnung;return Math.max(0,p);};
-export function weekHook(s,rep,T){if(!ON)return;const b=ensure(s);if(!b.office)return;
- const k=kostenWoche(s);if(!b.kauf)b.mieteBezahlt+=W(OF(b.office).miete);let plus=0;
- for(const [id,p] of Object.entries(b.pb)){const e=EM(id);if(!p.fertig&&s.week>=p.start+e.wochen){p.fertig=s.week;rep&&rep.news&&rep.news.push({chain:'player',text:`🧪 Eigenmarke <b>${e.name}</b> ist fertig und im Regal.`});}
-  if(p.fertig)plus+=mehrWoche(s,e)*(s.week-p.fertig<B.NACHFRAGE_START.wochen?B.NACHFRAGE_START.faktor:1);}
- s.cash+=plus-k;if(T){T.net+=plus-k;}b.letzte={kosten:k,plus};
+// Büro-Kosten sind Aufwand vor Steuer (V6, Erik Audit 2 Punkt 7)
+export function preTax(s,rep,T){if(!ON)return;const b=ensure(s);if(!b.office)return;const k=kostenWoche(s);if(!b.kauf)b.mieteBezahlt+=W(OF(b.office).miete);T.neben.buero=(T.neben.buero||0)+k;b.letzte={kosten:k,plus:0};}
+function sag(s,rep,text){const n={chain:'player',text};if(rep&&rep.news)rep.news.push({...n,week:s.week});if(rep&&rep.events)rep.events.push(text);s.news=[{...n,week:s.week}].concat(s.news||[]).slice(0,14);}
+export function pbWoche(s,rep){const b=ensure(s);
+ for(const [id,p] of Object.entries(b.pb)){const e=EM(id);
+  if(!e){delete b.pb[id];const a=ALT[id];if(a&&p.fertig==null){s.cash+=a.kosten;sag(s,rep,`🧪 ${a.name} wird nicht mehr entwickelt – ${H.fY(a.kosten)} Entwicklungskosten zurück.`);}else if(a)sag(s,rep,`🧪 ${a.name} ist aus dem Sortiment genommen.`);continue;}
+  if(!p.fertig&&s.week>=p.start+e.wochen)p.fertig=s.week;
+  if(p.fertig&&!SO.hat(s,'eigen:'+id)){const P=SO.K.EIGEN_PRODUKT[id]||{cat:'snacks',dev:[]};SO.freischalten(s,'eigen:'+id,e.name,P.cat);SO.ensure(s).art['eigen:'+id].start=p.fertig;
+   const ohne=mine(s).filter(x=>!SO.devOk(x,P.dev)).length;sag(s,rep,`🧪 Eigenmarke <b>${e.name}</b> ist fertig und im Regal.`+(ohne?` ${SO.devText(P.dev)} fehlt in ${H.ladenN(ohne)} – dort wartet sie auf das Gerät.`:''));}}}
+export function weekHook(s,rep,T){if(!ON)return;const b=ensure(s);pbWoche(s,rep);if(!b.office)return;
  if(b.cmo&&b.staff.cmo)cmoPreise(s);}
-function cmoPreise(s){for(const st of mine(s)){const t=H.dtype(st.d);st.cfg.price=B.CMO_PREIS[t]??B.CMO_PREIS.standard;}}
+// V6: CMO schreibt die Preisfaktoren, die die Simulation wirklich liest (cfg.px je Warengruppe), nicht das tote cfg.price
+function cmoPreise(s){for(const st of mine(s)){const t=H.dtype(st.d),f=B.CMO_PREIS[t]??B.CMO_PREIS.standard;st.cfg.px=st.cfg.px||{};for(const k of CATS)st.cfg.px[k.id]=f;delete st.cfg.price;}}
 /* ---------- CFO-Erinnerungen (b7) ---------- */
 export function erinnerungen(s){const fz=s.fz||{},out=[],d=S.weekDate(s.week),wk=x=>Math.max(0,Math.round((x-d)/(7*864e5)));
- for(const [id,v] of Object.entries(fz.vertraege||{})){if(!v.ende)continue;const w=wk(new Date(v.ende));if(w<=B.CFO.vertragVorlauf)out.push({id:'v_'+id,icon:'📄',farbe:'#FFC93C',titel:`${H.produktName(id)}-Vertrag läuft aus`,text:`${v.messe?'Exklusiv-Vertrag':'Vertrag'} endet am ${new Date(v.ende).getDate()}.${new Date(v.ende).getMonth()+1}. – verlängern nur auf der Messe.`,wann:`noch ${w} Wo.`,btn:'Zur Messe',go:'produkte'});}
+ for(const [id,v] of Object.entries(fz.vertraege||{})){if(!v.ende)continue;const w=wk(new Date(v.ende)),jetzt=w<=2;if(w<=B.CFO.vertragVorlauf)out.push({id:'v_'+id,icon:'📄',farbe:'#FFC93C',titel:`${H.produktName(id)}-Vertrag läuft aus`,text:`${v.messe?'Exklusiv-Vertrag':'Vertrag'} endet am ${new Date(v.ende).getDate()}.${new Date(v.ende).getMonth()+1}. – danach ist das Produkt nicht mehr im Regal. ${jetzt?'Jetzt verlängern.':'Verlängern geht 2 Wochen vor Ende'+(v.messe?' oder im April auf der Messe.':'.')}`,wann:`noch ${w} Wo.`,btn:jetzt?'🔁 Verlängern':'Zu den Produkten',go:jetzt?'verl:'+id:'produkte'});}
  const M=H.messeTermin,y=d.getMonth()+1>M.monat||(d.getMonth()+1===M.monat&&d.getDate()>M.bis)?d.getFullYear()+1:d.getFullYear(),md=new Date(y,M.monat-1,M.von),mw=wk(md);
  if(mw<=B.CFO.messeVorlauf)out.push({id:'m_'+y,icon:'🌸',farbe:'#F7A1B5',titel:'Marken-Messe Tokio',text:`${M.von}.–${M.bis}. April: Gebote vorbereiten.`,wann:`noch ${mw} Wo.`,btn:'Zur Messe',go:'messe'});
  const kr=(fz.kredite||[]).filter(k=>k.rest>0);if(kr.length){const rate=kr.reduce((a,k)=>a+k.rate,0),h=(s.hist||[]).slice(-13),cf=h.length?h.reduce((a,x)=>a+(x.net||0),0)/h.length:0;
@@ -33,7 +50,7 @@ export function erinnerungen(s){const fz=s.fz||{},out=[],d=S.weekDate(s.week),wk
  const e=ensure(s).erl;return out.filter(x=>!(e[x.id]>s.week));}
 /* ---------- Ansichten ---------- */
 const sel=(k,i,t)=>`<button class="${V.tab===k?'on':''}" data-act="fz" data-v="bu" data-x="tab:${k}">${i} ${t}</button>`;
-function head(s){const T=s.lastReport&&s.lastReport.T;return `<div class="fzhead"><button class="fzx" data-act="fz" data-v="bu" data-x="zu" aria-label="Zurück">✕</button><span class="buicon">🏢</span><div class="grow"><b>${H.esc(s.logo.name||'Hoshi Mart')}</b><small>KW ${s.week} · Zentrale</small></div><div class="r"><b>${H.fY(s.cash)}</b><small class="${T&&T.net<0?'n':'p'}">${T?H.fY(T.net,1)+' / Woche':'–'}</small></div></div>
+function head(s){const T=s.lastReport&&s.lastReport.T;return `<div class="fzhead"><button class="fzx" data-act="fzkarte" aria-label="Schließen">✕</button><span class="buicon">🏢</span><div class="grow"><b>${H.esc(s.logo.name||'Hoshi Mart')}</b><small>KW ${S.kw(s.week)} · Zentrale</small></div><div class="r"><b>${H.fY(s.cash)}</b><small class="${T&&T.net<0?'n':'p'}">${T?H.fY(T.net,1)+' / Woche':'–'}</small></div></div>
  <div class="fztabs">${sel('buero','🏢','Büro')}${sel('team','👥','Team')}${sel('entw','🧪','Entwicklung')}${sel('preise','📣','Preise')}</div>`;}
 const btn=(x,t,cls='o')=>`<button class="fzbtn ${cls}" data-act="fz" data-v="bu" data-x="${x}">${t}</button>`;
 const kobo=t=>`<div class="fzkobo"><img src="grafik/maskottchen/kobo.svg" alt=""><div>${t}</div></div>`;
@@ -77,7 +94,7 @@ function pEntw(s){const b=ensure(s);if(!b.staff.pe)return `<div class="fzc">🧪
  h+=`</div><div class="fzc"><div class="fzline">${e.emoji} <b>${e.name}</b></div><div class="fzg2"><div class="fzc"><small>💴 Entwicklung</small><b>${H.fY(e.kosten)}</b></div><div class="fzc"><small>⏱️ Dauer</small><b>${e.wochen} Wochen</b></div></div></div>
  <div class="fzh">Marge: Eigenmarke vs. gekaufte Marke</div><div class="fzc"><div class="fzline"><small>${e.emoji} ${e.kurz} (Eigenmarke) · EK ¥${e.ek} · VK ¥${e.vk}</small><span class="grow"></span><b class="p">¥${Math.round(pbMarge(e))} · ${Math.round(pbMarge(e)/netto(e)*100)} %</b></div><div class="fzbar"><i style="width:${Math.round(pbMarge(e)/netto(e)*100)}%;background:#5DBB73"></i></div>
  <div class="fzline"><small>${e.fremd.name} · VK ¥${e.vk}</small><span class="grow"></span><b>¥${Math.round(frMarge(e))} · ${Math.round(e.fremd.marge*100)} %</b></div><div class="fzbar"><i style="width:${Math.round(e.fremd.marge*100)}%"></i></div>
- <small>= <b class="p">+${H.fY(mehrWoche(s,e))} / Woche</b> mehr Rohertrag (${H.ladenN(n)} × ${e.stueck} Stück × ¥${Math.round(pbMarge(e)-frMarge(e))}) · Amortisation <b>${am?am+' Wochen':'–'}</b></small></div>
+ <small>Schätzung: <b class="p">+${H.fY(mehrWoche(s,e))} / Woche</b> mehr Rohertrag (${H.ladenN(devL(s,e).length)} mit Gerät × ≈${e.stueck} Stück × ¥${Math.round(pbMarge(e)-frMarge(e))}) · Amortisation <b>${am?am+' Wochen':'–'}</b> · echter Umsatz steht im Laden unter „Produkte“</small></div>${(()=>{const P=SO.K.EIGEN_PRODUKT[e.id]||{dev:[]},o=n-devL(s,e).length;return o?`<div class="fzc fzwarn">${SO.devText(P.dev)} fehlt in ${H.ladenN(o)} – dort verkauft ${H.esc(e.kurz)} nichts.</div>`:'';})()}
  <div class="fzc bul">📈 <small>Erwartete Nachfrage: wie Marke −${Math.round((1-B.NACHFRAGE_START.faktor)*100)} % (unbekannte Marke), nach ${Math.round(B.NACHFRAGE_START.wochen/4.33)} Monaten gleich auf.</small></div>
  ${lauf?`<div class="fzc bul">${lauf.fertig?'✅ Schon im Regal':'⏳ In Entwicklung – noch '+Math.max(0,lauf.start+e.wochen-s.week)+' Wo.'}</div>`:btn('entw:'+e.id,'🧪 Entwicklung starten · '+H.fY(e.kosten))}
  ${btn('marken','🏷️ Unsere Eigenmarken','d')}`;return h+kobo('Eigenmarken = mehr Marge, aber erst bekannt machen!');}
@@ -88,15 +105,15 @@ function pMarken(s){const b=ensure(s),L=B.EIGENMARKEN.filter(e=>b.pb[e.id]);let 
 function pPreise(s){const b=ensure(s);if(!b.staff.cmo)return `<div class="fzc">📣 Preise und neue Filialleiter übernimmt eine <b>CMO</b> in der Zentrale.</div>`+btn('tab:team','👥 Zum Team');
  const p=ST('cmo'),n=mine(s).length;let h=`<div class="fzc buhead"><img class="fzav" src="grafik/buero/personal/${p.file}.svg" alt=""><div class="grow"><b>${p.name} · CMO</b><small>Preise für alle ${H.ladenN(n)}</small></div><button class="butog ${b.cmo?'on':''}" data-act="fz" data-v="bu" data-x="cmo"><i></i></button><small>CMO setzt</small></div><div class="fzh">Preisfaktor je Viertel</div>`;
  const typen=[...new Set(mine(s).map(x=>H.dtype(x.d)))];
- for(const t of typen){const f=B.CMO_PREIS[t]??B.CMO_PREIS.standard,L=mine(s).filter(x=>H.dtype(x.d)===t),akt=L.reduce((a,x)=>a+(x.cfg.price||1),0)/L.length;
+ for(const t of typen){const f=B.CMO_PREIS[t]??B.CMO_PREIS.standard,L=mine(s).filter(x=>H.dtype(x.d)===t),pxA=x=>CATS.reduce((a,k)=>a+((x.cfg.px&&x.cfg.px[k.id])||1),0)/CATS.length,akt=L.reduce((a,x)=>a+pxA(x),0)/L.length;
   h+=`<div class="fzc"><div class="fzline"><b>${H.typName(t)}</b> <small>· ${H.ladenN(L.length)}</small><span class="grow"></span><b class="y">${Math.round(akt*100)} %</b></div><div class="fzbar"><i style="width:${Math.min(100,akt/1.2*100)}%"></i></div><small>CMO-Vorschlag ${Math.round(f*100)} %${t==='office'?' · Premium geht':t==='uni'?' · günstig ist Pflicht':''}</small></div>`;}
  h+=`<div class="fzh">Neue Filiale</div><div class="fzc bul">🧑‍💼 <small>${b.cmo?'Kato stellt für neue Läden automatisch eine passende Filialleitung ein.':'Schalte „CMO setzt“ ein, dann übernimmt Kato Preise und Filialleitungen.'}</small></div>`;
  return h;}
 export function render(){const s=S.state;let b;if(V.tab==='team')b=pTeam(s);else if(V.tab==='entw')b=pEntw(s);else if(V.tab==='preise')b=pPreise(s);else b=pBuero(s);return head(s)+`<div class="fzbody">${b}</div>`;}
-export function act(x){const s=S.state,b=ensure(s),[k,v]=x.split(':');
+export function act(x){const s=S.state,b=ensure(s),i=x.indexOf(':'),k=i<0?x:x.slice(0,i),v=i<0?undefined:x.slice(i+1);
  switch(k){case 'tab':V.tab=v;V.view=null;break;case 'liste':V.view=null;break;case 'detail':V.view='detail';V.id=v;break;
-  case 'miete':{if(b.office&&b.office!==v){H.toast('Erst aus dem alten Büro ausziehen');break;}b.office=v;b.kauf=false;b.seit=s.week;b.mieteBezahlt=b.mieteBezahlt||0;V.view=null;H.toast('🔑 '+OF(v).name+' gemietet');break;}
-  case 'kauf':{const o=OF(v),p=kaufPreis(s,o);if(s.cash<p){H.toast('Nicht genug Geld');break;}if(b.office&&b.office!==v){H.toast('Erst aus dem alten Büro ausziehen');break;}s.cash-=p;b.office=v;b.kauf=true;b.wert=o.kauf;b.seit=s.week;V.view=null;H.toast('🏠 '+o.name+' gekauft');break;}
+  case 'miete':{if(!OF(v))break;if(b.office&&b.office!==v){H.toast('Erst aus dem alten Büro ausziehen');break;}b.office=v;b.kauf=false;b.seit=s.week;b.mieteBezahlt=b.mieteBezahlt||0;V.view=null;H.toast('🔑 '+OF(v).name+' gemietet');break;}
+  case 'kauf':{const o=OF(v);if(!o)break;const p=kaufPreis(s,o);if(s.cash<p){H.toast('Nicht genug Geld');break;}if(b.office&&b.office!==v){H.toast('Erst aus dem alten Büro ausziehen');break;}s.cash-=p;b.office=v;b.kauf=true;b.wert=o.kauf;b.seit=s.week;V.view=null;H.toast('🏠 '+o.name+' gekauft');break;}
   case 'auszug':if(b.kauf)s.cash+=b.wert*B.KAUF.wiederverkauf;Object.assign(b,{office:null,kauf:false,staff:{},cmo:false,mieteBezahlt:0});H.toast('🚪 Ausgezogen – Personal entlassen');break;
   case 'einst':b.staff[v]=s.week;H.toast('✅ '+ST(v).name+' eingestellt');break;
   case 'entl':delete b.staff[v];if(v==='cmo')b.cmo=false;break;
@@ -110,5 +127,10 @@ export function act(x){const s=S.state,b=ensure(s),[k,v]=x.split(':');
 export function karte(s){if(!ON)return '';const n=mine(s).length,b=ensure(s);
  if(n<B.AB_LAEDEN)return `<div class="fzc bul">🏢 <small>Zentrale ab ${B.AB_LAEDEN} Läden (${n}/${B.AB_LAEDEN})</small></div>`;
  return `<button class="fzc bul" data-act="fz" data-v="zentrale">🏢 <b>Zentrale</b><span class="grow"></span><small>${b.office?OF(b.office).viertel+' · '+Object.keys(b.staff).length+' Personal':'Büro suchen ›'}</small></button>`;}
+// V6 (Erik 25.10.): Büro ohne Kartenpin – Zugang über ☰ (Markt & Marke), Büro nur mit Stadtteilnamen, höchstens eins je Stadt
+export function menuKnopf(s){if(!ON)return '';const n=mine(s).length,b=ensure(s),o=b.office&&OF(b.office);
+ if(n<B.AB_LAEDEN)return `<div class="card bumenu" style="margin-top:10px;font-weight:700;color:var(--mut)">🏢 Büro / Zentrale ab ${B.AB_LAEDEN} Läden (${n}/${B.AB_LAEDEN})</div>`;
+ return `<button class="card bumenu" data-act="fzbuero" style="margin-top:10px;width:100%;text-align:left;min-height:44px">🏢 <b>Büro / Zentrale</b> <small style="color:var(--mut);font-weight:700">${o?esc2(o.stadt+' · '+o.viertel):'Büro mieten ›'}</small></button>`;}
+const esc2=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
 export const _t={erinnerungen,kostenWoche,mehrWoche:(s,id)=>mehrWoche(s,EM(id)),amort:(s,id)=>amort(s,EM(id)),V};
 export function init(sim,helpers){S=sim;H=helpers;}

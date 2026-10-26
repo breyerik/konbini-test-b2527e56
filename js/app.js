@@ -13,6 +13,8 @@ import * as BF from './bahnhof.js';
 import {GFX,loadGfx,has,svgColored,svgURL} from './gfx.js';
 import {logoURL} from './logo.js';
 import * as SC from './screens.js';
+import {ico,seasonIco,keepLast} from './washi.js';
+import * as MM from './mitemite.js';
 import {createWorld,storePreview,previewMode,chainLook} from './world.js';
  if(BU.ON){// Paket 2: Asayake Mart + Tsubame Eki (Erik bestätigt, ?paket2=0 aus)
   D.CHAINS.asayake=D.CHAINS.asayake||{name:'Asayake Mart',jp:'アサヤケ',color:'#F28C38',color2:'#FFE08A',brand:1.0,aggr:.09,file:'asayake-mart'};
@@ -51,7 +53,7 @@ function cityCards(){const aw=S.state?S.awayStores(S.state):[];return TRAVEL.map
 // Bahnhof (Yuki): Stadtwahl + Zug-Ladescreen, dann wie travel()
 function bahnhofOpen(){closeSheet();let el=$('#bf');if(!el){el=document.createElement('div');el.id='bf';document.body.appendChild(el);}el.innerHTML=BF.render(CITY.id);el.scrollTop=0;document.body.classList.add('bfopen');}
 function abfahrt(id){S.save();document.body.classList.remove('bfopen');BF.ladescreen(id);setTimeout(()=>travel(id),BF.LADEZEIT);}
-function travelSheet(){showSheet(`<div class="h">✈️ Städte</div><div class="cities">${cityCards()}</div><div style="color:var(--mut);font-size:12px;font-weight:700;margin-top:8px">Eine Firma, eine Kasse. Filialen der anderen Stadt laufen mit ihrem letzten Wochenergebnis weiter.</div>`);}
+function travelSheet(){showSheet(`<div class="h">✈️ Städte</div><div class="cities">${cityCards()}</div><div style="color:var(--mut);font-size:12px;font-weight:700;margin-top:8px">Eine Firma, eine Kasse. Filialen in anderen Städten laufen weiter und werden jede Woche voll mitgerechnet.</div>`);}
 const filN=n=>n===1?'1 Filiale':`${n} Filialen`,ladenN=n=>n===1?'1 Laden':`${n} Läden`;// Singular/Plural (Whitebeard)
 function closeSheet(){closePick();document.body.classList.remove('sheet');ui.storeId=null;W&&W.select(null);}
 const sheetOpen=()=>document.body.classList.contains('sheet');
@@ -65,7 +67,7 @@ const si=(did,slot)=>S.siteInfo(did,slot);
 const designOf=b=>S.designOf({b});
 
 /* ---------- Tutorial (Kobo) ---------- */
-const TUT_NEXT={start:'sortiment',sortiment:'frische',frische:'personal',personal:'services',zweiter_laden:'karte'};
+const TUT_NEXT={start:'sortiment',sortiment:'personal',personal:'services',zweiter_laden:'karte'};
 function tut(id,force,vars){
  const s=st(),X=GFX.texte||{},T=(X.tutorial||[]).find(x=>x.id===id)||(X.hinweise||[]).find(x=>x.id===id)||rescueText(id);
  const always=['warnung_kasse','warnung_minus','rettung_gerettet'].includes(id);// Kassen-Warnung auch bei ausgeblendetem Tutorial
@@ -75,22 +77,24 @@ function tut(id,force,vars){
  $('#tutor').innerHTML=`<div class="tbub"><div class="tx">${esc(txt)}<div class="tbtn"><button data-act="tutnext" class="ok">${TUT_NEXT[id]?'Weiter':'Verstanden'}</button><button data-act="tutoff">Tutorial ausblenden</button></div></div><img src="grafik/maskottchen/${fig}.svg" alt="Kobo"></div>`;
  $('#tutor').classList.add('show');
 }
-function tutHide(){$('#tutor').classList.remove('show');}
+function tutHide(){const e=$('#tutor');e.classList.remove('show');setTimeout(()=>{if(!e.classList.contains('show'))e.innerHTML='';},300);}
 
 /* ---------- HUD & Leiste ---------- */
 function renderHUD(){
  const s=st(),last=s.hist[s.hist.length-1];
- $('#hud').innerHTML=`<button class="pill" data-act="tab" data-t="market">${chainLogo('player',40)}<div style="min-width:0;text-align:left"><b>${fmtY(s.cash)}</b><small class="${last?(last.net>=0?'pos':'neg'):''}">${last?sgn(last.net)+' / Woche':esc(s.logo.name)}</small></div></button>
- <button class="pill datepill" data-act="tab" data-t="fin"><div><b>KW ${s.week}</b><small>${S.dateLabel(S.weekDate(s.week))}</small></div></button>`;
+ $('#hud').innerHTML=`<div class="hudcard"><button class="pill cashpill2" data-act="tab" data-t="market" aria-label="Markt">${chainLogo('player',48)}<div class="hc"><b>${fmtY(s.cash)}</b><small>${esc(s.logo.name)} · Kasse</small></div><div class="hw ${last?(last.net>=0?'pos':'neg'):''}"><b>${last?sgn(last.net):'–'}</b><small>pro Woche</small></div></button><i class="hsep"></i>
+ <button class="pill datepill" data-act="tab" data-t="fin" aria-label="Finanzen"><div><b>KW ${S.kw(s.week)}</b><small>${S.dateLabel(S.weekDate(s.week))}</small></div></button></div>`;
  const ev=S.seasonInfo(s.week),sa=S.saisonFor(ev);
  {const key=ev.label+'|'+st().week;if(ui.chipKey!==key){ui.chipKey=key;ui.chipOpen=true;clearTimeout(ui.chipT);ui.chipT=setTimeout(()=>{ui.chipOpen=false;const c=document.querySelector('#seasonChip .schip');c&&c.classList.add('mini');},4000);}}
- $('#seasonChip').innerHTML=`<div class="schip${ui.chipOpen?'':' mini'}" data-act="chip" role="button" aria-expanded="${!!ui.chipOpen}" title="${esc(ev.label)}"><span class="e">${ev.emoji}</span><div>${ev.label}<small>${ev.desc} ${sa.emoji} ${esc(sa.name)}</small></div></div>`;
+ $('#seasonChip').innerHTML=`<div class="schip${ui.chipOpen?'':' mini'}" data-act="chip" role="button" aria-expanded="${!!ui.chipOpen}" title="${esc(ev.label)}"><span class="e">${ico(seasonIco(ev),18)}</span><div>${ev.label}<small>${ev.desc} · ${esc(sa.name)}</small></div></div>`;
  W&&W.setSeason(ev.key==='hanami'?'hanami':(ev.base||ev.key));
 }
-const TABS=[['map','🗾','Karte'],['stores','🏪','Filialen'],null,['fin','💹','Finanzen'],['market','🏆','Markt']];
+const TABS=[['map','map','Karte'],['stores','shop','Filialen'],null,['fin','chart','Finanzen'],['market','trophy','Markt']];
+// V6 (Whitebeard-Vorabtest, Vorlage m26): Stadt-Knopf mit Flagge statt Zug/Flugzeug, Ebenen-Knopf links
+const FLAG_JP='<svg class="flag" viewBox="0 0 30 20" width="27" height="18" aria-hidden="true"><rect x=".5" y=".5" width="29" height="19" rx="3" fill="#fff" stroke="#D8D2C4"/><circle cx="15" cy="10" r="5.6" fill="#BC002D"/></svg>';
 function renderBar(){
- $('#bar').innerHTML=TABS.map(t=>t?`<button class="tb ${ui.tab===t[0]?'on':''}" data-act="${t[0]==='map'?'tab':'tab'}" data-t="${t[0]}"><span>${t[1]}</span>${t[2]}</button>`:`<button id="endWeek" data-act="endweek">Woche beenden ▶<small>KW ${st().week}</small></button>`).join('');
- $('#cityBar').innerHTML=`<span class="cbtn" style="visibility:hidden" aria-hidden="true"></span><div class="citypill"><span>${CITY.emoji}</span><b>${CITY.name}</b><button data-act="plane" title="Reisen">${BF.ON?'🚄':'✈️'}</button></div><button class="cbtn" data-act="menu" title="Menü">☰</button>`;
+ $('#bar').innerHTML=TABS.map(t=>t?`<button class="tb ${ui.tab===t[0]?'on':''}" data-act="${t[0]==='map'?'tab':'tab'}" data-t="${t[0]}"><span>${ico(t[1],24)}</span>${t[2]}</button>`:`<button id="endWeek" data-act="endweek"><span class="ew">Woche beenden <i>▸</i></span><small>weiter zu KW ${S.kw(st().week+1)}</small></button>`).join('');
+ $('#cityBar').innerHTML=`${MM.button()}<button class="cbtn" data-act="layers" title="Ebenen" aria-label="Kartenebenen">${ico('layers',22)}</button><div class="citypill"><button data-act="plane" data-ico="flag" title="Reisen" aria-label="Reisen">${FLAG_JP}</button><b>${CITY.name}</b></div><button class="cbtn" data-act="menu" title="Menü" aria-label="Menü">${ico('menu',22)}</button>`;
 }
 function renderAll(){NK.sync(st());renderHUD();renderBar();renderPanel();W&&W.syncStores(st().stores,st().logo,st().week);}
 
@@ -109,7 +113,7 @@ function tabStores(){
  const ms=S.mine();let h=`<div class="h1">Deine Filialen</div><div style="color:var(--mut);font-weight:700;font-size:13px;margin:0 2px 8px">${ladenN(ms.length)} in ${CITY.name}</div>`;
  if(!ms.length)return h+`<div class="card empty"><div style="font-size:52px">🏪</div><h3 style="margin:8px 0 6px">Noch keine Konbini</h3><p style="color:var(--mut);margin:0 0 14px;line-height:1.5;font-weight:600">Tippe auf der Karte auf einen <b>空き</b>-Pin „Zu vermieten“.</p><button class="btn primary" data-act="tab" data-t="map">Zur Karte</button></div>`;
  for(const s of ms){const l=s.last,m=s.mgr,t=D.TIERS[s.tier];
-  h+=`<button class="card storecard" data-act="store" data-id="${s.id}"><div class="row">${chainLogo('player',40)}<div class="grow"><b style="font-size:16px">${S.storeLabel(s)}</b><div class="chips" style="margin-top:4px"><span class="chip"><img src="grafik/karte/${t.badge}.svg" width="14" height="16" alt=""> ${t.label}</span>${s.build?'<span class="chip">🚧 Bald eröffnet</span>':GH(s.bh.overall,14)}${!s.mgr&&s.quit?'<span class="chip badge-fehlt">⚠️ Filialleitung fehlt</span>':''}${s.mgr&&s.mgr.kuendigt?`<span class="chip badge-fehlt">⚠️ Gekündigt · KW ${s.mgr.kuendigt.zum-1}</span>`:''}</div></div><span style="color:var(--mut);font-size:24px">›</span></div>
+  h+=`<button class="card storecard" data-act="store" data-id="${s.id}"><div class="row">${chainLogo('player',40)}<div class="grow"><b style="font-size:16px">${S.storeLabel(s)}</b><div class="chips" style="margin-top:4px"><span class="chip"><img src="grafik/karte/${t.badge}.svg" width="14" height="16" alt=""> ${t.label}</span>${s.build?'<span class="chip">🚧 Bald eröffnet</span>':GH(s.bh.overall,14)}${!s.mgr&&s.quit?'<span class="chip badge-fehlt">⚠️ Filialleitung fehlt</span>':''}${s.mgr&&s.mgr.kuendigt?`<span class="chip badge-fehlt">⚠️ Gekündigt · KW ${S.kw(s.mgr.kuendigt.zum-1)}</span>`:''}</div></div><span style="color:var(--mut);font-size:24px">›</span></div>
   <div class="row" style="margin-top:9px;font-size:12.5px;font-weight:700;color:var(--mut)"><span style="font-size:20px">${m?m.avatar:'🧑'}</span><span class="grow">${m?esc(m.name):'Kein Filialleiter'}</span></div>
   <div class="stats3"><div>Kunden/Tag<b>${l&&!l.building?fmtN(l.cust/7):'–'}</b></div><div>Umsatz<b>${l&&!l.building?fmtY(l.rev):'–'}</b></div><div>Gewinn<b class="${l?(l.net>=0?'pos':'neg'):''}">${l?sgn(l.net):'neu'}</b></div></div></button>`;}
  return h+`<button class="btn full" data-act="tab" data-t="map">＋ Neuen Standort auf der Karte wählen</button>`;
@@ -118,31 +122,31 @@ function tabFin(){
  const s=st(),r=s.lastReport,T=r&&r.T,book=sum(S.mine().map(S.bookValue)),dep=sum(S.mine().map(x=>x.deposit||0));
  let h=`${FZ.ON?'<button class="btn ghost" data-act="finmenu" style="margin-bottom:8px">◀ Finanzmenü</button>':''}<div class="h1">Finanzen</div><div class="kpis" style="margin-top:10px">
  <div class="kpi"><small>Kasse</small><b>${fmtY(s.cash)}</b></div><div class="kpi"><small>Nettoeinkommen letzte Woche</small><b class="${T?(T.net>=0?'pos':'neg'):''}">${T?sgn(T.net):'–'}</b></div>
- <div class="kpi"><small>Umsatz gesamt</small><b>${fmtY(s.cum.rev)}</b></div><div class="kpi"><small>Bankkredit</small><b>${fmtY(s.loan)}</b></div></div>
+ <div class="kpi"><small>Umsatz gesamt</small><b>${fmtY(s.cum.rev)}</b></div><div class="kpi"><small>Bankkredit</small><b>${fmtY(S.loanSum())}</b></div></div>
  <div class="h">Umsatz & Nettoeinkommen pro Woche</div><div class="card"><canvas id="finChart" style="height:180px"></canvas></div>
  <div class="h">Spielregeln</div><div class="card"><div class="row"><div class="grow"><b>Lebensmittelsteuer 1 % (04/2027–03/2029)</b><div style="font-size:12px;color:var(--mut);font-weight:600;line-height:1.4">Annahme, nicht real beschlossen. Ein: 1 % statt 8 % auf Lebensmittel in diesem Zeitraum.</div></div><button class="tgl ${s.taxCut!==false?'on':''}" data-act="taxcut" aria-label="Steuersenkung ein/aus"><i></i></button></div></div>`;
- if(T)h+=`<div class="h">Gewinn- und Verlustrechnung · KW ${r.week}</div><div class="card"><table class="fin">
+ if(T)h+=`<div class="h">Gewinn- und Verlustrechnung · KW ${S.kw(r.week)}</div><div class="card"><table class="fin">
  <tr><td>Heiße Getränke & Speisen</td><td>${fmtY(T.heiss)}</td></tr><tr><td>Kalte Getränke</td><td>${fmtY(T.kalt)}</td></tr><tr><td>Essen</td><td>${fmtY(T.essen)}</td></tr><tr><td>Sonstiges</td><td>${fmtY(T.sonst)}</td></tr><tr><td>Services (Provisionen)</td><td>${fmtY(T.fees)}</td></tr>
  <tr class="sum"><td>Umsatz</td><td>${fmtY(T.rev+T.fees)}</td></tr>
- <tr class="sub"><td>Wareneinsatz</td><td>${fmtY(-T.cogs)}</td></tr><tr class="sub"><td>Abschrift Frischware</td><td>${fmtY(-T.waste)}</td></tr>
+ <tr class="sub"><td>Wareneinsatz</td><td>${fmtY(-T.cogs)}</td></tr>
  <tr class="sub"><td>Miete</td><td>${fmtY(-T.rent)}</td></tr><tr class="sub"><td>Ladenteam (plant die Filialleitung)</td><td>${fmtY(-T.wages)}</td></tr><tr class="sub"><td>Filialleiter</td><td>${fmtY(-T.salary)}</td></tr><tr class="sub"><td>Strom</td><td>${fmtY(-T.power)}</td></tr><tr class="sub"><td>Marketing</td><td>${fmtY(-T.mkt)}</td></tr><tr class="sub"><td>Verwaltung & Verträge</td><td>${fmtY(-T.admin-T.svcFixed)}</td></tr><tr class="sub"><td>Abschreibung Anlagen</td><td>${fmtY(-T.dep)}</td></tr><tr class="sub"><td>Anlagensteuer</td><td>${fmtY(-T.assetTax)}</td></tr>
  <tr><td>Betriebsergebnis</td><td>${sgn(T.ebit)}</td></tr><tr class="sub"><td>Zinsen (4,5 %)</td><td>${fmtY(-T.interest)}</td></tr><tr class="sub"><td>Körperschaftsteuer</td><td>${fmtY(-T.tax)}</td></tr>
  <tr class="sum"><td>Nettoeinkommen</td><td class="${T.net>=0?'pos':'neg'}">${sgn(T.net)}</td></tr></table></div>
- <div class="h">Cashflow · KW ${r.week}</div><div class="card"><table class="fin"><tr><td>Aus Geschäftstätigkeit</td><td>${sgn(T.cf.op)}</td></tr><tr><td>Aus Investition</td><td>${sgn(T.cf.inv)}</td></tr><tr><td>Aus Finanzierung</td><td>${sgn(T.cf.fin)}</td></tr></table></div>`;
- h+=`<div class="h">Bilanz</div><div class="card"><table class="fin"><tr><td>Kasse</td><td>${fmtY(s.cash)}</td></tr><tr><td>Kautionen</td><td>${fmtY(dep)}</td></tr><tr><td>Anlagen (Buchwert)</td><td>${fmtY(book)}</td></tr><tr><td>Bankkredit</td><td>${fmtY(-s.loan)}</td></tr><tr class="sum"><td>Eigenkapital</td><td>${fmtY(S.equity())}</td></tr></table></div>
- <div class="h">Bankkredit</div><div class="card"><div class="bar"><i style="width:${Math.min(100,s.loan/D.LOAN.max*100)}%"></i></div>
- <p style="color:var(--mut);font-size:12.5px;margin:9px 2px;font-weight:600;line-height:1.5">4,5 % Zinsen, 10 Jahre Laufzeit, Annuität ${fmtY(s.loanPay)}/Woche. Rahmen bis ¥48 Mio. ${S.loanAvailable()?'Sondertilgung jederzeit gebührenfrei.':`Die Bank will 6 Monate Zahlen sehen: Kredit ab KW ${D.LOAN.fromWeek}.`}</p>
+ <div class="h">Cashflow · KW ${S.kw(r.week)}</div><div class="card"><table class="fin"><tr><td>Aus Geschäftstätigkeit</td><td>${sgn(T.cf.op)}</td></tr><tr><td>Aus Investition</td><td>${sgn(T.cf.inv)}</td></tr><tr><td>Aus Finanzierung</td><td>${sgn(T.cf.fin)}</td></tr></table></div>`;
+ h+=`<div class="h">Bilanz</div><div class="card"><table class="fin"><tr><td>Kasse</td><td>${fmtY(s.cash)}</td></tr><tr><td>Kautionen</td><td>${fmtY(dep)}</td></tr><tr><td>Anlagen (Buchwert)</td><td>${fmtY(book)}</td></tr><tr><td>Kredite</td><td>${fmtY(-S.loanSum())}</td></tr><tr class="sum"><td>Eigenkapital</td><td>${fmtY(S.equity())}</td></tr></table></div>
+ <div class="h">Bankkredit</div><div class="card"><div class="bar"><i style="width:${Math.min(100,S.loanSum()/D.LOAN.max*100)}%"></i></div>
+ <p style="color:var(--mut);font-size:12.5px;margin:9px 2px;font-weight:600;line-height:1.5">4,5 % Zinsen, 10 Jahre Laufzeit, Annuität ${fmtY(S.loanPayW())}/Woche. Rahmen bis ¥48 Mio. ${S.loanAvailable()?'Sondertilgung jederzeit gebührenfrei.':`Die Bank will 6 Monate Zahlen sehen: Kredit ab KW ${S.kw(D.LOAN.fromWeek)}.`}</p>
  <div class="row" style="gap:8px"><button class="btn grow sm" data-act="loan" data-v="5">＋ ¥5 Mio</button><button class="btn grow sm" data-act="loan" data-v="10">＋ ¥10 Mio</button><button class="btn grow sm" data-act="loan" data-v="-5" ${s.loan<=0?'disabled':''}>Tilgen ¥5 Mio</button></div></div>`;
  return h;
 }
 function tabMarket(){
  const s=st(),r=s.lastReport,cnt=c=>s.stores.filter(x=>x.chain===c).length;
- let h=`<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn" data-act="savegame">💾 Speichern · Slot ${s.slot||1}</button><button class="btn" data-act="newgame" style="margin-left:8px">Hauptmenü</button></div><div class="h1">Markt & Marke</div><div class="card" style="margin-top:10px"><div class="row" style="align-items:center"><canvas id="donut" style="width:138px;height:138px;flex:none"></canvas><div class="grow">`;
+ let h=`<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn" data-act="savegame">💾 Speichern · Slot ${s.slot||1}</button><button class="btn" data-act="newgame" style="margin-left:8px">Hauptmenü</button></div>${BU.menuKnopf(s)}<div class="h1">Markt & Marke</div><div class="card" style="margin-top:10px"><div class="row" style="align-items:center"><canvas id="donut" style="width:138px;height:138px;flex:none"></canvas><div class="grow">`;
  for(const c of ['player',...D.RIVALS])h+=`<div class="row" style="padding:4px 0;gap:9px">${chainLogo(c,28)}<div class="grow" style="font-size:13px;font-weight:800">${esc(cname(c))}<div style="color:var(--mut);font-size:11px;font-weight:700">${filN(cnt(c))}</div></div><b>${r?pct(r.share[c]||0):'–'}</b></div>`;
  h+=`</div></div></div><div class="h">Deine Marke</div><div class="card"><div class="row">${chainLogo('player',64)}<div class="grow"><b style="font-size:17px">${esc(s.logo.name)}</b><div style="margin:8px 0 4px;font-size:12px;color:var(--mut);font-weight:700">Ruf ${Math.round(s.rep)}/100</div><div class="bar g"><i style="width:${s.rep}%"></i></div></div></div>
  <button class="btn full sm" style="margin-top:12px" data-act="editlogo">🎨 Logo & Namen bearbeiten</button></div>
- <div class="h">Konkurrenz-News</div><div class="card">${s.news.length?s.news.slice(0,6).map(n=>`<div class="news">${chainLogo(n.chain,28)}<div class="grow">${n.text}<div style="color:var(--mut);font-size:11px">KW ${n.week}</div></div></div>`).join(''):'<div style="color:var(--mut);font-weight:700;font-size:13px">Noch keine Meldungen.</div>'}</div>
- <div class="h">Fortschritt</div><div class="card">${S.MILESTONES.map(m=>`<div class="ms ${s.milestones[m.id]?'done':''}"><div class="ck">${s.milestones[m.id]?'✓':''}</div>${m.label}</div>`).join('')}</div>
+ <div class="h">Konkurrenz-News</div><div class="card">${s.news.length?s.news.slice(0,6).map(n=>`<div class="news">${chainLogo(n.chain,28)}<div class="grow">${n.text}<div style="color:var(--mut);font-size:11px">KW ${S.kw(n.week)}</div></div></div>`).join(''):'<div style="color:var(--mut);font-weight:700;font-size:13px">Noch keine Meldungen.</div>'}</div>
+
  <div class="h">Städte</div><div class="cities">${cityCards()}
  <div class="city"><span class="jp">大阪</span><b>🏯 Osaka</b><small>🚄 Hbf Tokio: kommt bald</small></div>
  <div class="city"><span class="jp">京都</span><b>⛩️ Kyōto</b><small>✈️ Haneda: kommt bald</small></div></div>
@@ -224,13 +228,13 @@ function openStoreSheet(id){
  const keep=$('#sheet').scrollTop,same=$('#sheet').dataset.sid==id&&sheetOpen()&&$('#sheet').dataset.tab===T;
  const open=s.opened-st().week;
  showSheet(`<div class="sh-title">${chainLogo('player',44)}<div class="grow"><b>${S.storeLabel(s)}</b><small>${esc(info.address)}</small></div><button class="x" style="position:static" data-act="close">✕</button></div>
- ${s.build?`<div class="soon"><img src="${GFX.svg.ban_soon?svgURL(GFX.svg.ban_soon):''}" alt=""><div><b>Eröffnungstag: KW ${s.opened} · ${S.dateLabel(S.weekDate(s.opened))}</b><small>In ein paar Wochen fertig (noch ${s.build} ${s.build>1?'Wochen':'Woche'}).</small></div></div>`:''}
+ ${s.build?`<div class="soon"><img src="${GFX.svg.ban_soon?svgURL(GFX.svg.ban_soon):''}" alt=""><div><b>Eröffnungstag: KW ${S.kw(s.opened)} · ${S.dateLabel(S.weekDate(s.opened))}</b><small>In ein paar Wochen fertig (noch ${s.build} ${s.build>1?'Wochen':'Woche'}).</small></div></div>`:''}
  <div class="preview short" id="pv">${pvToggle}</div>
  <div class="tabs4">${tabs.map(([k,e,l])=>`<button class="${T===k?'on':''}" data-act="stab" data-v="${k}"><span>${e}</span>${l}</button>`).join('')}</div>${body}`);
  $('#sheet').dataset.sid=id;$('#sheet').dataset.tab=T;if(same)$('#sheet').scrollTop=keep;
  syncPv();
  const pv=$('#pv');requestAnimationFrame(()=>{previewMode(pvMode);storePreview(pv,'player',st().logo,S.designOf(s));pv.appendChild(pv.querySelector('.pvt'));});
- if(T==='service')tut(s.build||!s.mgr?'personal':'buuhuu');else if(T==='product')tut('sortiment');else if(T==='mkt')tut('marketing');
+ if(T==='service')tut(!st().tut.personal?'personal':(!s.build?'buuhuu':'personal'));else if(T==='product')tut('sortiment');else if(T==='mkt')tut('marketing');
 }
 function storeService(s){
  const bh=s.bh,m=s.mgr,l=s.last;
@@ -240,16 +244,15 @@ function storeService(s){
   ${D.BH_CATS.map(c=>`<div class="bhr"><span>${c.label}</span>${GH(bh[c.id],18)}</div>`).join('')}
   <div class="quote">„${esc(S.quote(s)||'Noch keine Stimmen.')}“<small>– anonymer BuuHuu-Nutzer</small></div></div>`;}
  h+=`<div class="h">Filialleiter</div>`;
- if(!m&&s.quit)h+=`<div class="card quitcard"><b>⚠️ Filialleitung fehlt</b><div style="font-size:13px;font-weight:700">${esc(s.quit.name)} hat in KW ${s.quit.week} gekündigt${s.quit.grund?` (${esc(s.quit.grund)})`:''}.</div><button class="btn primary full sm" style="margin-top:8px" data-act="hirelist" data-id="${s.id}">👔 Neue Filialleitung einstellen</button></div>`;
- if(!m){h+=`<div class="card"><div class="row"><div class="ava">🧑</div><div class="grow"><b>Kein Filialleiter</b><small style="display:block;color:var(--mut);font-weight:700;font-size:12px">Du führst den Laden selbst. Mit einem Filialleiter kannst du Aufgaben abgeben.</small></div></div><button class="btn blue full" style="margin-top:10px" data-act="hirelist" data-id="${s.id}">Filialleiter einstellen</button></div>`;}
+ if(m&&m.vertretung&&s.quit)h+=`<div class="card quitcard"><b>⚠️ Filialleitung fehlt</b><div style="font-size:13px;font-weight:700">${esc(s.quit.name)} hat in KW ${S.kw(s.quit.week)} gekündigt${s.quit.grund?` (${esc(s.quit.grund)})`:''}.</div><button class="btn primary full sm" style="margin-top:8px" data-act="hirelist" data-id="${s.id}">👔 Neue Filialleitung einstellen</button></div>`;
+ if(!m){h+=`<div class="card"><div class="row"><div class="ava">🧑</div><div class="grow"><b>Keine Filialleitung</b><small style="display:block;color:var(--mut);font-weight:700;font-size:12px">Jede Filiale braucht eine Filialleitung.</small></div></div><button class="btn blue full" style="margin-top:10px" data-act="hirelist" data-id="${s.id}">Filialleiter einstellen</button></div>`;}
  else{const pc=Math.round((m.salary/m.expect-1)*100);
-  h+=`<div class="card"><div class="mgr"><div class="ava big">${mgrAva(m)}</div><div class="grow"><b style="font-size:17px">${esc(m.name)}</b><div style="font-size:12px;color:var(--mut);font-weight:700">${m.age} Jahre · seit KW ${s.opened} · ${m.stufe}</div><div style="font-size:12px;color:var(--mut);font-weight:700">Mitarbeiter-Erfahrung ${m.empM} Mon. · Manager-Erfahrung ${m.mgrM} Mon.</div></div></div>
+  h+=`<div class="card"><div class="mgr"><div class="ava big">${mgrAva(m)}</div><div class="grow"><b style="font-size:17px">${esc(m.name)}</b><div style="font-size:12px;color:var(--mut);font-weight:700">${m.age} Jahre · seit KW ${S.kw(s.opened)} · ${m.stufe}</div><div style="font-size:12px;color:var(--mut);font-weight:700">Mitarbeiter-Erfahrung ${m.empM} Mon. · Manager-Erfahrung ${m.mgrM} Mon.</div></div></div>
   <div class="skbars">${D.SKILLS.map(k=>`<div><span>${skillIco(k)}${k.label}</span>${bar100(m.skills[k.id])}<em>${Math.round(m.skills[k.id]*20)}</em></div>`).join('')}</div>
   <div class="chips" style="margin-top:8px">${m.traits.map(t=>`<span class="trait ${D.TRAITS[t].good?'':'bad'}" title="${D.TRAITS[t].desc}">${traitIco(t)} ${D.TRAITS[t].label}</span>`).join('')}</div>
-  <div class="lbl">Jahresgehalt</div><div class="step"><button data-act="salary" data-id="${s.id}" data-v="-1">−</button><div><b>${fmtN(m.salary)} ¥</b><small>${pc>=0?'+':''}${pc} % vom Marktgehalt · Zufriedenheit ${Math.round(m.morale)} %</small></div><button data-act="salary" data-id="${s.id}" data-v="1">＋</button></div>
-  <div class="lbl">Filialleiter-Delegation</div>
-  ${[['staff','Mitarbeiter und Gehalt delegieren'],['prod','Produkte und Preisgestaltung delegieren'],['mkt','Shop-Marketing delegieren'],['inc','Shop-Zwischenfälle delegieren']].map(([k,t])=>`<button class="switch ${s.deleg[k]?'on':''}" data-act="deleg" data-id="${s.id}" data-k="${k}"><div class="grow"><b>${t}</b></div><div class="tg"></div></button>`).join('')}
-  <div style="text-align:center;margin-top:12px"><button class="btn danger sm" data-act="fire" data-id="${s.id}">${ui.confirmFire===s.id?'Wirklich? Abfindung '+fmtY(m.salary/52*2):'Filialleiter entlassen'}</button></div></div>`;}
+  ${m.vertretung?'':`<div class="lbl">Jahresgehalt</div><div class="step"><button data-act="salary" data-id="${s.id}" data-v="-1">−</button><div><b>${fmtN(m.salary)} ¥</b><small>${pc>=0?'+':''}${pc} % vom Marktgehalt · Zufriedenheit ${Math.round(m.morale)} %</small></div><button data-act="salary" data-id="${s.id}" data-v="1">＋</button></div>`}
+  ${m.vertretung?`<div class="tip bad">👔 Nur eine Vertretung (Grundwerte). Stell eine feste Filialleitung ein.</div>`:`<div style="font-size:12px;color:var(--mut);font-weight:700;margin-top:8px">${esc(m.name)} führt Team, Gehälter, Preise, Marketing und Zwischenfälle – die Werte oben zählen voll.</div>`}
+  <div style="text-align:center;margin-top:12px"><button class="btn ${m.vertretung?'primary':'danger'} sm" data-act="hirelist" data-id="${s.id}">${m.vertretung?'👔 Filialleitung einstellen':'Filialleitung ersetzen'}</button>${m.vertretung?'':`<small style="display:block;color:var(--mut);font-weight:700;font-size:11px;margin-top:4px">Entlassen nur mit Nachfolge · Abfindung ${fmtY(m.salary/52*2)}</small>`}</div></div>`;}
  h+=storeServices(s,D.DMAP[s.d]);
  h+=`<div class="h">Ausstattung umbauen</div><div class="eqg">${['fac','inn',...D.EQUIP_KEYS].map(k=>{const i=s.b[k],o=i>=0?D.BUILD[k].opts[i]:null;return `<button class="eqb ${o?'on':''}" data-act="pickst" data-k="${k}" data-id="${s.id}"><div class="eqi">${optImg(k,Math.max(0,i),s.b)}</div><b>${EQ_LABEL(k)}</b><small>${o?esc(o.name):'nicht eingebaut'}</small></button>`}).join('')}</div>
 
@@ -272,25 +275,31 @@ function hireSheet(id){
 function storeServices(s,d){
  const served=s.last&&!s.last.building?s.last.cust:D.BASE_CUST*.8,sv=S.svcStats({...s,cfg:{...s.cfg,svc:Object.fromEntries(D.SVC_KEYS.map(k=>[k,true]))}},served);
  return `<div class="h">Partnerverträge</div>`+D.SVC_KEYS.map(k=>{const v=D.SERVICES[k],on=!!s.cfg.svc[k],x=sv.per[k],labor=x.hours*D.COST.wage*(1+D.COST.lnk),net=x.fee-labor-v.monthly*12/52,since=(s.cfg.svcSince||{})[k]||0,left=v.min-(st().week-since);
-  return `<div class="svc ${on?'on':''}"><div class="row">${svcIcon(v,44)}<div class="grow"><b style="font-size:15px">${v.label}</b><div class="row" style="gap:6px;margin-top:2px;font-size:12px;font-weight:700;color:var(--mut)">${v.plogo&&has('partner_shironeko')?`<img src="grafik/logos/shironeko-express.svg" width="20" height="20" style="border-radius:6px" alt="">`:''}${v.partner}</div></div>${on?'<span class="chip" style="background:#DDF3E3;color:#2E7D46">✓ aktiv</span>':''}</div>
+  return `<div class="svc ${on?'on':''}"><div class="row">${svcIcon(v,44)}<div class="grow"><b style="font-size:15px">${v.label}</b><div class="row" style="gap:6px;margin-top:2px;font-size:12px;font-weight:700;color:var(--mut)">${v.plogo&&(v.plogo!=='shironeko'||has('partner_shironeko'))?`<img src="${{shironeko:'grafik/logos/shironeko-express.svg',futatsuboshi:'grafik/logos/firmen/futatsuboshi-bank.svg'}[v.plogo]}" width="20" height="20" style="border-radius:6px" alt="" onerror="this.remove()">`:''}${v.partner}</div></div>${on?'<span class="chip" style="background:#DDF3E3;color:#2E7D46">✓ aktiv</span>':''}</div>
   <div class="terms"><div>Provision<b>¥${v.commission}/Vorgang</b></div><div>Vorgänge<b>~${fmtN(x.tx)}/Wo.</b></div><div>Kundenbonus<b>+${Math.round(v.bonus*100)} %</b></div><div>Saldo/Woche<b class="${net>=0?'pos':'neg'}">${sgn(net)}</b></div></div>
-  <div style="font-size:12px;color:var(--mut);font-weight:600;line-height:1.4;margin-bottom:9px">${v.pitch} Freischaltung ${fmtY(v.sign)}${v.monthly?`, ${fmtY(v.monthly)}/Monat`:''}, Mindestlaufzeit ${v.min} Wochen.</div>
-  ${on?`<button class="btn sm full" data-act="svc" data-id="${s.id}" data-k="${k}" data-v="0">Kündigen${left>0?` (Strafe ${fmtY(Math.round(v.sign*.5+50000))})`:''}</button>`:`<button class="btn blue sm full" data-act="svc" data-id="${s.id}" data-k="${k}" data-v="1" ${st().cash<v.sign?'disabled':''}>Vertrag mit ${v.partner} · ${fmtY(v.sign)}</button>`}</div>`}).join('');
+  <div style="font-size:12px;color:var(--mut);font-weight:600;line-height:1.4;margin-bottom:9px">${v.pitch} ${[v.sign?`Freischaltung ${fmtY(v.sign)}`:'',v.monthly?`${fmtY(v.monthly)}/Monat`:'',`Mindestlaufzeit ${v.min} Wochen`].filter(Boolean).join(', ')}.</div>
+  ${on?(ui.svcAsk===s.id+':'+k&&left>0?`<div class="tip bad svcask">Vorzeitig kündigen? Mindestlaufzeit noch ${left} Wo. – Vertragsstrafe <b>${fmtY(S.SVC_STRAFE)}</b>.</div><div class="row" style="gap:8px"><button class="btn sm grow" data-act="svcno" data-id="${s.id}">Abbrechen</button><button class="btn danger sm grow" data-act="svc" data-id="${s.id}" data-k="${k}" data-v="0" data-ok="1">Kündigen (−${fmtY(S.SVC_STRAFE)})</button></div>`:`<button class="btn sm full" data-act="svc" data-id="${s.id}" data-k="${k}" data-v="0">Kündigen${left>0?` (Strafe ${fmtY(S.SVC_STRAFE)})`:''}</button>`):`<button class="btn blue sm full" data-act="svc" data-id="${s.id}" data-k="${k}" data-v="1" ${st().cash<v.sign?'disabled':''}>Vertrag mit ${v.partner}${v.sign?` · ${fmtY(v.sign)}`:''}</button>`}</div>`}).join('');
 }
 function storeProduct(s){
- const g=ui.pgroup||'heiss',ev=S.seasonInfo(st().week),sa=S.saisonFor(ev),l=s.last,cats=D.CATS.filter(k=>groupOf[k.id]===g);
+ const g=ui.pgroup||'heiss',ev=S.seasonInfo(st().week),sa=S.saisonFor(ev),l=s.last,PR=SO.K.ON?SO.produkte(st()).filter(p=>groupOf[p.cat]===g):[],cats=D.CATS.filter(k=>groupOf[k.id]===g&&!(!SO.offen(st(),k.id)&&PR.some(p=>p.cat===k.id)));
+ // V6 Einzelprodukte: jedes Vertrags-/Eigen-/Messe-/Geräteprodukt als eigene Karte, ohne Gerät grau „wartet auf Gerät“
+ const QL={vertrag:'Markenvertrag',messe:'Messe-Exklusiv',eigen:'Eigenmarke',geraet:'Geräteware',rivale:'Übernommen'};
+ const pcards=PR.map(p=>{const ok=SO.devOk(s,p.dev),x=l&&l.prod&&l.prod[p.id],mg=p.vk?Math.max(0,1-p.ek/p.vk):0,v=(st().fz&&st().fz.vertraege||{})[p.vertrag],end=v&&v.ende?new Date(v.ende):null;
+  return `<div class="prod einzel ${ok?'':'off wartet'}" data-pid="${esc(p.id)}"><div class="pimg">${catIcon(D.CATS.find(k=>k.id===p.cat)||D.CATS[0],84)}</div><b class="pn">${esc(p.name)}</b><small class="ps2">${ok?esc(QL[p.quelle]||'')+(p.exkl?' · exklusiv':'')+(end?` · bis ${end.getDate()}.${end.getMonth()+1}.${end.getFullYear()}`:''):`⏳ wartet auf Gerät: ${esc(SO.devText(SO.devFehlt(s,p.dev)))}`}</small>
+  <div class="prow"><span>${ok?'Im Regal':'Verkauft nichts'}</span><div class="lw"><small>Umsatz letzte Woche</small><b>${x&&x.rev?fmtY(x.rev):'0'}</b></div></div>
+  <div class="prow"><div class="donut" style="--p:${Math.round(mg*100)}"><b>Marge<br>${Math.round(mg*100)} %</b></div><div class="grow"><small class="cost">Einkauf ${Math.round(p.ek)} ¥</small><div><b>${Math.round(p.vk)} ¥</b></div></div></div></div>`;}).join('');
  const cards=cats.map(k=>{
   const lock=!SO.offen(st(),k.id),na=lock||S.seasonFactor(k,ev)<=0||(k.id==='coffee'&&s.b.coffee<0)||(k.id==='oden'&&s.b.oden<0),on=s.cfg.cats[k.id]&&!na;
   const so=SO.ensure(st()),an=so.alle?null:SO.arts(st(),k.id).map(a=>a.name),artTxt=an?(an.length>2?an.slice(0,2).join(', ')+' +'+(an.length-2):an.join(', ')):null;
   const pxm=(s.cfg.px&&s.cfg.px[k.id])||1,pp=SO.preis(st(),k),base=k.id==='saison'?sa.price:pp?pp.price:k.price,cr=k.id==='saison'?sa.cost:pp?pp.cost:k.cost,price=Math.round(base*pxm),unit=Math.round(base*cr),mg=Math.max(0,1-unit/price);
   const sub=lock?'🔒 per Markenverhandlung freischalten':na?(k.id==='coffee'?'Keine Kaffeemaschine':k.id==='oden'?'Kein Oden-Topf':'Jetzt nicht im Angebot'):(k.id==='saison'?esc(sa.name):artTxt!=null?esc(artTxt):(k.items?k.items.length+' Artikel':''));
-  return `<div class="prod ${on?'':'off'}"><div class="pimg">${catIcon(k,84)}</div><b class="pn">${an&&an.length===1&&k.id==="drinks"?esc(an[0]):k.name}</b><small class="ps2">${sub}${k.fresh?' · frisch':''}</small>
+  return `<div class="prod ${on?'':'off'}"><div class="pimg">${catIcon(k,84)}</div><b class="pn">${an&&an.length===1&&k.id==="drinks"?esc(an[0]):k.name}</b><small class="ps2">${sub}</small>
   <div class="prow"><button class="tgl ${on?'on':''}" data-act="cat" data-id="${s.id}" data-k="${k.id}" ${na?'disabled':''}><i></i></button><span>Im Menü</span><div class="lw"><small>Umsatz letzte Woche</small><b>${l&&l.cats&&l.cats[k.id]?fmtY(l.cats[k.id]):'0'}</b></div></div>
   <div class="prow"><div class="donut" style="--p:${Math.round(mg*100)}"><b>Marge<br>${Math.round(mg*100)} %</b></div><div class="grow"><small class="cost">Stückkosten ${unit} ¥</small><div class="step sm"><button data-act="px" data-id="${s.id}" data-k="${k.id}" data-v="-1">−</button><div><b>${price} ¥</b></div><button data-act="px" data-id="${s.id}" data-k="${k.id}" data-v="1">＋</button></div></div></div></div>`}).join('');
- const dg=s.deleg&&s.deleg.prod&&s.mgr;
+ const dg=s.mgr&&!s.mgr.vertretung;
  return `<div class="gtabs">${GROUPS.map(([k,l])=>`<button class="${g===k?'on':''}" data-act="pgroup" data-v="${k}">${l}</button>`).join('')}</div>
- ${dg?`<div class="tip ok">👔 ${esc(s.mgr.name)} kümmert sich um Bestellmengen und Preise. Du kannst trotzdem eingreifen.</div>`:''}
- <div class="ptrack">${cards}</div>${cats.some(k=>["onigiri","bento","oden"].includes(k.id)&&SO.offen(st(),k.id))?'<div class="tip">🗑️ Frische Ware, die nicht verkauft wird, wandert in den Müll. Behalte Abschrift und Ausverkauf im Auge.</div>':''}`;
+ ${dg?`<div class="tip ok">👔 ${esc(s.mgr.name)} kümmert sich um Sortiment und Preise. Du kannst trotzdem eingreifen.</div>`:''}
+ <div class="ptrack">${cards}${pcards}</div>`;
 }
 function storeMarketing(s){
  const ev=S.seasonInfo(st().week);
@@ -305,24 +314,27 @@ function storeFin(s){
  const row=(t,f,cl)=>`<tr class="${cl||''}"><td>${t}</td><td>${fmtY(f(a))}</td><td>${b?fmtY(f(b)):'–'}</td></tr>`;
  return `<div class="card"><table class="fin"><tr class="hd"><td></td><td>Diese Wo.</td><td>Vorwoche</td></tr>
  ${row('Heiße Getränke & Speisen',r=>grp(r,'heiss'))}${row('Kalte Getränke',r=>grp(r,'kalt'))}${row('Essen',r=>grp(r,'essen'))}${row('Sonstiges',r=>grp(r,'sonst'))}${row('Services (Provision)',r=>r.fees)}
- ${row('Umsatz',r=>r.rev+r.fees,'sum')}${row('Wareneinsatz',r=>-r.cogs,'sub')}${row('Abschrift Frischware',r=>-r.waste,'sub')}${row('Miete',r=>-r.rent,'sub')}${row('Ladenteam',r=>-r.wages,'sub')}${row('Filialleiter',r=>-r.salary,'sub')}${row('Strom',r=>-r.power,'sub')}${row('Marketing',r=>-r.mkt,'sub')}${row('Verwaltung & Verträge',r=>-r.admin-r.svcFixed,'sub')}${row('Abschreibung & Anlagensteuer',r=>-r.dep-r.assetTax,'sub')}
+ ${row('Umsatz',r=>r.rev+r.fees,'sum')}${row('Wareneinsatz',r=>-r.cogs,'sub')}${row('Miete',r=>-r.rent,'sub')}${row('Ladenteam',r=>-r.wages,'sub')}${row('Filialleiter',r=>-r.salary,'sub')}${row('Strom',r=>-r.power,'sub')}${row('Marketing',r=>-r.mkt,'sub')}${row('Verwaltung & Verträge',r=>-r.admin-r.svcFixed,'sub')}${row('Abschreibung & Anlagensteuer',r=>-r.dep-r.assetTax,'sub')}
  ${row('Betriebsergebnis',r=>r.op,'sum')}</table></div>`;
 }
 /* ---------- Wochenergebnis & Zeitung ---------- */
 const fmtU=v=>v>=1e9?'¥'+(v/1e9).toLocaleString('de-DE',{maximumFractionDigits:1})+' Mrd':fmtY(v);
 function reportSheet(r){
  const T=r.T;
- showSheet(`<div style="text-align:center;color:var(--mut);font-size:12px;font-weight:900;letter-spacing:1.4px">WOCHENERGEBNIS · KW ${r.week}</div>
- ${(r.quits||[]).map(q=>`<div class="card quitcard"><div class="row"><img src="grafik/maskottchen/kobo-besorgt.svg" alt="" width="54" height="54" onerror="this.remove()"><div class="grow"><b style="font-size:16px">😢 Filialleitung hat gekündigt</b><div style="font-size:13px;font-weight:700;margin-top:3px"><b>${esc(q.name)}</b> hat <b>${esc(q.laden)}</b> verlassen.${q.grund?`<br>Grund: ${esc(q.grund)}`:''}</div><div style="font-size:12px;color:var(--mut);font-weight:700;margin-top:3px">Bis du jemanden einstellst, führst du den Laden selbst (Bestellungen, Preise).</div></div></div><button class="btn primary full sm" style="margin-top:10px" data-act="hirelist" data-id="${q.sid}">👔 Neue Filialleitung einstellen</button></div>`).join('')}
+ showSheet(`<button class="x" data-act="close" aria-label="Schließen">✕</button><div style="text-align:center;color:var(--mut);font-size:12px;font-weight:900;letter-spacing:1.4px">WOCHENERGEBNIS · KW ${S.kw(r.week)}</div>
+ ${(r.quits||[]).map(q=>`<div class="card quitcard"><div class="row"><img src="grafik/maskottchen/kobo-besorgt.svg" alt="" width="54" height="54" onerror="this.remove()"><div class="grow"><b style="font-size:16px">😢 Filialleitung hat gekündigt</b><div style="font-size:13px;font-weight:700;margin-top:3px"><b>${esc(q.name)}</b> hat <b>${esc(q.laden)}</b> verlassen.${q.grund?`<br>Grund: ${esc(q.grund)}`:''}</div><div style="font-size:12px;color:var(--mut);font-weight:700;margin-top:3px">Bis du jemanden einstellst, führt eine Vertretung den Laden mit Grundwerten. Preise und Sortiment kannst du selbst anpassen.</div></div></div><button class="btn primary full sm" style="margin-top:10px" data-act="hirelist" data-id="${q.sid}">👔 Neue Filialleitung einstellen</button></div>`).join('')}
  ${r.kdj?`<div class="card kdjcard"><b style="font-size:17px">🏆 Konbini-Awards ${r.kdj.jahr}</b><div style="font-weight:900;margin-top:8px">Konbini des Jahres</div><div style="font-size:12px;color:var(--mut);font-weight:700">Ø BuuHuu-Bewertung aller Läden über das Geschäftsjahr</div>${r.kdj.top.map((x,i)=>`<div class="row" style="margin-top:6px;${x.chain==='player'?'font-weight:900':''}"><span style="width:26px">${['🥇','🥈','🥉'][i]}</span>${chainLogo(x.chain,26)}<span class="grow" style="margin-left:6px">${esc(x.name)}</span>${GH(x.avg,14)}<b style="margin-left:6px">${x.avg.toFixed(2).replace('.',',')}</b></div>`).join('')}${r.kdj.rang>3?`<div style="font-size:12px;margin-top:6px;font-weight:700">Du: Platz ${r.kdj.rang} von ${r.kdj.n}</div>`:''}<div style="font-weight:900;margin-top:12px">Am schnellsten wachsender Konbini</div><div style="font-size:12px;color:var(--mut);font-weight:700">Umsatzwachstum gegenüber dem Vorjahr (52 Wochen)</div>${!(r.kdj.wachs||[]).length?'<div style="font-size:13px;font-weight:800;margin-top:6px">In diesem Jahr nicht vergeben – kein Umsatzwachstum.</div>':''}${(r.kdj.wachs||[]).filter(x=>x.pct>0).map((x,i)=>`<div class="row" style="margin-top:6px;${x.chain==='player'?'font-weight:900':''}"><span style="width:26px">${['🥇','🥈','🥉'][i]}</span>${chainLogo(x.chain,26)}<span class="grow" style="margin-left:6px">${esc(x.name)}<small style="display:block;font-size:11.5px;color:var(--mut);font-weight:700">${fmtU(x.von)} → ${fmtU(x.bis)}</small></span><b>+${x.pct.toFixed(1).replace('.',',')} %</b></div>`).join('')}${r.kdj.wrang>3?`<div style="font-size:12px;margin-top:6px;font-weight:700">Du: Platz ${r.kdj.wrang}</div>`:''}</div>`:''}
- ${(r.quitWarn||[]).map(q=>`<div class="card quitcard warn"><b style="font-size:15px">⚠️ Kündigung eingegangen</b><div style="font-size:13px;font-weight:700;margin-top:3px"><b>${esc(q.name)}</b> (${esc(q.laden)}) hört nach KW ${q.zum-1} auf. Grund: ${esc(q.grund)}.<br>Mehr Gehalt oder bessere Zahlen können sie noch halten.</div><button class="btn sm full" style="margin-top:8px" data-act="store" data-id="${q.sid}">Zum Laden ›</button></div>`).join('')}
+ ${(r.quitWarn||[]).map(q=>`<div class="card quitcard warn"><b style="font-size:15px">⚠️ Kündigung eingegangen</b><div style="font-size:13px;font-weight:700;margin-top:3px"><b>${esc(q.name)}</b> (${esc(q.laden)}) hört nach KW ${S.kw(q.zum-1)} auf. Grund: ${esc(q.grund)}.<br>Mehr Gehalt oder bessere Zahlen können sie noch halten.</div><button class="btn sm full" style="margin-top:8px" data-act="store" data-id="${q.sid}">Zum Laden ›</button></div>`).join('')}
  <div class="hero"><small>${r.ev.emoji} ${r.ev.label} · ab ${r.date}</small><div class="num ${T.net>=0?'pos':'neg'}" id="countup">${sgn(0)}</div><small>Nettoeinkommen</small></div>
  <div class="stats3"><div>Umsatz<b>${fmtY(T.rev+T.fees)}</b></div><div>Kunden/Tag<b>${fmtN(T.cust/7)}</b></div><div>Kasse<b>${fmtY(st().cash)}</b></div></div>
  <div class="lbl">Cashflow</div><div class="card" style="padding:6px 14px"><table class="fin"><tr><td>Geschäft</td><td class="${T.cf.op>=0?'pos':'neg'}">${sgn(T.cf.op)}</td></tr><tr><td>Investition</td><td class="${T.cf.inv>=0?'pos':'neg'}">${sgn(T.cf.inv)}</td></tr><tr><td>Finanzierung</td><td class="${T.cf.fin>=0?'pos':'neg'}">${sgn(T.cf.fin)}</td></tr></table></div>
- ${r.milestones.map(m=>`<div class="tip ok">🏆 <span><b>Meilenstein:</b> ${m}</span></div>`).join('')}
  ${r.stores.length?`<div class="lbl">Filialen</div><div class="card" style="padding:4px 14px">${r.stores.map(x=>{const s=st().stores.find(y=>y.id===x.id);return `<div class="srow">${chainLogo('player',28)}<div class="grow"><b>${s?S.storeLabel(s):''}</b><div style="color:var(--mut);font-size:11px;font-weight:600">${x.building?'🚧 im Bau':fmtN(x.cust/7)+' Kunden/Tag · '+GH(x.ghosts||3,12).replace(/<\/?span[^>]*>/g,'')+''}</div></div><div class="v"><b class="${x.net>=0?'pos':'neg'}">${sgn(x.net)}</b><small>${fmtY(x.rev)}</small></div></div>`}).join('')}</div>`:`<div class="tip">🏪 Noch keine Filiale. Tippe auf der Karte auf einen 空き-Pin.</div>`}
+ ${(r.cities||[]).length>1?`<div class="lbl">Städte</div><div class="card cities" style="padding:4px 14px">${r.cities.map(c=>`<div class="srow"><div class="grow"><b>${esc(c.name)}</b>${c.aktuell?' <small style="color:var(--mut)">(hier)</small>':''}<div style="color:var(--mut);font-size:11px;font-weight:600">${c.n} ${c.n===1?'Laden':'Läden'} · Umsatz ${fmtY(c.rev||0)}${(c.opened||[]).length?` · 🎉 ${c.opened.length} neu eröffnet`:''}</div></div><b class="${(c.op||0)>=0?'pos':'neg'}" style="font-size:13px">${sgn(c.op||0)}</b></div>`).join('')}</div>`:''}
+ ${(r.vertraege||[]).length?`<div class="lbl">Verträge laufen aus</div>${r.vertraege.map(v=>`<div class="tip bad vende"><span>📄 <b>${esc(v.name)}</b>: noch ${v.left} ${v.left===1?'Woche':'Wochen'}, danach nicht mehr im Regal.</span><button class="btn sm" data-act="fzverl" data-x="${esc(v.id)}">🔁 Verlängern</button></div>`).join('')}`:''}
+ ${(()=>{const b=st().buero,v=b&&b.verlegt;if(v&&!v.imBericht){v.imBericht=true;const n=(st().news||[]).find(x=>x.chain==='player'&&/Zentrale ist umgezogen/.test(x.text||''));r.umzug=n?n.text:`🏢 Deine Zentrale ist nach Tokio (Shibuya) umgezogen.`;}return r.umzug?`<div class="lbl">Deine Firma</div><div class="tip umzug"><span>${r.umzug}</span></div>`:''})()}<!-- V6 (Whitebeard 4816e73): Büro-Umzug auch im Wochenbericht (R41) -->
  ${r.news.filter(n=>n.chain&&n.chain!=='player').length?`<div class="lbl">Konkurrenz</div><div class="card" style="padding:4px 14px">${r.news.filter(n=>n.chain&&n.chain!=='player').map(n=>`<div class="srow">${chainLogo(n.chain,28)}<div class="grow" style="font-size:13px;font-weight:700">${n.text}</div>${n.near?'<b class="neg" style="font-size:12px">nah!</b>':''}</div>`).join('')}</div>`:''}
  ${r.events.map(t=>`<div class="tip ${/^(😢|⚠️)/.test(t)?'bad':'ok'}">${t}</div>`).join('')}
+ ${MM.weekPosts()?`<button class="mmlink" data-act="mm" data-v="week"><img src="grafik/social/washi/mitemite-logo.svg" alt="" width="30" height="30"><span><b>Diese Woche auf MiteMite!</b><small>${MM.weekPosts()} neue Posts</small></span><i>▸</i></button>`:''}
  ${r.tips.length?`<div class="lbl">Tipps</div>${r.tips.map(t=>`<div class="tip"><span>${t}</span></div>`).join('')}`:''}
  <button class="btn primary full" data-act="paper" style="margin-top:14px">📰 Konbini Shimbun lesen</button>`);
  const el=$('#countup'),t0=performance.now();(function step(t){const p=Math.min(1,(t-t0)/900),e=1-Math.pow(1-p,3);if(el&&el.isConnected){el.textContent=sgn(T.net*e);if(p<1)requestAnimationFrame(step)}})(t0);
@@ -331,12 +343,12 @@ function paperSheet(tab){
  tab=tab||'top';const P=st().paper||[],tabs=[['top','Top'],['einzel','Einzelhandel'],['wirt','Wirtschaft'],['markt','Markt']];
  const head=GFX.svg.shimbun?`<img class="mast" src="${svgURL(svgColored('shimbun',{datum:S.dateLabel(S.weekDate(st().week-1))}))}" alt="Konbini Shimbun">`:`<div class="mast fb">KONBINI SHIMBUN</div>`;
  const items=P.filter(p=>p.tab===tab);
- showSheet(`${head}<div class="gtabs paper">${tabs.map(([k,l])=>`<button class="${tab===k?'on':''}" data-act="ptab" data-v="${k}">${l}</button>`).join('')}</div>
+ showSheet(`<button class="x" data-act="close" aria-label="Schließen" style="z-index:3">✕</button>${head}<div class="gtabs paper">${tabs.map(([k,l])=>`<button class="${tab===k?'on':''}" data-act="ptab" data-v="${k}">${l}</button>`).join('')}</div>
  <div class="card news2">${items.length?items.map((p,i)=>`<article class="${i===0?'lead':''}"><b>${esc(p.text)}</b></article>`).join(''):'<div style="color:var(--mut);font-weight:700">Heute keine Meldungen.</div>'}</div>
- ${S.eventView()&&!S.eventView().done?`<button class="btn primary full" data-act="evcard" id="reportOk" style="margin-top:14px">Entscheidung der Woche ▶</button>`:`<button class="btn primary full" data-act="close" id="reportOk" style="margin-top:14px">Weiter zu KW ${st().week} ▶</button>`}`);
+ ${S.eventView()&&!S.eventView().done?`<button class="btn primary full" data-act="evcard" id="reportOk" style="margin-top:14px">Entscheidung der Woche ▶</button>`:`<button class="btn primary full" data-act="close" id="reportOk" style="margin-top:14px">Weiter zu KW ${S.kw(st().week)} ▶</button>`}`);
 }
 function eventSheet(){const v=S.eventView();if(!v||v.done){closeSheet();return;}
- showSheet(`<div style="text-align:center;color:var(--mut);font-size:12px;font-weight:900;letter-spacing:1.4px">ENTSCHEIDUNG · KW ${st().week}</div>
+ showSheet(`<div style="text-align:center;color:var(--mut);font-size:12px;font-weight:900;letter-spacing:1.4px">ENTSCHEIDUNG · KW ${S.kw(st().week)}</div>
  <div class="story evcard"><img src="grafik/maskottchen/${esc(v.figur)}.svg" alt="Kobo"><p>${esc(v.text)}</p><small style="color:var(--mut);font-weight:700">${v.ziel==='alle'?'Betrifft alle Filialen':v.ziel==='stadtteil'?'Betrifft Filialen im Stadtteil':'Betrifft '+esc(v.laden)}</small></div>
  <button class="btn primary full evopt" data-act="evpick" data-v="a" style="margin-top:12px"><b>${esc(v.a)}</b><small>${esc(v.effA)}</small></button>
  <button class="btn full evopt" data-act="evpick" data-v="b" style="margin-top:8px"><b>${esc(v.b)}</b><small>${esc(v.effB)}</small></button>${v.hint?`<div class="evhint">${esc(v.hint)}</div>`:''}`);}
@@ -352,7 +364,7 @@ function storyCard(i){
  ${i+1<C.length?`<button class="btn full" data-act="story" data-v="${C.length}" style="margin-top:8px">Überspringen</button>`:''}</div>`);
 }
 function doEndWeek(){
- if(sheetOpen())return null;const c0=st().cash;const r=S.endWeek();renderAll();reportSheet(r);
+ if(sheetOpen())return null;const c0=st().cash;const r=S.endWeek();renderAll();reportSheet(r);setTimeout(MM.banner,700);
  {const fz=st().fz;if(fz&&fz.insZeigen&&FZ.ON&&FZ.zeigeInsolvenz){fz.insZeigen=false;S.save();FZ.zeigeInsolvenz();ui.finK=false;ui.tab='fin';renderBar();renderPanel();}}
  {const nk=st().nk;if(nk&&nk.zeigen){const id=nk.zeigen;nk.zeigen=null;S.save();if(FZ.ON){FZ.zeigeNeueKette(id);ui.finK=false;ui.tab='fin';renderBar();renderPanel();}}}
  {const s=st();s.cashDown=s.cash<c0?(s.cashDown||0)+1:0;
@@ -364,9 +376,10 @@ function doEndWeek(){
   if(s.negWeeks>0){const n=s.negWeeks,left=NEG_LIMIT-n;setTimeout(()=>{showMinus(left);toast(`⚠️ Woche ${n}/${NEG_LIMIT} im Minus`);},1200);}
   else if(s.cashDown>=4){s.cashDown=0;setTimeout(()=>tut('warnung_kasse',true),1200);}}
  if(r.unlocked)setTimeout(()=>toast(`🗺️ Neue Standorte verfügbar: ${r.unlocked}`),900);
- if(st().week===2||r.ready.length)tut('eroeffnung');
+ if(r.ready.length&&S.mine().length>1)tut('ende');// V6: zweite Filiale eröffnet → Abschluss (statt „Omas Laden“-Text)
+ else if(st().week===2)tut('eroeffnung');
  else if(r.T.net<0&&S.mine().some(s=>!s.build&&s.last&&!s.last.building&&state_age(s)>1))tut('verlust');
- else if(S.mine().length===1&&st().cash+(S.loanAvailable()?S.loanRoom():0)>=cheapestStore())tut('zweiter_laden');
+ else if(S.mine().length===1&&st().cash+(S.loanAvailable()?S.loanRoom():0)>=cheapestStore()){st().tut.zweiter_laden=1;tut('karte');}// V6: 2. Filiale nur einmal ankündigen (karte enthält den Hinweis)
  return r;
 }
 // V4: Yukis Toast „Spiel gespeichert“ (toast-gespeichert.svg)
@@ -388,7 +401,7 @@ function mgrAva(m){if(!D.MGR_ART)return m.avatar;let h=0;for(const c of String(m
 const RESCUE_FALLBACK={
  preise:'Deine Preise liegen über dem Standard. Senk sie wieder, dann kommen mehr Kunden.',
  sortiment:'Dir fehlen Waren mit guter Marge wie Oden, Bentō oder Saisonware. Nimm sie wieder ins Sortiment.',
- lager:'Dein Lager ist zu voll. Bestell weniger und verkauf erst die Ware, die schon da ist.',
+ lager:'Das Geld wird knapp. Kündige Services und Verträge, die sich nicht lohnen. Das kostet einmalig ¥50.000, spart dir aber jede Woche Geld. Wenn es eng bleibt, hilft ein Kredit bei der Bank.',// V6: Schlüssel bleibt „lager“ (texte.json rettung_lager, Ito), Inhalt = Services/Verträge kündigen
  kampagnen:'Du hast noch Werbekampagnen laufen. Stopp sie, bis die Kasse wieder im Plus ist.',
  reserve:'Du hast gerade gebaut. Bau erst wieder, wenn du ein Polster auf dem Konto hast.',
  gerettet:'Geschafft, die Kasse ist wieder im Plus! Gut gemacht.'};
@@ -404,17 +417,18 @@ function rescueTips(){const s=st(),mine=S.mine(),out=[];
  if(mine.some(x=>Object.keys(x.cfg.camps||{}).length))out.push('kampagnen');
  if(mine.some(x=>!x.build&&['oden','bento','saison'].some(k=>x.cfg.cats&&x.cfg.cats[k]===false)))out.push('sortiment');
  if(mine.some(x=>!x.oma&&(x.build>0||s.week-x.opened<8)))out.push('reserve');
- // 'lager' ist vorbereitet, aber nicht verdrahtet: es gibt (noch) keinen Bestellmengen-Regler für Spieler
+ // V6: kein Lager-Mechanismus – „lager“ rät jetzt zum Kündigen laufender Services (Ito 25.10.)
+ if(mine.some(x=>!x.build&&Object.values(x.cfg.svc||{}).some(Boolean)))out.push('lager');
  return out.slice(0,2).map(k=>rescueText('rettung_'+k)).filter(Boolean);}
 function showMinus(left){tut('warnung_minus',true,{wochen:left});const tips=rescueTips(),tx=$('#tutor .tx');if(!tips.length||!tx)return;
  const box=document.createElement('div');box.className='rescue';box.innerHTML=tips.map(t=>`<p data-tip="${esc(t.id)}">💡 ${esc(t.text)}</p>`).join('');tx.insertBefore(box,tx.querySelector('.tbtn'));}
 function gameOver(){const s=st();s.lost=true;s.lostAt=Date.now();S.save();tutHide();minusBanner();const T=((GFX.texte||{}).hinweise||[]).find(x=>x.id==='spiel_verloren');
  const text=T?T.text:'Das Konto war 4 Wochen lang im Minus. Die Kette muss schließen.';
- if(!SC.SCREENS_OK){showSheet(`<div class="hero gameover"><img src="grafik/maskottchen/kobo-besorgt.svg" width="96" height="96" alt="Kobo"><div class="num neg" style="font-size:30px">Spiel verloren</div><p style="margin:10px 0 0">${esc(text)}</p><small>KW ${s.week} · Kasse ${fmtY(s.cash)}</small></div><button class="btn primary full" data-act="newgame" style="margin-top:18px">Neues Spiel</button>`);return;}
+ if(!SC.SCREENS_OK){showSheet(`<div class="hero gameover"><img src="grafik/maskottchen/kobo-besorgt.svg" width="96" height="96" alt="Kobo"><div class="num neg" style="font-size:30px">Spiel verloren</div><p style="margin:10px 0 0">${esc(text)}</p><small>KW ${S.kw(s.week)} · Kasse ${fmtY(s.cash)}</small></div><button class="btn primary full" data-act="newgame" style="margin-top:18px">Neues Spiel</button>`);return;}
  closeSheet();
  // Yukis pleite.svg: Titel + Itos Text (spiel_verloren), Knopf „Neues Spiel starten“
  introShow(SC.screen({name:'pleite',cls:'pleite',vals:{titel:(T&&T.titel)||'Pleite!'},texts:{text},
-  buttons:[{x:190,y:1780,w:700,h:110,act:'newgame',label:SB().neues_spiel}],extra:`<div class="scrstat">KW ${s.week} · Kasse ${esc(fmtY(s.cash))}</div>`}),'linear-gradient(180deg,#E7E3EE 50%,#C9C4D3 50%)');}
+  buttons:[{x:190,y:1780,w:700,h:110,act:'newgame',label:SB().neues_spiel}],extra:`<div class="scrstat">KW ${S.kw(s.week)} · Kasse ${esc(fmtY(s.cash))}</div>`}),'linear-gradient(180deg,#E7E3EE 50%,#C9C4D3 50%)');}
 /* Charts */
 function setupCanvas(cv){const r=cv.getBoundingClientRect();if(!r.width)return null;const dpr=Math.min(2,devicePixelRatio||1);cv.width=r.width*dpr;cv.height=r.height*dpr;const x=cv.getContext('2d');x.scale(dpr,dpr);return [x,r.width,r.height];}
 function drawFinChart(){
@@ -478,7 +492,7 @@ function showIntro(view){
  const lt=latestSlot();
  const html=SC.screen({name:'start',cls:'start',mutate:root=>{if(!lt)for(const g of root.querySelectorAll('[data-nur-mit-spielstand="true"]'))g.remove();},
   buttons:[...(lt?[{x:170,y:1430,w:740,h:140,act:'loadslot',v:lt.slot,label:'▶ '+T.weiter}]:[]),{x:170,y:1610,w:740,h:120,act:'newgame',label:T.neues_spiel},{x:170,y:1780,w:740,h:110,act:'loadmenu',label:T.laden,disabled:!has,cls:has?'':'dim'}],
-  extra:`<div class="scrfoot">${has?'':esc(T.kein_spielstand)+'<br>'}Prototyp V5.2 · alle Marken sind fiktive Parodien</div>`});
+  extra:`<div class="scrfoot">${has?'':esc(T.kein_spielstand)+'<br>'}Prototyp V6 · alle Marken sind fiktive Parodien</div>`});
  introShow(html,'linear-gradient(180deg,#5B4B8A 50%,#6B6F80 50%)');
 }
 // Klickflächen der Slot-Karten
@@ -496,7 +510,7 @@ function showIntroPlain(view){
  <button class="btn full" data-act="loadmenu" ${has?'':'disabled'} aria-disabled="${!has}">${esc(T.laden)}</button>${has?'':`<small style="display:block;margin-top:6px;color:var(--mut)">${esc(T.kein_spielstand)}</small>`}`;}
  $('#intro').classList.remove('scrmode');
  $('#intro').innerHTML=`<div class="introcard"><div class="brandmark">コンビニ</div><div class="title">KONBINI EMPIRE</div>${body}
- <div style="color:var(--mut);font-size:11px;margin-top:14px;font-weight:700">Prototyp V5.2 · alle Marken sind fiktive Parodien</div></div>`;
+ <div style="color:var(--mut);font-size:11px;margin-top:14px;font-weight:700">Prototyp V6 · alle Marken sind fiktive Parodien</div></div>`;
  $('#intro').classList.add('show');
 }
 function logoEditor(mode){
@@ -561,10 +575,14 @@ document.addEventListener('click',e=>{
   case 'bfzu':document.body.classList.remove('bfopen');break;
   case 'abfahrt':abfahrt(b.dataset.v);break;
   case 'fz':FZ.act(b);break;
+  case 'fzbuero':ui.finK=false;ui.tab='fin';closeSheet();renderBar();renderPanel();FZ.act({dataset:{v:'zentrale'}});break;
+  case 'fzkarte':FZ.schliessen();ui.finK=false;ui.tab='map';closeSheet();renderBar();renderPanel();break;
+  case 'fzverl':closeSheet();ui.finK=false;ui.tab='fin';renderBar();renderPanel();FZ.act({dataset:{v:'verlaengern',x:b.dataset.x}});break;
+  case 'mm':MM.act(b);break;
   case 'finklassisch':ui.finK=true;renderPanel();$('#panelBody').scrollTop=0;break;
   case 'finmenu':ui.finK=false;renderPanel();break;
   case 'travel':if(BF.ON&&b.dataset.v!==CITY.id)abfahrt(b.dataset.v);else travel(b.dataset.v);break;
-  case 'layers':toast('🧭 Kartenebenen: kommt bald');break;
+  case 'layers':{const all=W&&W.pinLayer?W.pinLayer():false;toast(all?'🗺️ Ebene: alle freien Grundstücke':'🗺️ Ebene: die besten freien Grundstücke');break;}
   case 'menu':ui.tab=ui.tab==='market'?'map':'market';closeSheet();renderBar();renderPanel();break;
   case 'region':closeSheet();W.flyTo(10,5,190);break;
   case 'tobuild':builderSheet();break;
@@ -574,7 +592,10 @@ document.addEventListener('click',e=>{
   case 'pickclose':closePick();break;
   case 'pickopt':{const k=b.dataset.k,v=+b.dataset.v;
    if(ui.pickTarget==='draft'){ui.draft.b[k]=v;closePick();builderSheet();}
-   else{const ss=st().stores.find(x=>x.id===ui.pickTarget);const r=S.upgrade(ss,k,v);if(r.err){toast(r.err);break}if(r.paid)toast(`🛠️ Umgebaut für ${fmtY(r.paid)}`);closePick();W.syncStores(st().stores,st().logo,st().week);renderHUD();openStoreSheet(ss.id);}
+   else{const ss=st().stores.find(x=>x.id===ui.pickTarget);
+    // V6: Gerät ausbauen → Warnung, welche Produkte dann nichts mehr verkaufen (Erik 25.10.)
+    if(v<0&&ss.b[k]>=0&&!b.dataset.ok&&SO.K.ON){const L=SO.betroffen(st(),ss,k);if(L.length){const box=$('#pick .pbox');box.querySelector('.devrm')&&box.querySelector('.devrm').remove();box.children[0].insertAdjacentHTML('afterend',`<div class="tip bad devrm">⚠️ Ohne ${esc(SO.devText([k]))} verkauft dieser Laden nichts mehr von: <b>${L.map(p=>esc(p.name)).join(', ')}</b>.<div class="row" style="gap:8px;margin-top:8px"><button class="btn sm grow" data-act="pickclose">Abbrechen</button><button class="btn danger sm grow" data-act="pickopt" data-k="${k}" data-v="-1" data-ok="1">Trotzdem ausbauen</button></div></div>`);break;}}
+    const r=S.upgrade(ss,k,v);if(r.err){toast(r.err);break}if(r.paid)toast(`🛠️ Umgebaut für ${fmtY(r.paid)}`);closePick();W.syncStores(st().stores,st().logo,st().week);renderHUD();openStoreSheet(ss.id);}
    break}
   case 'dobuild':doBuild();break;
   case 'pvmode':pvMode=b.dataset.v;if(ui.storeId&&sheetOpen())openStoreSheet(ui.storeId);else if(ui.draft){previewMode(pvMode);syncPv();}break;
@@ -587,16 +608,16 @@ document.addEventListener('click',e=>{
   case 'cat':{const k=b.dataset.k;s.cfg.cats[k]=!s.cfg.cats[k];S.save();openStoreSheet(id);break}
   case 'px':{const k=b.dataset.k,cur=(s.cfg.px&&s.cfg.px[k])||1;s.cfg.px=s.cfg.px||{};s.cfg.px[k]=Math.max(.7,Math.min(1.4,Math.round((cur+(+b.dataset.v)*.05)*100)/100));S.save();openStoreSheet(id);break}
   case 'camp':{const r=S.toggleCamp(s,b.dataset.k);if(r.err)toast(r.err);else toast(r.on?'📣 Kampagne gestartet':'Kampagne beendet');renderHUD();openStoreSheet(id);break}
-  case 'svc':{const r=S.signService(s,b.dataset.k,b.dataset.v==='1');if(r.err)toast(r.err);else if(r.paid!=null)toast(`✍️ Vertrag mit ${D.SERVICES[b.dataset.k].partner} unterschrieben`);else toast(r.penalty?`Gekündigt, Vertragsstrafe ${fmtY(r.penalty)}`:'Vertrag gekündigt');renderHUD();openStoreSheet(id);break}
+  case 'svcno':ui.svcAsk=null;openStoreSheet(id);break;
+  case 'svc':{if(b.dataset.v==='0'&&!b.dataset.ok){const v=D.SERVICES[b.dataset.k],left=v.min-(st().week-((s.cfg.svcSince||{})[b.dataset.k]||0));if(left>0){ui.svcAsk=s.id+':'+b.dataset.k;openStoreSheet(id);break;}}ui.svcAsk=null;const r=S.signService(s,b.dataset.k,b.dataset.v==='1');if(r.err)toast(r.err);else if(r.paid!=null)toast(`✍️ Vertrag mit ${D.SERVICES[b.dataset.k].partner} unterschrieben`);else toast(r.penalty?`Gekündigt, Vertragsstrafe ${fmtY(r.penalty)}`:'Vertrag gekündigt');renderHUD();openStoreSheet(id);break}
   case 'closestore':if(ui.confirmClose!==id){ui.confirmClose=id;openStoreSheet(id);break}S.closeStore(id);ui.confirmClose=null;closeSheet();renderAll();toast('Filiale geschlossen');break;
   case 'hirelist':ui.hireScroll=0;hireSheet(id);break;
   case 'offstep':{ui.offer=ui.offer||{};const m=b.dataset.m;ui.offer[m]=Math.max(-20,Math.min(30,(ui.offer[m]||0)+(+b.dataset.v)*2));hireSheet(id);break}
   case 'offer':{const m=ui.cands[id].find(x=>x.id===b.dataset.m),pc=(ui.offer&&ui.offer[m.id])||0,sal=Math.round(m.expect*(1+pc/100)/10000)*10000;
-   if(S.offerResult(m,sal)){S.hire(s,m,sal);delete ui.cands[id];closePick();toast(`👔 ${esc(m.name)} nimmt an und leitet jetzt ${S.storeLabel(s)}`);renderHUD();openStoreSheet(id);}
+   if(S.offerResult(m,sal)){const alt=s.mgr&&!s.mgr.vertretung?s.mgr.name:null,ab=S.hire(s,m,sal);delete ui.cands[id];closePick();toast(`👔 ${esc(m.name)} nimmt an und leitet jetzt ${S.storeLabel(s)}`+(alt?` · ${esc(alt)} entlassen (Abfindung ${fmtY(ab)})`:''));renderHUD();openStoreSheet(id);}
    else{toast(`${esc(m.name)} lehnt ab. Das Angebot ist zu niedrig.`);}break}
   case 'salary':{const m=s.mgr,v=+b.dataset.v;m.salary=Math.max(2e6,Math.round(m.salary*(1+v*.05)/10000)*10000);m.morale=Math.max(0,Math.min(100,m.morale+(v>0?6:-9)));S.save();openStoreSheet(id);break}
-  case 'deleg':s.deleg[b.dataset.k]=!s.deleg[b.dataset.k];S.save();openStoreSheet(id);break;
-  case 'fire':if(ui.confirmFire!==id){ui.confirmFire=id;openStoreSheet(id);break}{const c=S.fireManager(s);ui.confirmFire=null;toast(`Filialleiter entlassen (Abfindung ${fmtY(c)})`);renderHUD();openStoreSheet(id);}break;
+  case 'fire':ui.hireScroll=0;hireSheet(id);break;// V6: Entlassen = Austausch
   case 'loan':{const v=+b.dataset.v*1e6;const r=v>0?S.takeLoan(v):S.repayLoan(-v);if(r.err){toast(r.err);break}renderHUD();renderPanel();toast(v>0?`🏦 Kredit über ${fmtY(v)}`:'Kredit getilgt');break}
   case 'taxcut':st().taxCut=st().taxCut===false;S.save();renderPanel();toast(st().taxCut?'Steuersenkung (Annahme) ist an':'Steuersenkung ist aus: 8 % auf Lebensmittel');break;
   case 'story':storyCard(+b.dataset.v);break;
@@ -616,12 +637,13 @@ document.addEventListener('click',e=>{
   onEmpty:()=>{}});}
  catch(err){console.error(err);$('#world').innerHTML='<div style="padding:120px 30px;text-align:center;font-weight:800">3D-Karte konnte nicht starten (WebGL fehlt?).</div>';}
  $('#boot').classList.add('hide');setTimeout(()=>$('#boot').remove(),600);
+ MM.init({chainLogo,esc,toast,texte:()=>GFX.texte,rerender:()=>{if(S.state&&$('#cityBar'))renderBar();}});keepLast();
  {const q=new URLSearchParams(location.search),wn=+q.get('weiter');const sv=wn?S.load(wn):null;
   if(sv&&!sv.lost)startGame(sv);else if(q.get('neu'))showIntro('new');else showIntro();}
  window.addEventListener('logo-ready',()=>{clearTimeout(ui.lr);ui.lr=setTimeout(()=>{if(ui.editMode&&(document.querySelector('#intro.show .editor')||document.querySelector('#sheet .editor')))rerenderEditor();if(S.state)renderAll();},120);});
  BF.load();
- FZ.init(S,{chainLogo,esc,toast,ladenN,CHAINS:D.CHAINS,RIVALS:D.RIVALS,dname:id=>(D.DMAP[id]||{name:id}).name,dtype:id=>(D.DMAP[id]||{}).type||'standard',CATS:D.CATS,texte:()=>GFX.texte,gameOver:()=>gameOver(),chainLogoFile:(f,sz)=>`<img class="fzlogo" src="grafik/logos/${f}.svg" width="${sz}" height="${sz}" alt="">`,cityName:CITY.name,rerender:()=>{if(ui.tab==='fin'&&FZ.ON)renderFZ();renderHUD();}});if(FZ.ON){S.weekHooks.push(FZ.weekHook);S.rivalFinanz.on=true;if(BU.ON)S.weekHooks.push(BU.weekHook);S.weekHooks.push(PV.weekHook);}
- NK.init(S,{CHAINS:D.CHAINS,RIVALS:D.RIVALS,GFX,firmenwert:FZ.firmenwert,fY:fmtY,dname:id=>(D.DMAP[id]||{name:id}).name});S.weekHooks.unshift(NK.weekHook);
+ FZ.init(S,{chainLogo,esc,toast,ladenN,CHAINS:D.CHAINS,RIVALS:D.RIVALS,dname:id=>(D.DMAP[id]||{name:id}).name,dtype:id=>(D.DMAP[id]||{}).type||'standard',CATS:D.CATS,texte:()=>GFX.texte,gameOver:()=>gameOver(),chainLogoFile:(f,sz)=>`<img class="fzlogo" src="grafik/logos/${f}.svg" width="${sz}" height="${sz}" alt="">`,cityName:CITY.name,rerender:()=>{if(ui.tab==='fin'&&FZ.ON)renderFZ();renderHUD();}});if(FZ.ON){S.preTaxHooks.push(FZ.preTax,BU.preTax,PV.preTax);S.weekHooks.push(FZ.weekHook);S.rivalFinanz.on=true;if(BU.ON)S.weekHooks.push(BU.weekHook);S.weekHooks.push(PV.weekHook);}
+ NK.init(S,{CHAINS:D.CHAINS,RIVALS:D.RIVALS,GFX,firmenwert:FZ.firmenwert,fY:fmtY,dname:id=>(D.DMAP[id]||{name:id}).name});S.weekHooks.unshift(NK.weekHook);S.weekHooks.push(MM.weekHook);
  window.__game={get state(){return S.state},S,D,W,ui,FZ,NK,BF,BU,PV,endWeek:doEndWeek,openStoreSheet,propertySheet,builderSheet,GFX};
  if('serviceWorker' in navigator&&window.isSecureContext)navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW',e));
 })();

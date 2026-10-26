@@ -1,6 +1,6 @@
 // Lädt Yukis SVG-Grafiken (grafik/) und Bobs Preisdaten (daten/), mit Fallback auf eigene Zeichnungen
 import {fillCity} from './cities.js';
-import {CATS,SERVICES,BUILD,BUILD_CSV,CAMPAIGNS,CAMP_CSV,MGR_TIERS,TIERS,rebuildTierMap} from './data.js';
+import {CATS,SERVICES,SVC_FIX,BUILD,BUILD_CSV,CAMPAIGNS,CAMP_CSV,MGR_TIERS,TIERS,rebuildTierMap} from './data.js';
 export const GFX={svg:{},prices:null,services:null,texte:null,standorte:null,src:{}};
 const FILES={
  logo_eight:'logos/eight.svg',logo_lawsun:'logos/lawsun.svg',logo_familia:'logos/familia.svg',logo_minihalt:'logos/minihalt.svg',logo_zabu:'logos/zabu.svg',
@@ -74,7 +74,6 @@ export function applyPrices(rows){
   k.items=R.map(r=>r.produkt);k.fromCSV=true;
   if(k.id==='saison')continue; // Preis kommt je Event aus saisonFor()
   k.price=Math.round(R.reduce((x,r)=>x+r.vk,0)/n);k.cost=+(R.reduce((x,r)=>x+r.ek,0)/R.reduce((x,r)=>x+r.vk,0)).toFixed(3);
-  k.fresh=R.reduce((x,r)=>x+r.hb,0)/n<=3;
   for(const se of ['spring','summer','autumn','winter']){const v=R.map(r=>r.sf[se]).filter(x=>x>=0);if(v.length)k.sf[se]=+(v.reduce((x,y)=>x+y,0)/v.length).toFixed(2);}
  }
  GFX.prices=Object.keys(agg).length?agg:null;
@@ -87,6 +86,7 @@ export function applyServices(rows){
   const f=(col,cb)=>{const x=num(r[col]);if(!isNaN(x))cb(x)};
   f('freischaltkosten',x=>v.sign=x);f('laufende_kosten_monat',x=>v.monthly=x);f('provision_pro_vorgang',x=>v.commission=x);
   f('vorgaenge_pro_tag_start',x=>v.perDay=x);f('kundenbonus_prozent',x=>v.bonus=x/100);v.fromCSV=true;n++;}
+ for(const k in SVC_FIX)if(SERVICES[k])Object.assign(SERVICES[k],SVC_FIX[k]);
  GFX.services=n||null;
 }
 

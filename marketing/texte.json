@@ -4,17 +4,12 @@
     {
       "id": "start",
       "figur": "kobo",
-      "text": "Das hier ist jetzt dein Laden. Bevor wir an Expansion denken, bringen wir Omas Konbini auf Vordermann: Sortiment, Filialleitung und frische Ware."
+      "text": "Das hier ist jetzt dein Laden. Bevor wir an Expansion denken, bringen wir Omas Konbini auf Vordermann: Sortiment, Filialleitung und Service."
     },
     {
       "id": "sortiment",
       "figur": "kobo",
-      "text": "Onigiri, Bentō und Getränke sind unser Brot und Butter. Achte auf die Marge, aber übertreib es nicht mit den Preisen, sonst ziehen die Kunden zu Eight weiter."
-    },
-    {
-      "id": "frische",
-      "figur": "kobo",
-      "text": "Frischware hält nur kurz. Bestellst du zu viel, landet sie im Müll. Bestellst du zu wenig, sind die Regale leer. Das richtige Maß ist die Kunst."
+      "text": "Onigiri, Bentō und Getränke sind unser Brot und Butter. Achte auf die Marge, aber übertreib es nicht mit den Preisen, sonst ziehen die Kunden zur Konkurrenz weiter."
     },
     {
       "id": "personal",
@@ -34,7 +29,7 @@
     {
       "id": "buuhuu",
       "figur": "kobo",
-      "text": "Das hier sind die BuuHuu-Bewertungen. Je mehr Geister, desto mehr Kunden. Sauberkeit, Frische, Wartezeit und Preise zählen alle mit."
+      "text": "Das hier sind die BuuHuu-Bewertungen. Je mehr Geister, desto mehr Kunden. Sauberkeit, Auswahl, Wartezeit und Preise zählen alle mit."
     },
     {
       "id": "eroeffnung",
@@ -44,7 +39,7 @@
     {
       "id": "verlust",
       "figur": "kobo-besorgt",
-      "text": "Oh je, diese Woche haben wir Verlust gemacht. Das ist am Anfang normal. Prüf Filialleitung, Preise und Bestellmengen, dann wird es besser."
+      "text": "Oh je, diese Woche haben wir Verlust gemacht. Das ist am Anfang normal. Schau dir Filialleitung, Preise und Sortiment an, dann wird es besser."
     },
     {
       "id": "zweiter_laden",
@@ -79,8 +74,8 @@
   ],
   "buuhuu_stimmen": {
     "5": [
-      "Onigiri um 3 Uhr nachts noch frisch, 5 Geister!",
-      "Schneller als jeder Eight, super freundlich!",
+      "Onigiri um 3 Uhr nachts noch im Regal, 5 Geister!",
+      "Schneller als jeder andere Konbini, super freundlich!",
       "Der beste Oden der ganzen Straße.",
       "Sauber, hell und immer alles da. Mein Stamm-Konbini!"
     ],
@@ -102,7 +97,7 @@
     "1": [
       "Leere Regale und niemand an der Kasse. Buuuh!",
       "Der Boden klebte, ich komme nicht wieder.",
-      "Mein Onigiri war nicht mehr frisch. Gruselig, und nicht im guten Sinne."
+      "Mein Lieblings-Onigiri war ausverkauft. Gruselig, und nicht im guten Sinne."
     ]
   },
   "shimbun": {
@@ -115,11 +110,11 @@
       "Kunden lieben die Saisonaktion von {kette}"
     ],
     "konkurrenz": [
-      "Eight eröffnet neue Filiale in {stadtteil}",
-      "Lawsun startet Rabattwoche auf alle Bentō",
-      "Familia setzt auf frittiertes Hähnchen und gewinnt Kundschaft",
-      "Minihalt kämpft mit Personalmangel in der Nachtschicht",
-      "Preiskampf: Eight senkt den Kaffeepreis",
+      "{rivale} eröffnet neue Filiale in {stadtteil}",
+      "{rivale} startet Rabattwoche auf alle Bentō",
+      "{rivale} setzt auf frittiertes Hähnchen und gewinnt Kundschaft",
+      "{rivale} kämpft mit Personalmangel in der Nachtschicht",
+      "Preiskampf: {rivale} senkt den Kaffeepreis",
       "Neue Kette aus Polen: Żabu eröffnet ersten Laden ohne Personal",
       "Żabu Nano: Einkaufen ohne Kasse und ohne Mitarbeiter, {stadt} staunt"
     ],
@@ -159,7 +154,7 @@
         "Abholung ging in 30 Sekunden, super praktisch."
       ],
       "negativ": [
-        "Keine Paketannahme? Dann geh ich halt zu Eight.",
+        "Keine Paketannahme? Dann geh ich halt woanders hin.",
         "Mein Paket war nicht auffindbar, Buuuh!"
       ]
     },
@@ -236,7 +231,7 @@
     {
       "id": "story3",
       "figur": "kobo-besorgt",
-      "text": "Aber pass auf: Eight, Lawsun, Familia und Minihalt wollen auch {stadt} erobern. Sie fangen genau wie du klein an, und jeder freie Standort, den sie bekommen, ist für dich weg."
+      "text": "Aber pass auf: Auch andere junge Firmen eröffnen gerade ihren ersten Laden in {stadt}. Jeder freie Standort, den sie bekommen, ist für dich weg."
     },
     {
       "id": "story4",
@@ -278,7 +273,7 @@
     {
       "id": "rettung_lager",
       "figur": "kobo-besorgt",
-      "text": "Bestell erst mal weniger Ware nach und verkauf dein Lager ab. Das bringt sofort Geld in die Kasse."
+      "text": "Das Geld wird knapp. Kündige Services und Verträge, die sich nicht lohnen. Das kostet einmalig ¥50.000, spart dir aber jede Woche Geld. Wenn es eng bleibt, hilft ein Kredit bei der Bank."
     },
     {
       "id": "rettung_kampagnen",

@@ -89,7 +89,10 @@ export const TOWERS=[];// {turm,name,x,y,breite,tiefe,lot|landmark}
 if(SKY){const byId=new Map(PLAN.grundstuecke.map(l=>[l.id,l]));
  for(const u of SKY.laden_umzuege||[]){const a=byId.get(u.von),b=byId.get(u.nach);if(!a||!b||!a.laden)continue;
   const neu=(SKY.grundstuecke_laden_neu||[]).find(g=>g.id===u.nach);b.laden={...(neu?neu.laden:a.laden)};delete a.laden;SHOP_MOVES[u.von]=u.nach;}
+ // V6 (Whitebeard-Vorabtest, Vorlage m26): weniger Hochhäuser – Wahrzeichen-Türme bleiben, von den übrigen nur jeder zweite (?tuerme=alle = alle)
+ const ALLE_TUERME=new URLSearchParams(globalThis.location?location.search:'').get('tuerme')==='alle';let tk=0;
  for(const t of SKY.tuerme||[]){const lmId=typeof t.id==='string'&&t.id.startsWith('wahrzeichen:')?t.id.slice(12):null;
+  if(!lmId&&!ALLE_TUERME&&(tk++%2))continue;
   const l=lmId?null:byId.get(t.id);if(!lmId&&!l)continue;if(l){if(l.laden)continue;/* nie auf einem Laden */l.turm=t.turm;}
   TOWERS.push({turm:t.turm,name:t.name,x:t.x,y:t.y,breite:t.breite,tiefe:t.tiefe,lot:l?l.id:null,landmark:lmId});}}
 export const SHOPS=PLAN.grundstuecke.filter(l=>l.laden).map((l,k)=>mkShop(l,k));

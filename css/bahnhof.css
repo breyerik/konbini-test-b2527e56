@@ -19,3 +19,6 @@ body.bfopen #bf{display:block}#bf *{border-radius:0!important;box-sizing:border-
 .bfkobo{display:flex;align-items:flex-end;gap:10px;margin-top:18px}.bfkobo img{width:70px}.bfkobo div{background:#FFFFFF;border:3px solid #2B2D42;padding:12px;font-size:15px;flex:1}
 #bfload{position:fixed;inset:0;z-index:95;background:linear-gradient(#A2D7EE 0 50%,#FFF8EE 50% 100%);display:flex;align-items:center;justify-content:center}#bfload svg{width:100%;height:100%;display:block}
 .bffb{font-size:24px;font-weight:900}
+/* Städteliste: Name/Kanji/Bhf. in eigener Zeile, Preis/Fahrzeit/Abfahrt darunter – kein Kanji-Umbruch pro Zeichen (BUGS.md) */
+.bfcard{flex-wrap:wrap;row-gap:8px}.bfname{flex:1 1 calc(100% - 70px)}.bfname small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bfname+.bfinfo,.bfname+.bfnow{margin-left:68px}.bfinfo{flex:none}.bfcard .bfbtn{margin-left:auto}

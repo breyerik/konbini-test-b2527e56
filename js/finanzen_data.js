@@ -197,11 +197,11 @@ export const FIRMEN=[
 "id": "umami-no-kami",
 "name": "Umami no Kami",
 "code": "2802",
-"branche": "Würzmittel",
+"branche": "Würzsauce",
 "kurs": 3958.5,
 "aktien": 978000000.0,
 "logo": "grafik/logos/firmen/umami-no-kami.svg",
-"desc": "Würzmittel-Riese mit Tiefkühl-Gyoza und Karaage. Liefert wichtige Zutaten für Bentō und Onigiri.",
+"desc": "Würzsaucen-Riese mit Tiefkühl-Gyoza und Karaage. Liefert wichtige Zutaten für Bentō und Onigiri.",
 "vol": 0.25,
 "bank": false,
 "rival": null,
@@ -347,7 +347,7 @@ export const FIRMEN=[
 "kurs": 1364.2,
 "aktien": 969000000.0,
 "logo": "grafik/logos/firmen/shoyu-maru.svg",
-"desc": "Sojasaucen-Hersteller seit Generationen. Liefert Würzmittel für Oden und kleine Flaschen für das Regal.",
+"desc": "Sojasaucen-Hersteller seit Generationen. Liefert Würzsauce für Oden und kleine Flaschen für das Regal.",
 "vol": 0.25,
 "bank": false,
 "rival": null,
@@ -407,12 +407,12 @@ export const FIRMEN=[
 "kurs": 2901.0,
 "aktien": 220000000.0,
 "logo": "grafik/logos/firmen/tanizaki-pan.svg",
-"desc": "Großbäckerei für Brot, Sandwiches und Melonpan. Liefert jeden Morgen frisch und senkt so den Abfall.",
+"desc": "Großbäckerei für Brot, Sandwiches und Melonpan. Liefert jeden Morgen frisch.",
 "vol": 0.25,
 "bank": false,
 "rival": null,
 "liefert": "Brot, Sandwiches, Melonpan",
-"sonder": "5 %: Frischware-Abfall −10 % (tägliche Lieferung)"
+"sonder": "5 %: tägliche Lieferung am Morgen"
 },
 {
 "id": "mayo-kun",
@@ -572,11 +572,27 @@ export const FIRMEN=[
 "kurs": 2400.0,
 "aktien": 120000000.0,
 "logo": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%232F3B2E%22/%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2234%22%20r%3D%2213%22%20fill%3D%22%23E8D86A%22/%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2234%22%20r%3D%2220%22%20fill%3D%22%23E8D86A%22%20opacity%3D%22.25%22/%3E%3Ctext%20x%3D%2232%22%20y%3D%2240%22%20font-size%3D%2216%22%20text-anchor%3D%22middle%22%20fill%3D%22%232F3B2E%22%20font-family%3D%22sans-serif%22%20font-weight%3D%22700%22%3E%E8%9B%8D%3C/text%3E%3C/svg%3E",
-"desc": "Frei erfundener Batterie-Hersteller (蛍電池). Liefert Batterien und Ladekabel für das Alltagsregal.",
+"desc": "Frei erfundener Batterie-Hersteller (蛍電池). Stellt Batterien und Ladekabel her, die Kiraku Shōji an uns liefert – Hersteller und Lieferant von Kiraku, kein eigener Vertrag mit uns.",
 "vol": 0.25,
 "bank": false,
 "rival": null,
-"liefert": "Batterien, Ladekabel",
-"sonder": "10 %: Batterie-Aufsteller an der Kasse"
+"liefert": "–"
+},
+{
+"id": "kiraku-shoji",
+"name": "Kiraku Shōji",
+"code": "",
+"branche": "Kiosk-Großhandel",
+"kurs": 0,
+"aktien": 0,
+"logo": "grafik/lieferanten/kiraku/logo.svg",
+"desc": "Kiosk-Großhändler (気楽商事): Zeitschriften, Batterien von Hotaru Denchi, Ladekabel und Schirme. Ersetzt den früheren Kiosk-Lieferanten (Erik 23.10., R01).",
+"vol": 0,
+"bank": false,
+"rival": null,
+"boerse": false,
+"liefertVon": "hotaru-denchi",
+"liefert": "Manga-Wochenheft, Zeitschrift, Batterien AA 4er, Batterien AAA 4er, USB-Ladekabel, Vinyl-Schirm",
+"sonder": ""
 }
 ];

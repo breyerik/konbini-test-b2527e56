@@ -239,6 +239,8 @@ export const SHOP_FOOT=new Map();// V5: Ladengebäude kleiner als das Grundstüc
 const MIDT={'buero-glas':'glas','buero-beton':'buero','wohnhaus-mansion':'block','geschaeftshaus-neon':'laden','mittelhaus-fliesen':'block'};
 export const FILL5={n:0};
 function buildCity5(){const B=new Bins(),rnd=seeded5(11),K0=makeKit(F,B,rnd),lots=[];let roofs=0;
+ // V6 (Whitebeard-Vorabtest, Vorlage m26): weniger Hochhäuser – nur jedes dritte Grundstück mit >10 Stockwerken wird Turm, der Rest Bürohaus (8 OG); ?tuerme=alle = alt
+ const ALLE_T=new URLSearchParams(globalThis.location?location.search:'').get('tuerme')==='alle';let hiK=0;const HOCH=()=>ALLE_T||(hiK++%3===0);
   // Belegung merken, damit Rasen in bebauten Blöcken danach bis an die Straße aufgefüllt wird (Runde-10-Dichte)
   const FP=FILL5.fp=[],reg=(x,z,w,d)=>FP.push([x-w/2,x+w/2,z-d/2,z+d/2]);
   const K=Object.assign({},K0,{house:(x,z,ry,fl,o={})=>{const w=o.w||.6*F;reg(x,z,w,o.d||w);return K0.house(x,z,ry,fl,o);}});
@@ -249,7 +251,7 @@ function buildCity5(){const B=new Bins(),rnd=seeded5(11),K0=makeKit(F,B,rnd),lot
   const mt=MIDT[l.typ];let h;
   if(mt&&!l.laden&&(w>1.5*F||d>1.5*F)){// Mittelbau in Spec-Größe (Yuki: 1,1–1,4 Felder) + Kleinhäuser auf dem Rest
    const fl=Math.max(3,l.stockwerke),bw=Math.min(w,(1.15+rnd()*.25)*F),bd=Math.min(d,(1.0+rnd()*.2)*F),bx=x0+bw/2,bz=z1-bd/2;
-   h=fl>10?K.tower(bx,bz,Math.min(bw,1.1*F),Math.min(bd,1.1*F),Math.min(fl,14)*K.FL):mt==='glas'||mt==='buero'?K.buero(bx,bz,bw,bd,Math.min(fl,8),mt==='glas'):mt==='laden'&&rnd()<.3?K.hotel(bx,bz,Math.min(bw,.9*F),Math.min(bd,.8*F),9):K.wohnblock(bx,bz,bw,bd,Math.min(fl,6),{shop:mt==='laden'});
+   h=fl>10&&HOCH()?K.tower(bx,bz,Math.min(bw,1.1*F),Math.min(bd,1.1*F),Math.min(fl,14)*K.FL):fl>10?K.buero(bx,bz,bw,bd,8,mt==='glas'):mt==='glas'||mt==='buero'?K.buero(bx,bz,bw,bd,Math.min(fl,8),mt==='glas'):mt==='laden'&&rnd()<.3?K.hotel(bx,bz,Math.min(bw,.9*F),Math.min(bd,.8*F),9):K.wohnblock(bx,bz,bw,bd,Math.min(fl,6),{shop:mt==='laden'});
    const st=.82*F;for(let x=x0+st/2;x<=x1-st/2+.01;x+=st)for(let z=z0+st/2;z<=z1-st/2+.01;z+=st){if(x-st/2<x0+bw+.2&&z+st/2>z1-bd-.2)continue;const r=rnd();if(r<.06){K.tree(x,z);continue;}K.house(x,z,rnd()<.5?0:Math.PI/2,1+(rnd()*2.2|0),{w:st*(.9+rnd()*.07)});}
   }else if(l.laden&&(w>1.45*F||d>1.45*F)){// Laden: kompaktes Gebäude an der Ladenfront (Ecke: an beiden Straßen), Rest Kleinhäuser
    const sh=SHOPS.find(q=>q.lot===l||q.lot.id===l.id),f=sh?sh.front:'s',sd=sh?sh.side:null;
@@ -260,8 +262,8 @@ function buildCity5(){const B=new Bins(),rnd=seeded5(11),K0=makeKit(F,B,rnd),lot
    const st=.82*F;for(let x=x0+st/2;x<=x1-st/2+.01;x+=st)for(let z=z0+st/2;z<=z1-st/2+.01;z+=st){if(x+st/2>ft.x0-.15&&x-st/2<ft.x1+.15&&z+st/2>ft.z0-.15&&z-st/2<ft.z1+.15)continue;const r=rnd();if(r<.06){K.tree(x,z);continue;}K.house(x,z,rnd()<.5?0:Math.PI/2,1+(rnd()*2|0),{w:st*(.9+rnd()*.07)});}
   }else if(mt||l.laden){// ein Gebäude über das ganze Grundstück (Läden: Erdgeschoss-Streifen liegt auf dieser Fassade)
    const fl=Math.max(2,Math.min(l.stockwerke,mt?40:3));
-   if(fl>10&&!l.laden&&w<=1.5*F&&d<=1.5*F)h=K.tower(cx,cz,w,d,Math.min(fl,14)*K.FL);
-   else if(fl>10)h=K.buero(cx,cz,w,d,9,rnd()<.5);// Laden-Grundstück: Bürohaus statt breitem Turm
+   if(fl>10&&!l.laden&&w<=1.5*F&&d<=1.5*F&&HOCH())h=K.tower(cx,cz,w,d,Math.min(fl,14)*K.FL);
+   else if(fl>10)h=K.buero(cx,cz,w,d,l.laden?9:8,rnd()<.5);// Laden-Grundstück: Bürohaus statt breitem Turm
    else if(mt==='glas')h=K.buero(cx,cz,w,d,Math.max(4,fl),true);
    else if(mt==='buero')h=K.buero(cx,cz,w,d,Math.max(4,fl));
    else if(mt==='laden'&&rnd()<.25&&fl>=5)h=K.hotel(cx,cz,w,d,fl);

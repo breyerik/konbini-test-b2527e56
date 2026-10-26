@@ -7,10 +7,13 @@ function buch(s,k,v){const p=ensure(s),j=jahr(s);p.jahr[j]=p.jahr[j]||{gehalt:0,
 export function tx(id,o={}){const T=((H.texte&&H.texte())||{}).vermoegen||{};const D={titel:'Mein Vermögen',dividende_erhalten:'💴 {betrag} Dividende sind in dein Privatvermögen geflossen.',einlage_frage:'Die Firmenkasse ist knapp. Möchtest du {betrag} aus deinem Privatvermögen einzahlen?',einlage_erfolgt:'Kobo: Danke, {name}! {betrag} aus deinem Privatvermögen sind jetzt in der Firmenkasse.'};
  return String(T[id]||D[id]||'').replace(/\{(\w+)\}/g,(m,k)=>o[k]!=null?o[k]:m);}
 export const nameText=()=>{const t=((H.texte&&H.texte())||{}).startbildschirm||{};return t.name_eingabe||'Wie heißt du? Unter diesem Namen führst du Omas Laden weiter.';};
+// V6 (Erik, Audit 2 Punkt 7): Privatgehalt und Darlehenszins sind Aufwand der Firma – sie laufen VOR der Steuer durch die GuV
+// (T.neben, Kasse über sim: cash += Cashflow). Die Tilgung des Privatdarlehens bleibt nach Steuer (kein Aufwand).
+export function preTax(s,rep,T){const p=ensure(s);const g=P.GEHALT_MONAT*12/52;p.kasse+=g;buch(s,'gehalt',g);T.neben.gehalt=(T.neben.gehalt||0)+g;
+ if(p.darlehen>0){const z=p.darlehen*P.DARLEHEN_ZINS/52;p.kasse+=z;buch(s,'zins',z);T.neben.privatZins=(T.neben.privatZins||0)+z;}}
 // Wochen-Hook: läuft nach FZ.weekHook (Dividende), T = Wochen-GuV
 export function weekHook(s,rep,T){const p=ensure(s),fz=s.fz||{};
- const g=P.GEHALT_MONAT*12/52;s.cash-=g;p.kasse+=g;buch(s,'gehalt',g);if(T)T.net-=g;
- if(p.darlehen>0){const z=p.darlehen*P.DARLEHEN_ZINS/52;s.cash-=z;p.kasse+=z;buch(s,'zins',z);
+ if(p.darlehen>0){
   if(T&&T.net>0){const t=Math.min(p.darlehen,T.net*P.DARLEHEN_TILGUNG,Math.max(0,s.cash));s.cash-=t;p.kasse+=t;p.darlehen-=t;}}
  p.hist.push(Math.round(vermoegen(s)));if(p.hist.length>520)p.hist.shift();
  if(s.cash<P.KNAPP.kasse&&p.kasse>=P.EINLAGE.schritt&&s.week>=p.frageSperre){p.frage=Math.min(p.kasse,Math.max(P.EINLAGE.schritt,Math.ceil((P.KNAPP.kasse-s.cash)/P.EINLAGE.schritt)*P.EINLAGE.schritt));p.frageSperre=s.week+P.KNAPP.sperreWochen;}}

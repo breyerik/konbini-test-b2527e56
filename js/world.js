@@ -358,7 +358,9 @@ export function createWorld(container,cb){
  const outer=new THREE.Mesh(new THREE.PlaneGeometry(1400,1400),new THREE.MeshBasicMaterial({color:BG}));outer.rotation.x=-Math.PI/2;outer.position.y=-.05;scene.add(outer);
  // Wahrzeichen (12 Flächen aus dem Plan), je Wahrzeichen ein gebackenes Mesh
  const lmGroup=new THREE.Group();
- for(const l of LANDMARKS){let o=l.make();const bb=new THREE.Box3().setFromObject(o),sz=bb.getSize(new THREE.Vector3());const k=Math.min(STIL5&&['akamon','sensoji'].includes(l.id)?1.6:1.25,l.w*.95/Math.max(.1,sz.x),l.d*.95/Math.max(.1,sz.z));if(/-castle$/.test(l.id)&&YSPEC[l.id]&&YSPEC[l.id].neu){o.scale.setScalar(.62*Math.min(l.w,l.d)/Math.max(.1,sz.x,sz.z));}// Burgen füllen ~60 % des Grundstücks (Erik 23:34)
+ // V6 (Erik 25.10., Whitebeard 4816e73): das dunkle Hochhaus direkt hinter dem Tokyo Tower (Roppongi-Hills-Turm) entfällt; ?tuerme=alle zeigt es wieder (R39)
+ const OHNE_LM=new URLSearchParams(location.search).get('tuerme')==='alle'?[]:['roppongi-hills'];
+ for(const l of LANDMARKS){if(STIL5&&OHNE_LM.includes(l.id))continue;let o=l.make();const bb=new THREE.Box3().setFromObject(o),sz=bb.getSize(new THREE.Vector3());const k=Math.min(STIL5&&['akamon','sensoji'].includes(l.id)?1.6:1.25,l.w*.95/Math.max(.1,sz.x),l.d*.95/Math.max(.1,sz.z));if(/-castle$/.test(l.id)&&YSPEC[l.id]&&YSPEC[l.id].neu){o.scale.setScalar(.62*Math.min(l.w,l.d)/Math.max(.1,sz.x,sz.z));}// Burgen füllen ~60 % des Grundstücks (Erik 23:34)
   else if(k<1&&!(YSPEC[l.id]&&YSPEC[l.id].neu)&&!(STIL5&&['skytree','tokyo-tower','roppongi-hills','kaiserpalast','gotokuji','akamon','odaiba'].includes(l.id)))o.scale.setScalar(k);
   if(l.id==='tokyo-station'||l.id==='haneda'){if(l.w>l.d&&l.id==='tokyo-station'&&!STIL5)o.rotation.y=Math.PI/2;}
   const b=bake(o);b.position.set(l.x,0,l.z);b.updateMatrixWorld(true);l.box=new THREE.Box3().setFromObject(b);if(l.id==='tokyo-station'&&l.w>l.d)b.rotation.y=0;lmGroup.add(shadowAll(b));}
@@ -420,7 +422,7 @@ export function createWorld(container,cb){
  });
  function emojiPin(emoji,label,bg){const cv=document.createElement('canvas');cv.width=192;cv.height=240;const g=cv.getContext('2d');g.fillStyle=bg;g.strokeStyle='#2B2D42';g.lineWidth=7;g.beginPath();g.moveTo(96,232);g.bezierCurveTo(70,190,14,160,14,94);g.arc(96,94,82,Math.PI,0);g.bezierCurveTo(178,160,122,190,96,232);g.fill();g.stroke();g.fillStyle='#fff';g.beginPath();g.arc(96,92,56,0,7);g.fill();g.font='62px sans-serif';g.textAlign='center';g.fillText(emoji,96,114);const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;return t;}
  const utility=[{id:'borse',name:'Börse',emoji:'📈',x:58,z:-6,bg:'#8EA6C4'},{id:'immo',name:'Immobilienbüro',emoji:'🏢',x:-4,z:12,bg:'#8EA6C4'},{id:'hq',name:'Hauptquartier',emoji:'🏠',x:-12,z:-30,bg:'#B8A6D9'},{id:'station',name:'Tokio Hbf (Fernreisen)',emoji:'🚄',x:HUBS[0].x,z:HUBS[0].z+3,bg:'#9AD8EE'},{id:'haneda',name:'Haneda (Flüge)',emoji:'✈️',x:HUBS[1].x,z:HUBS[1].z-4,bg:'#9AD8EE'}];
- const HIDE_UTIL={hq:!FEATURES.hq,station:!FEATURES.rail,haneda:!FEATURES.haneda};// Tokio Hbf bleibt als Gebäude, ohne Funktion
+ const HIDE_UTIL={immo:true,hq:!FEATURES.hq,station:!FEATURES.rail,haneda:!FEATURES.haneda};// Tokio Hbf bleibt als Gebäude, ohne Funktion
  const utilSprites=utility.filter(u=>!HIDE_UTIL[u.id]).map(u=>{const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:emojiPin(u.emoji,u.name,u.bg),depthTest:false,transparent:true}));sp.position.set(u.x,u.id==='haneda'?21:u.id==='station'?18:6.5,u.z);sp.scale.set(4.2,5.2,1);sp.renderOrder=4;sp.center.set(.5,0);sp.userData.hub=u.id;scene.add(sp);return sp;});
  // Autos auf dem Straßenraster
  const CARN=46,carG=(()=>{const a=new THREE.BoxGeometry(1.0,.34,.52).translate(0,.27,0),b=new THREE.BoxGeometry(.52,.24,.46).translate(-.06,.56,0);return mergeLife([a,b]);})();
@@ -439,7 +441,16 @@ export function createWorld(container,cb){
   e.set(0,-Math.atan2(B[1]-A[1],B[0]-A[0]),0);q.setFromEuler(e);mtx.compose(new THREE.Vector3(x,y,z),q,new THREE.Vector3(1.3,1.3,1.3));pcars.setMatrixAt(i,mtx);}pcars.instanceMatrix.needsUpdate=true;}
  function updateCars(){for(let i=0;i<CARN;i++){const c=carD[i];c.pos+=c.v;if(c.pos>R-3)c.pos=-R+3;if(c.pos<-R+3)c.pos=R-3;const x=c.horiz?c.pos:c.lane,z=c.horiz?c.lane:c.pos;const ok=onRoad(x,z);e.set(0,c.horiz?0:Math.PI/2,0);q.setFromEuler(e);mtx.compose(new THREE.Vector3(x,ok?0:-5,z),q,new THREE.Vector3(1.3,1.3,1.3));cars.setMatrixAt(i,mtx);}cars.instanceMatrix.needsUpdate=true;}
  let occupied=new Set();
- function updatePads(t){slotList.forEach((s,i)=>{const free=!occupied.has(s.d+':'+s.i)&&slotOpen(s.d,s.i,curWeek);const sp=pinSprites[i];sp.visible=free;if(free)sp.position.y=3.4+Math.sin(t*2.2+i)*.3;});}
+ // V6 (Whitebeard-Vorabtest 22d0cd1, Vorlage m26): nur ~8 空き-Pins gleichzeitig – beste Lage zuerst, reihum über die Viertel verteilt.
+ // Ebenen-Knopf (☰ links unten) schaltet „alle freien Grundstücke“ ein/aus.
+ const PIN_MAX=8,TRANK=Object.keys(TIERS);let pinAll=false,pinKey='',pinShow=new Set();
+ function pickPins(){const free=slotList.map((s,i)=>({s,i})).filter(({s})=>!occupied.has(s.d+':'+s.i)&&slotOpen(s.d,s.i,curWeek));
+  if(pinAll)return new Set(free.map(x=>x.i));
+  free.sort((a,b)=>TRANK.indexOf(a.s.tier)-TRANK.indexOf(b.s.tier)||a.i-b.i);const per=new Map();for(const x of free){if(!per.has(x.s.d))per.set(x.s.d,[]);per.get(x.s.d).push(x.i);}
+  const out=new Set(),Q=[...per.values()];for(let r=0;out.size<PIN_MAX&&Q.some(q=>q.length>r);r++)for(const q of Q){if(out.size>=PIN_MAX)break;if(q[r]!==undefined)out.add(q[r]);}return out;}
+ function updatePads(t){const k=pinAll+'|'+curWeek+'|'+[...occupied].join(',');if(k!==pinKey){pinKey=k;pinShow=pickPins();}
+  slotList.forEach((s,i)=>{const on=pinShow.has(i);const sp=pinSprites[i];sp.visible=on;if(on)sp.position.y=3.4+Math.sin(t*2.2+i)*.3;});}
+ function pinLayer(v){pinAll=v===undefined?!pinAll:!!v;pinKey='';return pinAll;}
  // Auswahlring
  const selRing=new THREE.Mesh(new THREE.TorusGeometry(3.4,.18,6,36),new THREE.MeshBasicMaterial({color:'#E94F4F'}));selRing.rotation.x=-Math.PI/2;selRing.visible=false;scene.add(selRing);
  // Läden
@@ -597,7 +608,7 @@ export function createWorld(container,cb){
  function resize(){const w=container.clientWidth,h=container.clientHeight;renderer.setSize(w,h);const a=w/h;camera.left=-VH*a/2;camera.right=VH*a/2;camera.top=VH/2;camera.bottom=-VH/2;camera.updateProjectionMatrix();}
  addEventListener('resize',resize);
  document.addEventListener('visibilitychange',()=>{running=!document.hidden;if(running)renderer.setAnimationLoop(loop);else renderer.setAnimationLoop(null);});
- return {life:()=>({n:pBody.count,vis:pBody.visible||pSpr.some(s=>s.visible),yuki:YUKI_PPL,L:life.slice(0,2)}),pcars,bridges,CAM,clampT,cars,lmGroup,roadCoverage:()=>ground.material.map.userData.roadCoverage,scene,tierOfSlot:(d,i)=>tierOf(d,i),syncStores,flyTo,select,setSeason,slotPos:(d,i)=>SLOTS[d][i],renderer,camera,controls,towers,stats:()=>({roofs:city.mesh.userData.roofs,stil:STIL5?5:4,buildings:bl.length,towerLots:TOWERS.filter(t=>t.lot!=null).length,towers:towers.children.filter(o=>!o.userData.roof).length,shops:SHOPS.length,landmarks:LANDMARKS.length,trees:trees.length,calls:renderer.info.render.calls,tris:renderer.info.render.triangles})};
+ return {pinLayer,pinsShown:()=>pinShow.size,life:()=>({n:pBody.count,vis:pBody.visible||pSpr.some(s=>s.visible),yuki:YUKI_PPL,L:life.slice(0,2)}),pcars,bridges,CAM,clampT,cars,lmGroup,roadCoverage:()=>ground.material.map.userData.roadCoverage,scene,tierOfSlot:(d,i)=>tierOf(d,i),syncStores,flyTo,select,setSeason,slotPos:(d,i)=>SLOTS[d][i],renderer,camera,controls,towers,stats:()=>({roofs:city.mesh.userData.roofs,stil:STIL5?5:4,buildings:bl.length,towerLots:TOWERS.filter(t=>t.lot!=null).length,towers:towers.children.filter(o=>!o.userData.roof).length,shops:SHOPS.length,landmarks:LANDMARKS.length,trees:trees.length,calls:renderer.info.render.calls,tris:renderer.info.render.triangles})};
 }
 
 /* ---------- 3D-Vorschau eines Ladens ---------- */

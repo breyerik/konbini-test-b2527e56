@@ -4,19 +4,19 @@ export const MEHRERTRAG=.4;// nur Mehrertrag ggü. Ersatzmarke zählt (Bob): 40 
 export const BASIS_KUNDEN_WOCHE=1750;// Standardladen ≈ 250 Kunden/Tag (Bob)
 export const GEBUEHR_AKTIEN=.01;// 1 % Gebühr, Verkaufserlös kommt 1 Woche später
 // Kaufquoten je Produkttyp (Anteil der Wochenkunden, die 1 Stück kaufen) und Saison. bier/wasser: Bob; Rest: Annahme Franky
-export const KAUFQUOTE={bier:.057,wasser:.034,cola:.045,energy:.025,kaffee:.03,tee:.034,suess:.02,chips:.02,nudeln:.025,probiotik:.015,saft:.01,eis:.02,brot:.04,wuerz:.006,tk:.008,fleisch:.01,hygiene:.008,kosmetik:.004,manga:.015,kuji:.006,prepaid:.004,mode:.003,alltag:.008,nusscreme:.006};
-export const SAISON={bier:{sommer:.3,winter:-.2},wasser:{sommer:.3},cola:{sommer:.2},energy:{sommer:.1},eis:{sommer:.5,winter:-.4}};// Sommer Jun–Aug, Winter Dez–Feb (bier/wasser: Bob, Rest: Annahme)
+export const KAUFQUOTE={bier:.057,wasser:.034,cola:.045,energy:.025,kaffee:.03,tee:.034,suess:.02,chips:.02,nudeln:.025,probiotik:.015,saft:.01,eis:.02,brot:.04,wuerz:.006,tk:.008,fleisch:.01,hygiene:.008,kosmetik:.004,manga:.015,kuji:.006,prepaid:.004,mode:.003,alltag:.008,nusscreme:.006,chuhai:.03,fertig:.012,technik:.003,batterie:.006,schirm:.004};// V6 neu: chuhai/fertig/technik/batterie/schirm Annahme (Bob prüft)
+export const SAISON={bier:{sommer:.3,winter:-.2},wasser:{sommer:.3},cola:{sommer:.2},energy:{sommer:.1},eis:{sommer:.5,winter:-.4},schirm:{sommer:.3}};// Sommer Jun–Aug, Winter Dez–Feb (bier/wasser: Bob, Rest: Annahme)
 // Einkaufs-Rabattstufen nach Filialzahl (keine Mindestmenge)
 export const STUFEN=[{von:1,bis:4,f:1},{von:5,bis:9,f:.958},{von:10,bis:19,f:.926},{von:20,bis:1e9,f:.895}];
 export const LAUFZEIT_RABATT=m=>(12-m)/6*.01;// 6 Mon. +1 %, 12 ±0, 18 −1 %, 24 −2 %
-export const EXKL={ekMinus:.03,zahlungJeLaden:130000};// Exklusivität bei Inlandsmarken (Annahme): Einkauf −3 %, Einmalzahlung je Laden
+export const EXKL={ekMinus:.03};// Exklusivität (Werte Bob, ✅ Erik 25.10. 16:01): Einkauf −3 %; Preis = Nutzen ÷ 1,75, mind. ¥20.000 je Laden → sim.js EXKL_ECHT (alte Pauschale ¥130.000 je Laden entfällt)
 // Produkt je Branche (Inlandsmarken, Bob ③-b): Name, VK brutto, Marge auf Netto-VK (Stufe 1–4), Typ für Kaufquote, Einheit. EK = Netto-VK × (1 − Marge)
 export const PRODUKT={'Bier/Getränke':['Super-Trocken 350 ml',250,0.24,'bier','Dose'],'Grüntee':['Grüntee 600 ml',162,0.33,'tee','Flasche'],'Getränke/Kaffee':['Dosenkaffee 185 g',145,0.33,'kaffee','Dose'],'Softdrinks':['Cola 500 ml',199,0.31,'cola','Flasche'],
  'Schokolade/Milch':['Schokoriegel',140,0.3,'suess','Stück'],'Süßwaren':['Schokostäbchen',140,0.3,'suess','Packung'],'Chips':['Chips 70 g',159,0.32,'chips','Tüte'],'Instant-Nudeln':['Cup-Nudeln',267,0.28,'nudeln','Becher'],'Probiotik':['Probiotik-Drink',150,0.27,'probiotik','Flasche'],
- 'Säfte':['Tomatensaft',150,0.27,'saft','Flasche'],'Milch/Eis':['Eis am Stiel',180,0.33,'eis','Stück'],'Brot':['Melonpan',298,0.3,'brot','Stück'],'Mayonnaise':['Mayo 130 g',300,0.3,'wuerz','Flasche'],'Würzmittel':['Tiefkühl-Gyoza',350,0.3,'tk','Packung'],
+ 'Säfte':['Tomatensaft',150,0.27,'saft','Flasche'],'Milch/Eis':['Eis am Stiel',180,0.33,'eis','Stück'],'Brot':['Melonpan',298,0.3,'brot','Stück'],'Mayonnaise':['Mayo 130 g',300,0.3,'wuerz','Flasche'],'Kiosk-Großhandel':['Manga-Wochenheft',300,0.22,'manga','Heft'],'Würzsauce':['Würzsauce',300,0.3,'wuerz','Flasche'],
  'Fleisch':['Würstchen',300,0.3,'fleisch','Packung'],'Curry':['Curry-Retorte',300,0.3,'wuerz','Packung'],'Sojasauce':['Sojasauce klein',300,0.3,'wuerz','Flasche'],'Tiefkühl':['Tiefkühl-Gyoza',350,0.3,'tk','Packung'],'Hygiene':['Reise-Set',400,0.33,'hygiene','Set'],
  'Kosmetik':['Pflege-Reiseset',400,0.33,'kosmetik','Set'],'Verlag':['Wochen-Manga',350,0.22,'manga','Heft'],'Spielzeug':['Ichiban-Kuji',790,0.24,'kuji','Los'],'Spiele':['Prepaid-Karte 3.000',3000,0.03,'prepaid','Karte'],
- 'Batterien':['AA-Batterien 4er',400,0.45,'alltag','Packung'],'Elektronik':['Prepaid-Karte 3.000',3000,0.03,'prepaid','Karte'],'Mode':['Socken',990,0.34,'mode','Paar'],'Alltagswaren':['Schreibwaren',449,0.35,'alltag','Stück'],'Discounter':['Alltagswaren',449,0.35,'alltag','Stück']};
+ 'Elektronik':['Prepaid-Karte 3.000',3000,0.03,'prepaid','Karte'],'Mode':['Socken',990,0.34,'mode','Paar'],'Alltagswaren':['Schreibwaren',449,0.35,'alltag','Stück'],'Discounter':['Alltagswaren',449,0.35,'alltag','Stück']};
 // Marken-Messe (Yuki: messe-marken-blatt): 10 ausländische Marken, jedes Jahr im April, Verträge 1 oder 2 Jahre, enden immer am 30.4. (Erik 21.10.2026: ohne Lücke)
 // art: direkt = fester Preis + Einmalzahlung; bieten = Bietverfahren gegen die Konkurrenz. VK aus Yukis Mockups/Annahme; Marge auf Netto-VK (Bob: Gletscherquell 33 %, Sorairo Cola 31 %; Rest Annahme)
 // Vertragsende und Messe-Termin (entschieden von Erik: Ende 30.4., Messe bleibt April). Regel im Code: ein Vertrag endet nie,
@@ -41,12 +41,16 @@ export const BIETEN_ANTEIL={eight:.9,lawsun:.8,familia:.7,standard:.75};
 export const BANKEN=[{id:'mitsu-kame-bank',jahre:10,aufschlag:3.25,mult:6},{id:'futatsuboshi-bank',jahre:5,aufschlag:2.75,mult:4},{id:'kome-kura-bank',jahre:3,aufschlag:4.0,mult:3}];
 export const CF_REGEL=1.5;
 // Beteiligungs-Stufen (Bob ③-a)
-export const ANTEIL_STUFEN=[{p:.001,t:'„Partner“: −2 % Einkauf, 1 Aktions-Display pro Laden'},{p:.005,t:'−5 % Einkauf, Neuheiten 4 Wochen früher'},{p:.01,t:'−7 % Einkauf, Marken-Aktion −50 % (1×/Quartal)'},{p:.05,t:'−10 % Einkauf'},{p:.1,t:'Exklusiv: die Konkurrenz verliert die Marke'}];
+// V6 (Whitebeard f0a9f12, Erik: was das Spiel verspricht, muss wirken): Anteils-Stufen wirken echt.
+// ek = Einkaufsrabatt auf die Produkte DIESER Firma (Werte aus der bisherigen Anzeige −2/−5/−7/−10 %); weitere Versprechen (Display, Neuheiten, Exklusiv) ohne Mechanik → entfernt.
+export const ANTEIL_STUFEN=[{p:.001,ek:.02},{p:.005,ek:.05},{p:.01,ek:.07},{p:.05,ek:.10},{p:.1,ek:.10}];
+// Banken: Kreditzins-Abschlag in Prozentpunkten und Kreditrahmen-Faktor je Stufe (Werte aus der bisherigen Anzeige); gilt für Kredite, die ab dieser Stufe abgeschlossen werden
+export const BANK_STUFEN=[{zins:.25,rahmen:1},{zins:.25,rahmen:1},{zins:.5,rahmen:1},{zins:1,rahmen:1.25},{zins:1,rahmen:1.25}];
 // Konkurrenz (Bob ③-c)
 export const KONKURRENZ=[{c:'eight'},{c:'lawsun'},{c:'familia'},{c:'asayake'},{c:'tsubame'},{c:'minihalt'},{c:'zabu'}];// alle privat bis zum eigenen Börsengang (Erik 20:16)
 export const IPO={umsatz:10e9,filialen:50,gewinnJahre:2,kgv:15,gebuehr:.05,dividende:.3,minFilialen:.5,streu:[10,49]};
 // Verbrauchsteuer (PREISE.md): Lebensmittel/Getränke ohne Alkohol 8 % (während der Steuersenkung 1 %), alles andere 10 %. Margen immer auf Netto-VK.
-export const STEUER10=new Set(['bier','hygiene','kosmetik','manga','kuji','prepaid','mode','alltag']);
+export const STEUER10=new Set(['bier','hygiene','kosmetik','manga','kuji','prepaid','mode','alltag','chuhai','technik','batterie','schirm']);
 
 // Messe-Laufzeiten in Wochen (Bob 21.10.): Neuabschluss gilt ab Abschluss Mitte April, Verlängerung nahtlos ab 1.5.
 export const MESSE_WOCHEN={neu:{1:54,2:106},verl:{1:52,2:104}};

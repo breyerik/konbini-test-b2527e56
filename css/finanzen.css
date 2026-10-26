@@ -8,7 +8,7 @@ body.fzopen #fz{display:block}
 #fz .p{color:#5DD07A}#fz .n{color:#FF6B6B}#fz .y{color:#FFC93C}
 #fz .big{font-size:21px;font-weight:900;display:block}#fz .huge{font-size:34px;font-weight:900;display:block}
 .fzhead{display:flex;align-items:center;gap:10px;margin-bottom:12px}.fzhead b{font-size:19px;font-weight:900;display:block}.fzhead .r b{font-size:20px}.fzhead .logo{width:44px;height:44px}
-.fzx{width:30px;height:30px;font-size:16px;font-weight:900;background:#2A2756!important;text-align:center!important}
+.fzx{width:44px;height:44px;min-width:44px;font-size:16px;font-weight:900;background:#2A2756!important;text-align:center!important}
 .fztabs{display:grid;grid-template-columns:repeat(4,1fr);background:#22204A;padding:4px;gap:4px;margin-bottom:12px}
 .fztabs button{padding:10px 2px!important;font-weight:800;font-size:12.5px;text-align:center!important;white-space:nowrap}
 .fztabs button.on{background:#FFFFFF!important;color:#14122E!important}
@@ -121,7 +121,7 @@ body.fzopen #fz{display:block}
 #fz .bul{display:flex!important;gap:8px;align-items:center}#fz .bul>small{flex:1}#fz button.bul{color:inherit;font:inherit;text-align:left}
 #fz .fzbtn.gr{background:#2E5E44!important;color:#BFF2CF;border:1px solid #5DBB73}
 #fz .buauf .fzc.on small{color:#2B2D42}
-body.fzopen #toast{top:calc(env(safe-area-inset-top) + 118px)}/* Toast unter den Tabs, verdeckt den Kopf nicht */
+body.fzopen #toast{top:calc(env(safe-area-inset-top) + 118px);bottom:auto;height:auto}/* Toast unter den Tabs, verdeckt den Kopf nicht */
 #fz .fzfirm.row5>div:nth-child(2) b,#fz .fzfirm.row5>div:nth-child(2) small{white-space:normal!important;overflow:visible;text-overflow:clip;line-height:1.2}#fz .fzfirm.row5 .k b,#fz .fzfirm.row5 .k small{white-space:nowrap!important;overflow:visible!important}
 #fz .fzkbtn{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap}
 body.fzopen #toast:not(.show){opacity:0;pointer-events:none}
