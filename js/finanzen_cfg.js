@@ -89,14 +89,14 @@ export const RIVAL_PLEITE={wochen:13,dispo:0};
 export const INSOLVENZ={aktiv:true,frist:4,bieterWochen:2,runden:3,mindestQuote:.3,wertQuote:.6,schritt:.1,rivalSpanne:[.7,1.1],reserve:5e6,grenze:0,hart:1.5e7,notkredit:10e6,notZins:.08,stadtWochen:52,liquidQuote:.4,sperrWochen:26,cfRegel:1.5};/* Bob 23.10.: Insolvenz erst bei Kasse < −¥5 Mio UND 13 Verlustwochen, vorher einmal Notkredit ¥10 Mio zu 8 %; spätestens bei −¥30 Mio (Whitebeard); max. 1 Insolvenz je Stadt und Jahr, Wartende frieren Verluste ein; ohne Bieter Liquidation zu 40 % Buchwert, Standorte 26 Wo. gesperrt */// Pleite: 13 Wochen in Folge Kasse im Minus UND Verlust im 13-Wochen-Schnitt
 // Krisen (schlechte Phasen: Baustelle, Skandal, Fehlplanung): Chance/Woche, Dauer in Wochen, Marge je Laden in der Krise; schwache Ketten (Umsatzniveau < 1) trifft es härter
 export const RIVAL_KRISE={chance:.006,chanceSchwach:.006,dauer:[20,52],marge:-.04,schwach:-.07,abWoche:52};
-export const RIVAL_EXPANSION={abstand:13};// höchstens 1 neuer Laden pro Quartal
+export const RIVAL_EXPANSION={abstand:6};// V7 (Erik 29.10., R49): Mindestabstand aller Ketten 6 Wochen, sonst gilt der Profil-Abstand (vorher 13)
 export const RIVAL_STREU={min:.8,max:1.2,woche:.12};// Umsatzniveau je Kette 80–120 %, ±6 %/Woche
 // Rivalen-Profile (Erik 23.10.): je Spiel zufällig – genau 1–2 stark, 1–2 schwach, Rest solide. Startbedingungen bleiben gleich.
 // wachstum = Chance/Woche auf einen Laden, abstand = Mindestwochen zwischen Eröffnungen, umsatz/marge = Niveau, krise = Faktor auf RIVAL_KRISE.chance
 export const RIVAL_PROFIL={
- stark:{name:'Aggressiv',wachstum:.3,abstand:13,umsatz:1.12,marge:.01,krise:1.5},
- solide:{name:'Solide',wachstum:.12,abstand:20,umsatz:1,marge:0,krise:.6},
- schwach:{name:'Wackelig',wachstum:.05,abstand:39,umsatz:.88,marge:-.015,krise:3},
+ stark:{name:'Aggressiv',wachstum:.3,abstand:8,umsatz:1.12,marge:.01,krise:1.5},
+ solide:{name:'Solide',wachstum:.15,abstand:12,umsatz:1,marge:0,krise:.6},
+ schwach:{name:'Wackelig',wachstum:.08,abstand:20,umsatz:.88,marge:-.015,krise:3},
  streu:.06,            // zusätzlich ±6 % Umsatzniveau je Kette und Spiel
  wechselWochen:78,wechselChance:.7,fuehrerFall:.5,minWackelig:2};// fuehrerFall: Marktführer (meiste Läden) fällt beim Wechsel mit 40 % auf Wackelig (Whitebeard 23.10.)// alle 3 Spieljahre: mit 60 % strauchelt ein Starker (→ solide) und ein Wackeliger steigt auf (→ stark)
 // Rivalen-Ereignisse (Whitebeard 23.10.): je Kette und Woche kleine Chance; wirkt einige Wochen auf Umsatz (→ Gewinn/Firmenwert) und Wachstum; einmalige Kobo-Meldung
@@ -106,7 +106,9 @@ export const RIVAL_EVENT={chance:.006,abWoche:26,typen:[
  {id:'management',gewicht:1,wochen:[20,40],umsatz:.92,wachstum:0,text:'🐾 Kobo: Managementwechsel bei <b>{k}</b>. Die neue Chefin räumt erst einmal auf – keine neuen Läden.'},
  {id:'erfolg',gewicht:1,wochen:[26,52],umsatz:1.2,wachstum:2.5,abstand:.4,text:'🐾 Kobo: <b>{k}</b> landet einen Hit mit einem neuen Erfolgsprodukt – volle Läden, schnelle Expansion!'}]};
 export const RIVAL_WACHSTUM={eight:.25,lawsun:.15,familia:.14,asayake:.12,tsubame:.11,minihalt:.08};// Chance/Woche, einen Laden zu eröffnen (wenn Geld/Kredit reicht)
-export const RIVAL_KARTE={anteil:.6,freiLassen:1};// so viele neue Läden landen auf der aktuellen Karte, der Rest in anderen Städten (zählt mit)
+export const RIVAL_STARTLAEDEN={min:1,max:2};
+export const RIVAL_AUFBAU={wochen:52,min:3,max:6,bis:.8};// V7 (R49): im ersten Jahr höchstens 6 Läden, Mindestpfad bis 3 Läden (erreicht nach 80 % des Jahres)// V7 (Erik 29.10., R49): jede Kette startet mit 1–2 Läden in der Heimatstadt (kostenlos)
+export const RIVAL_KARTE={anteil:.8,freiLassen:1};// V7: 80 % (vorher 60 %) – // so viele neue Läden landen auf der aktuellen Karte, der Rest in anderen Städten (zählt mit)
 
 // Rivalen expandieren über Städte (Erik 23:17): ab ~4 Läden in der Heimatstadt eröffnen Ketten auch in anderen Städten, gewichtet nach Größe und Nähe; Geld/Kredit-Regeln wie immer
 export const RIVAL_STAEDTE={heimat:{eight:'tokio',lawsun:'tokio',familia:'yokohama',minihalt:'yokohama',asayake:'osaka',tsubame:'nagoya'},abLaeden:4,heimGewicht:2.5,kmSkala:150,

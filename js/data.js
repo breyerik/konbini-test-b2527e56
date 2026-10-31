@@ -296,8 +296,8 @@ export const AREAS={shinjuku:['Nishi-Shinjuku','Shinjuku','Kabukichō','Yoyogi']
 export const TIERS={
  top:{id:'top',csv:'Top',label:'Top-Lage',color:'#FFC93C',rentM:1485000,depM:6,pass:59500,badge:'lage-top',names:['marunouchi','tokyo','shinjuku','shibuya']},
  city:{id:'city',csv:'City',label:'City-Lage',color:'#3D7BD9',rentM:1348440,depM:6,pass:52500,badge:'lage-city',names:['roppongi','asakusa','ikebukuro']},
- wohn:{id:'wohn',csv:'Wohngebiet',label:'Wohngebiet',color:'#5DBB73',rentM:1167440,depM:6,pass:47600,badge:'lage-wohngebiet',names:['setagaya','hong','hongo']},
- rand:{id:'rand',csv:'Stadtrand',label:'Stadtrand',color:'#9AD8EE',rentM:739440,depM:6,pass:42000,badge:'lage-stadtrand',names:['hach','tama']},
+ wohn:{id:'wohn',csv:'Wohngebiet',label:'Wohngebiet',color:'#5DBB73',rentM:1167440,depM:6,pass:41000,badge:'lage-wohngebiet',names:['setagaya','hong','hongo']},
+ rand:{id:'rand',csv:'Stadtrand',label:'Stadtrand',color:'#9AD8EE',rentM:739440,depM:6,pass:33000,badge:'lage-stadtrand',names:['hach','tama']},
 };
 export const TIER_ORDER=['top','city','wohn','rand'];
 const DIST_TIER={};

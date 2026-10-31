@@ -127,11 +127,13 @@ export function switchCity(s){const c=CITY.id;if(s.city===c)return s;s.away=s.aw
  if(b){s.stores=b.stores;s.priceActs=b.priceActs||{};s.evMods=b.evMods||[];s.campaigns=b.campaigns||[];s.planRev=b.planRev||PLAN_REV;}
  else{s.stores=[];s.priceActs={};s.evMods=[];s.campaigns=[];s.planRev=PLAN_REV;placeStartRivals(s);s.cityFrom=s.cityFrom||{};s.cityFrom[c]=s.week;}
  s.city=c;s.lastReport=null;return s;}
-export const awayStores=s=>Object.entries(s.away||{}).map(([c,a])=>({city:c,n:a.stores.filter(x=>x.chain==='player').length,op:a.op||0}));
+export const awayStores=s=>Object.entries(s.away||{}).map(([c,a])=>({city:c,n:(a.stores||[]).filter(x=>x.chain==='player').length,op:a.op||0}));
+export const WEITERE='weitere';// V7: übernommene Läden ohne Kartenplatz (andere Städte) – echte Ladenobjekte, laufen wie andere Städte (Schätzung), R47
 // Stadtwechsel-Marker
 export const rivalFinanz={on:false};
 export const rivalNur={};// Kette → erlaubte Viertel-Typen (Tsubame Eki nur Bahnhöfe)
 export const weekHooks=[];
+export const preWeekHooks=[];// V7: vor der Ladensimulation (Übernahme-Abschluss → neue Läden laufen schon in dieser Woche, R48)
 export const preTaxHooks=[];// V6: Buchungen vor der Steuer (Zinsen, Privatgehalt, Büro, Dividendenerträge)
 export const mine=()=>state.stores.filter(s=>s.chain==='player');
 export const inD=id=>state.stores.filter(s=>s.d===id);
@@ -152,6 +154,9 @@ export const chainName=c=>c==='player'?state.logo.name:CHAINS[c].name;
 export function freeSlots(did){const used=new Set(inD(did).map(s=>s.slot));return Array.from({length:DMAP[did].slots},(_,i)=>i).filter(i=>!used.has(i)&&slotOpen(did,i,state.week)&&!((state.fz&&state.fz.sperre)||[]).some(x=>x.d===did&&x.slot===i&&x.bis>state.week));}// Liquidation: Standort 26 Wo. gesperrt
 export const openCount=()=>unlockedCount(state.week);
 export const freeTotal=()=>sum(DISTRICTS.map(d=>freeSlots(d.id).length));
+export {TIERS,defaultBuild};// V7: für finanzen.js (Rivalen-Umsatz je Lage, Übernahme)
+// V7 (R47): bester freier Kartenplatz für einen übernommenen Laden – viele Passanten, möglichst weit weg von eigenen Läden (kShare)
+export function freierPlatz(){let best=null;for(const d of DISTRICTS)for(const i of freeSlots(d.id)){const tmp={d:d.id,slot:i,chain:'player'},tr=tierOf(d.id,i),sc=TIERS[tr].pass*kShare(tmp);if(!best||sc>best.sc)best={d:d.id,i,tier:tr,sc};}return best;}
 export function storeLabel(s){const dm=AWAY?(AWAY.dist||{})[s.d]:DMAP[s.d];return (s.name||`${(dm||{}).name||s.dname||s.d} #${s.no||1}`)+(AWAY?` (${AWAY.cn})`:'');}
 let AWAY=null;// gerade simulierte andere Stadt (awayWeek)
 export const openCostParts=(did,i,b)=>{const si=siteInfo(did,i);return {bau:buildCost(b),deposit:si.deposit,ware:STOCK_INIT};};
@@ -292,8 +297,8 @@ function runStore(s,d,ev,custExp,cust,events){
  const gross=rev-cogs;
  const res={id:s.id,d:d.id,cust:served,demand:cust,queue,cap:fx.cap,rev,cogs,gross,stockout:0,...co,cats};if(prod)res.prod=prod;
  res.op=gross-co.wages-co.salary-co.rent-co.mkt-co.admin-co.svcFixed-co.power+co.fees-co.dep-co.assetTax;
- res.net=res.op;return res;
-}
+ res.net=res.op;res.minus=res.op<0;return res;
+}// V7 R44: Umsatz > 0, Ergebnis darf negativ sein → res.minus = Warnung in Filialliste/Ladenblatt/Wochenbericht
 const YOUNG=['uni','nightlife','shopping','tourist'];// Social Media: junge Kundschaft (Uni-/Ausgeh-/Shopping-Viertel)
 // V6 Einzelprodukte (Erik 25.10. 15:49): jedes Zusatzprodukt hat eigenen Absatz = Kunden × Kaufquote × Saison, ohne Pflichtgerät 0 („wartet auf Gerät“).
 // Kannibalisierung (ERSATZ_RUECK, Annahme, Bob prüft): ein Teil des Produktumsatzes ersetzt Startware – in einer offenen Gruppe 40 %,
@@ -327,7 +332,7 @@ const allMineHere=()=>mine();
 // (ab V6 gespeichert) echte Simulation wie in der aktuellen Stadt; alte Spielstände ohne Schnappschuss: letztes Ergebnis ± 3 %.
 function awayWeek(rep,ev,T,cust){const lines=[],res=[];if(!state.away)return {lines,res};
  const keep={stores:state.stores,priceActs:state.priceActs,evMods:state.evMods,campaigns:state.campaigns};
- for(const [c,a] of Object.entries(state.away)){const cn=(CITIES[c]||{name:c}).name,my=(a.stores||[]).filter(x=>x.chain==='player');
+ for(const [c,a] of Object.entries(state.away)){const cn=(CITIES[c]||{name:c===WEITERE?'Weitere Städte':c}).name,my=(a.stores||[]).filter(x=>x.chain==='player');
   const line={city:c,name:cn,n:my.length,rev:0,op:0,opened:[]},saved={},nr=rep.ready.length;
   AWAY={...a,cn};state.stores=a.stores||[];state.priceActs=a.priceActs||{};state.evMods=a.evMods||[];state.campaigns=a.campaigns||[];
   try{if(a.dist)for(const id in a.dist){saved[id]=DMAP[id];DMAP[id]=a.dist[id];}
@@ -336,7 +341,7 @@ function awayWeek(rep,ev,T,cust){const lines=[],res=[];if(!state.away)return {li
     if(dd){const ce=custFor(s,dd,ev),cu=ce*rnd(.96,1.04);r=runStore(s,dd,ev,ce,cu,rep.events);s.bh=rateStore(s,r);r.ghosts=s.bh.overall;}
     else{const L=s.last&&!s.last.building?s.last:null,f=rnd(.97,1.03);r=L?{...L,cats:{...L.cats}}:{id:s.id,d:s.d,cust:0,rev:0,cogs:0,gross:0,op:0,cats:{}};
      if(L){for(const k of ['cust','rev','cogs','gross','fees'])r[k]=(L[k]||0)*f;for(const k in r.cats)r.cats[k]*=f;r.op=L.op+(f-1)*((L.gross||0)+(L.fees||0));}r.geschaetzt=true;}
-    r.away=c;r.net=r.op;s.prev=s.last;s.last=r;res.push(r);kdjAdd('player',s.bh?s.bh.overall:3);if(s.mgr)managerWeek(s,r,rep.events);campTick(s,rep);}
+    r.away=c;r.net=r.op;r.minus=r.op<0;s.prev=s.last;s.last=r;res.push(r);kdjAdd('player',s.bh?s.bh.overall:3);if(s.mgr)managerWeek(s,r,rep.events);campTick(s,rep);}
    if(a.dist)for(const x of state.stores)if(x.chain!=='player'&&!x.build&&kdjAktiv(x.chain)){x.bhG=x.bhG||Math.round(clamp((KDJ.rivalBh[x.chain]||3.3)+rnd(-.35,.35),1,5)*10)/10;kdjAdd(x.chain,x.bhG);}// Awards: alle Läden aller Städte
   }finally{for(const id in saved){if(saved[id])DMAP[id]=saved[id];else delete DMAP[id];}AWAY=null;}
   a.stores=state.stores;a.priceActs=state.priceActs;a.evMods=state.evMods;a.campaigns=state.campaigns;
@@ -356,7 +361,7 @@ function custFor(s,d,ev){
  const avgpx=sum(CATS.map(k=>(s.cfg.px&&s.cfg.px[k.id])||1))/CATS.length;
  const offered=CATS.filter(k=>s.cfg.cats[k.id]&&SOK(s,k.id)&&!(k.id==='coffee'&&s.b.coffee<0)&&!(k.id==='oden'&&s.b.oden<0));
  const tot=sum(CATS.map(k=>k.p*k.price*d.w[k.id])),off=sum(offered.map(k=>k.p*k.price*d.w[k.id]))+sum(CATS.filter(k=>s.cfg.cats[k.id]&&!SOK(s,k.id)).map(k=>k.p*k.price*d.w[k.id]*(SO.K.ERSATZ_ART==='kunden'?SO.K.ERSATZ:SO.K.KUNDEN_SANFT)));
- let a=si.pass*CONV*ghostMul(s.bh?s.bh.overall:3)*brand('player')*(ev.tm[d.type]||1)*(ev.tm.all||1)*(1-lossTotal(s))*evMul(s)*ramp*camp*(1+sb*d.svc)*(1+fx.attr)*m.sf/.94;
+ let a=si.pass*CONV*ghostMul(s.bh?s.bh.overall:3)*brand('player')*(ev.tm[d.type]||1)*(ev.tm.all||1)*(1-lossTotal(s))*kShare(s)*evMul(s)*ramp*camp*(1+sb*d.svc)*(1+fx.attr)*m.sf/.94;
  a*=Math.max(.5,1-(avgpx-1)*1.2*d.ps);a*=.5+.5*(off/tot);
  if(s.chain==='player'&&SO.K.ON){const n=SO.produkte(state).filter(p=>SO.devOk(s,p.dev)).length,PK=SO.K.PRODUKT_KUNDEN;a*=1+Math.min(PK.max,PK.je*n);}// V6: jedes verkaufte Zusatzprodukt bringt ein paar zusätzliche Kunden (Annahme, Bob prüft)
  return a;
@@ -365,14 +370,23 @@ function custFor(s,d,ev){
 export const slotPos=(d,i)=>{const sh=PLAN_SLOTS[d]&&PLAN_SLOTS[d][i];return sh?{x:sh.x,z:sh.z}:null;};
 export const storeDist=(a,b)=>{const p=AWAY?a.pos:slotPos(a.d,a.slot),q=AWAY?b.pos:slotPos(b.d,b.slot);return p&&q?Math.hypot(p.x-q.x,p.z-q.z)/FELD:99;};// in Feldern
 export function nearRivals(s){return state.stores.filter(x=>x.chain!=='player'&&storeDist(s,x)<=RIVAL_RULES.nahFelder);}
-// Bob V4: Kannibalisierung eigener Läden nach Abstand (je Laden ≤4 F .15, ≤10 F .08, ≤30 F .04, max .25)
-export const KANNIB={stufen:[[4,.15],[10,.08],[30,.04]],max:.25,gesamtMax:.30,bezirk:.08};// V6 (Bob 25.10.): je eigenem Laden im Bezirk mind. 8 %, eigene zusammen höchstens 25 %, mit Rivalen höchstens 30 % (R34)
+// Bob V4: Kannibalisierung nach Abstand – V7 nur noch für die Standortwahl der Rivalen (rivalOpen: kannibMax/mehrUmsatzMin)
+export const KANNIB={stufen:[[4,.15],[10,.08],[30,.04]],max:.25,gesamtMax:.30,bezirk:.08};
 export function kannib(s,list){let l=0;for(const o of list){if(o===s||o.build)continue;const dd=storeDist(s,o);const st=KANNIB.stufen.find(x=>dd<=x[0]);let v=st?st[1]:0;if(o.d===s.d)v=Math.max(v,KANNIB.bezirk);l+=v;}return Math.min(KANNIB.max,l);}
-export const ownLoss=s=>kannib(s,mine());
-export const lossTotal=s=>Math.min(KANNIB.gesamtMax,rivalLoss(s)+ownLoss(s));// Rivalen + eigene zusammen höchstens 30 %
+// V7 (Erik 29.10., R45): Kundenanteil je eigenem Laden k_i = 1/(1+Σ_j 0,8·max(0,1−d_ij/30)), d in Feldern
+// → gleiche Ecke 2×0,556 = 1,11×, 14,5 F ≈ 1,42×, ab 30 F kein Abzug (2,0×)
+export const TEILEN={gewicht:.8,felder:30};
+export function kShare(s,list){let x=0;for(const o of (list||mine())){if(o===s||o.build||o.chain!=='player')continue;const dd=storeDist(s,o);x+=TEILEN.gewicht*Math.max(0,1-dd/TEILEN.felder);}return 1/(1+x);}
+export const ownLoss=s=>1-kShare(s);// Anteil, den eigene Nachbarn abziehen (Anzeige/Tests)
+export const lossTotal=s=>rivalLoss(s);// V7: eigene Läden über kShare (multiplikativ), Rivalen über rivalLoss (Deckel verlustMax)
+// V7 (R46): Konkurrenz in beide Richtungen – gleiche Abstandsformel: je fremdem Laden ≤ 5 F (nahFelder) −20 %, ≤ 10 F −8 %, sonst im Bezirk −3 %, zusammen höchstens 30 %
 export function rivalLoss(s){const R=RIVAL_RULES;let l=0,nearUsed=false;const act=state.priceActs||{};
- for(const x of state.stores){if(x.chain==='player')continue;const dd=storeDist(s,x),near=dd<=R.nahFelder;
+ for(const x of state.stores){if(x.chain==='player'||x.build)continue;const dd=storeDist(s,x),near=dd<=R.nahFelder;
   if(near&&!(R.nahMaxEinmal&&nearUsed)){nearUsed=true;l+=(state.week-(x.opened||0)<R.verlustNahWochen?R.verlustNahNeu:R.verlustNah)+(act[x.chain]>0?R.aktionVerlust:0);}else if(dd<=R.umfeldFelder)l+=R.verlustUmfeld+(act[x.chain]>0?R.aktionVerlust/2:0);else if(x.d===s.d)l+=R.verlustBezirk;}
+ return Math.min(R.verlustMax,l);}
+// Gegenrichtung: Rivalen-Kartenladen verliert durch nahe Spieler-Läden (gleiche Stufen, ohne Aktionsaufschlag)
+export function spielerLoss(x){const R=RIVAL_RULES;let l=0,nearUsed=false;for(const s of state.stores){if(s.chain!=='player'||s.build)continue;const dd=storeDist(x,s);
+  if(dd<=R.nahFelder&&!(R.nahMaxEinmal&&nearUsed)){nearUsed=true;l+=R.verlustNah;}else if(dd<=R.umfeldFelder)l+=R.verlustUmfeld;else if(s.d===x.d)l+=R.verlustBezirk;}
  return Math.min(R.verlustMax,l);}
 const evHit=(e,s)=>e.ziel==='alle'||(e.ziel==='laden'&&e.sid===s.id)||(e.ziel==='stadtteil'&&e.d===s.d);
 export function evSum(s,k,def){let m=def;for(const e of state.evMods||[]){if(e.left<=0||e[k]==null||!evHit(e,s))continue;m=k==='marge'||k==='cashWk'?m+e[k]:m*e[k];}return m;}
@@ -383,6 +397,7 @@ export function endWeek(){
  const rep={week:w,date:dateLabel(weekDate(w)),ev:{label:ev.label,emoji:ev.emoji,desc:ev.desc},stores:[],news:[],tips:[],events:[],share:{},milestones:[],opened:[],closed:[],ready:[],paper:[]};
  const cust={player:0};RIVALS.forEach(c=>cust[c]=0);
  devHinweise(rep);
+ for(const f of preWeekHooks)f(state,rep);// V7: z. B. Übernahme-Abschluss vor der Simulation
  // offene Entscheidung der Woche: wer nichts wählt, bekommt Option B (wirkt noch in dieser Woche)
  if(state.event&&!state.event.done&&state.event.w<=w)chooseEvent('b',rep.events);
  for(const e of state.evMods||[]){const t=eventText(e.id);if(t&&e.cust!=null)rep.events.push(`🗳️ Folge deiner Entscheidung („${t.text.replace(/\{\w+\}/g,'…').slice(0,48)}“): Kunden ${e.cust>=1?'+':'−'}${Math.round(Math.abs(e.cust-1)*100)} %${e.left>1?` (noch ${e.left-1} Wo.)`:''}`);}
@@ -400,7 +415,7 @@ export function endWeek(){
     s.bh=rateStore(s,r);r.ghosts=s.bh.overall;kdjAdd('player',s.bh.overall);managerWeek(s,r,rep.events);
     campTick(s,rep);for(const k in r.cats)T[GROUP[k]]+=r.cats[k];
    }else{
-    const n=ds.length,cu0=TIERS[s.tier||tierOf(s.d,s.slot)].pass*CONV*CHAINS[s.chain].brand*rnd(.9,1.1)/(1+.1*(n-1)),xq=exklRivalQuote(s.d),cu=cu0*(1-xq);s.lastCustRaw=cu0;s.lastCust=cu;cust[s.chain]+=cu;if(xq>0){rep.exkl=rep.exkl||{rivalVerlust:0};rep.exkl.rivalVerlust+=cu0-cu;}
+    const n=ds.length,sl=spielerLoss(s),cu0=TIERS[s.tier||tierOf(s.d,s.slot)].pass*CONV*CHAINS[s.chain].brand*rnd(.9,1.1)/(1+.1*(n-1))*(1-sl),xq=exklRivalQuote(s.d),cu=cu0*(1-xq);s.lastCustRaw=cu0;s.lastCust=cu;s.lastLoss=sl;cust[s.chain]+=cu;if(xq>0){rep.exkl=rep.exkl||{rivalVerlust:0};rep.exkl.rivalVerlust+=cu0-cu;}
     s.bhG=Math.round(clamp((KDJ.rivalBh[s.chain]||3.3)+rnd(-.35,.35),1,5)*10)/10;kdjAdd(s.chain,s.bhG);
    }
   }
@@ -656,7 +671,7 @@ export function eventView(e=state.event){if(!e)return null;const t=eventText(e.i
   if(x.rep)p.push(`Ruf ${x.rep>0?'+':''}${x.rep}`);if(x.bh)p.push('BuuHuu '+(Object.values(x.bh).reduce((a,b)=>a+b,0)>0?'besser':'schlechter'));if(x.morale)p.push(`Laune ${x.morale>0?'+':''}${x.morale}`);if(x.salary)p.push(`Gehalt +${Math.round((x.salary-1)*100)} %`);if(x.quit)p.push('Filialleitung geht');return p.join(' · ')||'keine Kosten';};
  return {id:e.id,figur:t.figur||'kobo',text:fill(t.text,o),a:fill(t.option_a,o),b:fill(t.option_b,o),effA:eff('a'),effB:eff('b'),ziel:EVENTS[e.id].ziel,laden:o.laden,done:e.done,hint:EVENTS[e.id].bed==='rival'?rivalHint():''};}
 // Hinweis auf der Event-Karte: Rivalen-Abzug läuft unabhängig von der Wahl (Zahlen aus RIVAL_RULES)
-export function rivalHint(){const R=RIVAL_RULES,p=x=>Math.round(x*100);const c=x=>p(Math.min(R.verlustMax,x));return `Konkurrenz kostet −${c(R.verlustNahNeu)} % (${R.verlustNahWochen} Wo.), dann −${c(R.verlustNah)} %`;}
+export function rivalHint(){const R=RIVAL_RULES,p=x=>Math.round(x*100);const c=x=>p(Math.min(R.verlustMax,x));return R.verlustNahNeu===R.verlustNah?`Konkurrenz ≤ ${R.nahFelder} Felder kostet −${c(R.verlustNah)} %, ≤ ${R.umfeldFelder} Felder −${c(R.verlustUmfeld)} % (beide Richtungen, zusammen max. ${p(R.verlustMax)} %)`:`Konkurrenz kostet −${c(R.verlustNahNeu)} % (${R.verlustNahWochen} Wo.), dann −${c(R.verlustNah)} %`;}
 const evCost=v=>Math.round(Math.min(-v,EVENT_RULES.maxSchaden,Math.max(0,state.cash*EVENT_RULES.maxKostenAnteil))/1000)*1000;
 export function chooseEvent(opt,log){const e=state.event;if(!e||e.done)return null;const E=EVENTS[e.id],x=E[opt]||{},s=state.stores.find(y=>y.id===e.sid),v=eventView(e);
  e.done=opt;state.lastEv=e.id;state.evSeen=state.evSeen||{};state.evSeen[e.id]=state.week;if(!s)return null;

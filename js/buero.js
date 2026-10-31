@@ -14,6 +14,10 @@ export function ensure(s){if(!s.buero)s.buero={office:null,kauf:false,seit:0,mie
 const mine=s=>H.allMine(s);
 export const verfuegbar=s=>ON&&mine(s).length>=B.AB_LAEDEN;
 const OF=id=>B.BUEROS.find(o=>o.id===id);
+// R51: ein fremdes Büro mieten/kaufen geht nur in seiner Stadt (Tokio). Das eigene Büro (Miete → Kauf) bleibt überall verwaltbar.
+export const hierMietbar=(s,o)=>!!o&&(s.city||'tokio')===(o.stadtId||'tokio');
+const erlaubt=(s,o)=>hierMietbar(s,o)||ensure(s).office===(o&&o.id);
+const nurTokio=o=>`<div class="fzc bul bunur">📍 <small>Das Büro gibt es nur in <b>${o.stadt}</b> (${o.viertel}). Mieten oder kaufen kannst du es, wenn du in ${o.stadt} bist.</small></div>`;
 const ST=id=>B.PERSONAL.find(p=>p.id===id);
 const EM=id=>B.EIGENMARKEN.find(e=>e.id===id);
 const netto=e=>e.vk/(1+e.steuer);
@@ -57,8 +61,9 @@ const kobo=t=>`<div class="fzkobo"><img src="grafik/maskottchen/kobo.svg" alt=""
 function pListe(s){const b=ensure(s);let h=`<div class="fzc bul">🏢 <b>Zentrale gesucht</b> · <small>Ohne Büro kein Personal (Produktentwickler, CFO, CMO)</small></div>`;
  for(const o of B.BUEROS)h+=`<div class="fzc buof"><div class="buoh"><span class="buimg">🏢</span><div class="grow"><b>${o.name}</b><small>${o.stadt} · ${o.viertel} · ${o.m2} m² · ${o.plaetze} Arbeitsplätze</small>${b.office===o.id?'<span class="fzpill g">✅ dein Büro</span>':`<span class="fzpill k">${o.tag}</span>`}</div></div>
   <div class="fzg2"><div class="fzc"><small>Mieten</small><b class="y">${H.fY(o.miete)}</b><small>/ Monat</small></div><div class="fzc"><small>Kaufen</small><b>${H.fY(o.kauf)}</b><small>einmalig</small></div></div>
-  <div class="fzg2">${btn('miete:'+o.id,'🔑 Mieten')}${btn('detail:'+o.id,'🏠 Kaufen','d')}</div></div>`;
- return h+kobo('Erst mieten, später kaufen geht auch!');}
+  ${hierMietbar(s,o)?`<div class="fzg2">${btn('miete:'+o.id,'🔑 Mieten')}${btn('detail:'+o.id,'🏠 Kaufen','d')}</div>`:nurTokio(o)}</div>`;
+ const o0=B.BUEROS[0];// Whitebeard 8efc3e2 (B1): Kobo rät nur dort zum Mieten, wo man mieten kann
+ return h+kobo(hierMietbar(s,o0)?'Erst mieten, später kaufen geht auch!':`Mieten kannst du das Büro in ${o0.stadt} – hier kümmern wir uns erst mal um die Läden!`);}
 function chart(o){const J=20,mx=Math.max(o.miete*12*J,o.kauf+B.KAUF.unterhalt*12*J),X=j=>20+j/J*300,Y=v=>170-v/mx*150;let m='',k='';for(let j=0;j<=J;j++){m+=`${j?'L':'M'}${X(j).toFixed(0)} ${Y(o.miete*12*j).toFixed(0)}`;k+=`${j?'L':'M'}${X(j).toFixed(0)} ${Y(o.kauf+B.KAUF.unterhalt*12*j).toFixed(0)}`;}
  const be=o.kauf/((o.miete-B.KAUF.unterhalt)*12);const bx=X(Math.min(J,be));
  return `<svg viewBox="0 0 330 200" class="buchart"><path d="M20 20V170H320" stroke="#4A4F7A" fill="none"/>${[0,5,10,15,20].map(j=>`<text x="${X(j)}" y="186" font-size="10" fill="#9C98C8" text-anchor="middle">${j} J.</text>`).join('')}<line x1="${bx}" y1="20" x2="${bx}" y2="170" stroke="#fff" stroke-dasharray="3 3" opacity=".6"/><text x="${bx+4}" y="30" font-size="10" fill="#fff">Kauf lohnt ab ≈ ${be.toFixed(1).replace('.',',')} J.</text><path d="${m}" stroke="#FFC93C" stroke-width="3" fill="none"/><path d="${k}" stroke="#5DBB73" stroke-width="3" fill="none"/></svg><small><span class="y">━ Miete</span> · <span class="p">━ Kauf + Unterhalt</span></small>`;}
@@ -67,7 +72,7 @@ function pDetail(s){const o=OF(V.id),b=ensure(s),kp=kaufPreis(s,o),anr=b.office=
  <div class="fzg2"><div class="fzc buy"><small>🔑 Mieten</small><b class="y">${H.fY(o.miete)}</b><small>pro Monat · ≈ ${H.fY(o.miete*12)} / Jahr · sofort einziehen · kündbar ${B.KAUF.kuendigungMonate} Mon.</small></div><div class="fzc bug"><small>🏠 Kaufen</small><b class="p">${H.fY(kp)}</b><small>einmalig + ${H.fY(B.KAUF.unterhalt)}/Monat Unterhalt · Wert bleibt (Wiederverkauf ≈ ${Math.round(B.KAUF.wiederverkauf*100)} %)</small></div></div>
  <div class="fzh">Gesamtkosten über die Jahre</div><div class="fzc">${chart(o)}</div>
  <div class="fzc buhint">🏦 <b>Später kaufen aus der Miete</b><br><small>Nach ${B.KAUF.anrechnungAbWochen/52} Jahren Miete kannst du das Büro kaufen. ${Math.round(B.KAUF.anrechnung*100)} % der gezahlten Miete werden angerechnet.${anr?` Bisher: ${H.fY(anr)} → Kaufpreis ${H.fY(kp)}`:''}</small></div>
- <div class="fzg2">${b.office===o.id&&!b.kauf?'<span></span>':btn('miete:'+o.id,'🔑 Mieten · '+H.fY(o.miete))}${b.office===o.id&&b.kauf?'<span></span>':btn('kauf:'+o.id,'🏠 Kaufen · '+H.fY(kp),'d')}</div>`;}
+ ${erlaubt(s,o)?`<div class="fzg2">${b.office===o.id&&!b.kauf||!hierMietbar(s,o)?'<span></span>':btn('miete:'+o.id,'🔑 Mieten · '+H.fY(o.miete))}${b.office===o.id&&b.kauf?'<span></span>':btn('kauf:'+o.id,'🏠 Kaufen · '+H.fY(kp),'d')}</div>`:nurTokio(o)}`;}
 function pPlan(s){const b=ensure(s),o=OF(b.office),n=Object.keys(b.staff).length,key=['cfo','cmo','pe'].map(k=>b.staff[k]?1:0).join('');
  return `<div class="fzc bul">🏢 <b>Büro ${o.viertel}</b><small>${b.kauf?'gekauft':'gemietet'}</small><span class="grow"></span><small class="y">${n}/${B.PERSONAL.length} besetzt</small></div>
  <div class="fzc buplan" data-act="fz" data-v="bu" data-x="tab:team">${H.planSvg(key)}</div>
@@ -112,8 +117,8 @@ function pPreise(s){const b=ensure(s);if(!b.staff.cmo)return `<div class="fzc">�
 export function render(){const s=S.state;let b;if(V.tab==='team')b=pTeam(s);else if(V.tab==='entw')b=pEntw(s);else if(V.tab==='preise')b=pPreise(s);else b=pBuero(s);return head(s)+`<div class="fzbody">${b}</div>`;}
 export function act(x){const s=S.state,b=ensure(s),i=x.indexOf(':'),k=i<0?x:x.slice(0,i),v=i<0?undefined:x.slice(i+1);
  switch(k){case 'tab':V.tab=v;V.view=null;break;case 'liste':V.view=null;break;case 'detail':V.view='detail';V.id=v;break;
-  case 'miete':{if(!OF(v))break;if(b.office&&b.office!==v){H.toast('Erst aus dem alten Büro ausziehen');break;}b.office=v;b.kauf=false;b.seit=s.week;b.mieteBezahlt=b.mieteBezahlt||0;V.view=null;H.toast('🔑 '+OF(v).name+' gemietet');break;}
-  case 'kauf':{const o=OF(v);if(!o)break;const p=kaufPreis(s,o);if(s.cash<p){H.toast('Nicht genug Geld');break;}if(b.office&&b.office!==v){H.toast('Erst aus dem alten Büro ausziehen');break;}s.cash-=p;b.office=v;b.kauf=true;b.wert=o.kauf;b.seit=s.week;V.view=null;H.toast('🏠 '+o.name+' gekauft');break;}
+  case 'miete':{if(!OF(v))break;if(!hierMietbar(s,OF(v))){H.toast('📍 Das Büro gibt es nur in '+OF(v).stadt);break;}if(b.office&&b.office!==v){H.toast('Erst aus dem alten Büro ausziehen');break;}b.office=v;b.kauf=false;b.seit=s.week;b.mieteBezahlt=b.mieteBezahlt||0;V.view=null;H.toast('🔑 '+OF(v).name+' gemietet');break;}
+  case 'kauf':{const o=OF(v);if(!o)break;if(!erlaubt(s,o)){H.toast('📍 Das Büro gibt es nur in '+o.stadt);break;}const p=kaufPreis(s,o);if(s.cash<p){H.toast('Nicht genug Geld');break;}if(b.office&&b.office!==v){H.toast('Erst aus dem alten Büro ausziehen');break;}s.cash-=p;b.office=v;b.kauf=true;b.wert=o.kauf;b.seit=s.week;V.view=null;H.toast('🏠 '+o.name+' gekauft');break;}
   case 'auszug':if(b.kauf)s.cash+=b.wert*B.KAUF.wiederverkauf;Object.assign(b,{office:null,kauf:false,staff:{},cmo:false,mieteBezahlt:0});H.toast('🚪 Ausgezogen – Personal entlassen');break;
   case 'einst':b.staff[v]=s.week;H.toast('✅ '+ST(v).name+' eingestellt');break;
   case 'entl':delete b.staff[v];if(v==='cmo')b.cmo=false;break;
@@ -130,7 +135,7 @@ export function karte(s){if(!ON)return '';const n=mine(s).length,b=ensure(s);
 // V6 (Erik 25.10.): Büro ohne Kartenpin – Zugang über ☰ (Markt & Marke), Büro nur mit Stadtteilnamen, höchstens eins je Stadt
 export function menuKnopf(s){if(!ON)return '';const n=mine(s).length,b=ensure(s),o=b.office&&OF(b.office);
  if(n<B.AB_LAEDEN)return `<div class="card bumenu" style="margin-top:10px;font-weight:700;color:var(--mut)">🏢 Büro / Zentrale ab ${B.AB_LAEDEN} Läden (${n}/${B.AB_LAEDEN})</div>`;
- return `<button class="card bumenu" data-act="fzbuero" style="margin-top:10px;width:100%;text-align:left;min-height:44px">🏢 <b>Büro / Zentrale</b> <small style="color:var(--mut);font-weight:700">${o?esc2(o.stadt+' · '+o.viertel):'Büro mieten ›'}</small></button>`;}
+ return `<button class="card bumenu" data-act="fzbuero" style="margin-top:10px;width:100%;text-align:left;min-height:44px">🏢 <b>Büro / Zentrale</b> <small style="color:var(--mut);font-weight:700">${o?esc2(o.stadt+' · '+o.viertel):hierMietbar(s,B.BUEROS[0])?'Büro mieten ›':'nur in '+esc2(B.BUEROS[0].stadt)+' ›'}</small></button>`;}
 const esc2=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
-export const _t={erinnerungen,kostenWoche,mehrWoche:(s,id)=>mehrWoche(s,EM(id)),amort:(s,id)=>amort(s,EM(id)),V};
+export const _t={hierMietbar,erinnerungen,kostenWoche,mehrWoche:(s,id)=>mehrWoche(s,EM(id)),amort:(s,id)=>amort(s,EM(id)),V};
 export function init(sim,helpers){S=sim;H=helpers;}

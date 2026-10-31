@@ -125,13 +125,47 @@ function ueAssets(s,fz,c,r,opt){const ch=H.CHAINS[c]||{name:c},A={prod:0,vert:0,
  if(opt&&opt.mitSchulden){A.kasse=r.kasse||0;s.cash+=A.kasse;r.kasse=0;
   for(const l of (r.loans||[])){if(l.rest<=1)continue;const z=(l.zins??C.RIVAL_KREDIT.zins)*100;fz.kredite.push({bank:'rivale:'+c,name:ch.name+' (übernommen)',betrag:l.rest,rest:l.rest,zins:z,rate:l.rate,seit:s.week,von:c});A.kredit+=l.rest;}r.loans=[];}
  return A;}
-export function uebernahme(s,c,opt={}){const fz=ensure(s),r=rvState(s,fz,c),ch=H.CHAINS[c];let n=0;
- const conv=st=>{const no=Math.max(0,...s.stores.filter(x=>x.chain==='player'&&x.d===st.d).map(x=>x.no||0))+1;Object.assign(st,{chain:'player',no,cfg:S.playerCfg(),mgr:S.autoManager(),deleg:{...S.DG_ALL},deposit:0,invest:C.RIVAL_LADEN.buchwert,bh:{sauber:3,frische:3,service:3,auswahl:3,overall:3},von:c,build:0});n++;};
- s.stores.filter(x=>x.chain===c).forEach(conv);for(const a of Object.values(s.away||{}))(a.stores||[]).filter(x=>x.chain===c).forEach(conv);
- if(r.virt){s.away=s.away||{};const j=s.away.japan=s.away.japan||{stores:[],op:0};j.n=(j.n||0)+r.virt;j.op=(j.op||0)+r.virt*C.RIVAL_LADEN.umsatzWoche*C.RIVAL_LADEN.gewinnQuote;n+=r.virt;r.virt=0;}
- const A=ueAssets(s,fz,c,r,opt);s.ueAssets=A;
+export function uebernahme(s,c,opt={}){const fz=ensure(s),r=rvState(s,fz,c),ch=H.CHAINS[c];let n=0;const kn=ch?ch.name:c;
+ const mk=()=>({cfg:S.playerCfg(),mgr:S.autoManager(),deleg:{...S.DG_ALL},deposit:0,invest:C.RIVAL_LADEN.buchwert,bh:{sauber:3,frische:3,service:3,auswahl:3,overall:3},von:c,build:0});
+ const conv=(st,list)=>{const no=Math.max(0,...(list||s.stores).filter(x=>x.chain==='player'&&x.d===st.d).map(x=>x.no||0))+1;Object.assign(st,{chain:'player',no},mk());n++;};
+ s.stores.filter(x=>x.chain===c).forEach(st=>conv(st));for(const a of Object.values(s.away||{}))(a.stores||[]).filter(x=>x.chain===c).forEach(st=>conv(st,a.stores));
+ // V7 (R47): virtuelle Läden (r.virt) werden echte Läden – aktuelle Stadt auf freie Kartenplätze, Rest als Ladenobjekte unter „Weitere Städte“
+ const V=ueVirtVerteilen(s,r,c),karte=[],weitere=[];
+ for(const [stadt,k] of Object.entries(V))for(let i=0;i<k;i++){let st=null;
+  if(stadt===(s.city||'tokio')){const q=S.freierPlatz&&S.freierPlatz();if(q){st={id:s.nextId++,chain:c,d:q.d,slot:q.i,tier:q.tier,opened:s.week,cfg:S.rivalCfg(),b:S.defaultBuild(),build:0};s.stores.push(st);conv(st);karte.push(st);continue;}}
+  st=ueExtern(s,c,stadt,mk());weitere.push(st);n++;}
+ r.virt=0;
+ const A=ueAssets(s,fz,c,r,opt);s.ueAssets=A;s.ueNeu={karte:karte.map(x=>x.id),aufKarte:s.stores.filter(x=>x.chain==='player'&&x.von===c).length,weitere:weitere.length,week:s.week,c};
  r.weg=true;r.uebernommen=s.week;const i=H.RIVALS.indexOf(c);if(i>=0)H.RIVALS.splice(i,1);s.uebernommen=(s.uebernommen||[]).concat(c);
- news(s,{chain:'player',text:`🏆 Übernahme! <b>${ch?ch.name:c}</b> gehört jetzt uns – ${n} Läden, ${A.prod} Produkte, ${A.vert} Verträge kommen dazu.`});NK.nachfolger(s,c,'uebernommen');S.save();return n;}
+ if(!opt.still)news(s,{chain:'player',text:`🏆 Übernahme! <b>${kn}</b> gehört jetzt uns – ${n} Läden, ${A.prod} Produkte, ${A.vert} Verträge kommen dazu.`});NK.nachfolger(s,c,'uebernommen');S.save();return n;}
+// Verteilung der virtuellen Läden auf Städte: r.staedte minus echte Ladenobjekte je Stadt; Rest (Zählerdifferenz) in die Heimatstadt
+function ueVirtVerteilen(s,r,c){const out={},v=r.virt||0;if(!v)return out;let rest=v;const cur=s.city||'tokio';
+ const echt=k=>k===cur?s.stores.filter(x=>x.von===c||x.chain===c).length:((s.away||{})[k]?(s.away[k].stores||[]).filter(x=>x.von===c||x.chain===c).length:0);
+ const st=Object.entries(r.staedte||{}).sort((a,b)=>(b[0]===cur)-(a[0]===cur));
+ for(const [k,m] of st){const d=Math.max(0,Math.min(rest,m-echt(k)));if(d>0){out[k]=(out[k]||0)+d;rest-=d;}}
+ if(rest>0){const h=rvHeimat(c);out[h]=(out[h]||0)+rest;}return out;}
+// Ladenobjekt ohne Kartenplatz (andere Stadt): läuft in awayWeek als Schätzung aus dem Rivalen-Ø-Laden (Umsatz/Woche × Marge)
+function ueExtern(s,c,stadt,base){const W=S.WEITERE,L=C.RIVAL_LADEN,RS=C.RIVAL_STAEDTE.staedte[stadt],sn=RS?RS.name:stadt;s.away=s.away||{};const a=s.away[W]=s.away[W]||{stores:[],op:0};
+ const no=a.stores.filter(x=>x.stadt===stadt).length+1,rev=L.umsatzWoche*rvFaktor(c),op=rev*L.gewinnQuote;
+ const st={id:s.nextId++,chain:'player',no,d:null,slot:null,extern:true,stadt,dname:`${sn} · ex ${(H.CHAINS[c]||{name:c}).name}`,opened:s.week,b:S.defaultBuild(),...base,
+  last:{id:0,d:null,cust:Math.round(rev/700),rev,cogs:rev*.7,gross:rev*.3,fees:0,op,net:op,cats:{},geschaetzt:true}};st.last.id=st.id;a.stores.push(st);return st;}
+// Alte Spielstände (V6-Fehler): s.away.japan = {n, op} ohne Ladenobjekte → echte Ladenobjekte.
+// V7-Fix (Whitebeard 29.10.): Kette und Städte aus dem Spielstand ableiten – übernommene Ketten (s.uebernommen bzw. fz.rv[c].uebernommen),
+// je Kette r.staedte minus schon vorhandene Läden dieser Kette (Karte, andere Städte, „Weitere Städte“); fremde Städte zuerst, dann die aktuelle,
+// Rest in die Heimatstadt der zuletzt übernommenen Kette. Nur ohne jeden Hinweis: aktuelle Stadt, Durchschnittsladen, Name „ex Übernahme“.
+function ueMigrVerteilen(s,k){const fz=s.fz||{},rv=fz.rv||{},cur=s.city||'tokio',out=[];let rest=k;
+ const ketten=[...new Set([...(s.uebernommen||[]),...Object.keys(rv).filter(c=>rv[c]&&rv[c].uebernommen!=null).sort((x,y)=>rv[x].uebernommen-rv[y].uebernommen)])].filter(c=>rv[c]&&!rv[c].pleite);
+ const W=S.WEITERE,ws=c=>stadt=>((s.away||{})[W]||{stores:[]}).stores.filter(x=>x.von===c&&x.stadt===stadt).length;
+ const echt=(c,k2)=>(k2===cur?s.stores.filter(x=>x.von===c||x.chain===c).length:((s.away||{})[k2]&&k2!==W?(s.away[k2].stores||[]).filter(x=>x.von===c||x.chain===c).length:0))+ws(c)(k2);
+ for(const c of ketten){if(rest<=0)break;const st=Object.entries(rv[c].staedte||{}).sort((a,b)=>(a[0]===cur)-(b[0]===cur));
+  for(const [k2,m] of st){const d=Math.max(0,Math.min(rest,(m||0)-echt(c,k2)-out.filter(o=>o.c===c&&o.stadt===k2).reduce((q,o)=>q+o.n,0)));if(d>0){out.push({c,stadt:k2,n:d});rest-=d;}}}
+ if(rest>0){const c=ketten.length?ketten[ketten.length-1]:null;out.push({c,stadt:c?rvHeimat(c):cur,n:rest});}
+ return out;}
+export function ueMigrate(s){const a=s.away&&s.away.japan;if(!a||!(a.n>0))return 0;const k=a.n;if(s.fz&&s.fz.profil)PF=s.fz.profil;
+ const plan=ueMigrVerteilen(s,k);delete a.n;
+ const base=c=>({cfg:S.playerCfg(),mgr:S.autoManager(),deleg:{...S.DG_ALL},deposit:0,invest:C.RIVAL_LADEN.buchwert,bh:{sauber:3,frische:3,service:3,auswahl:3,overall:3},von:c||'alt',migriert:true,build:0});
+ for(const p of plan)for(let i=0;i<p.n;i++){const st=ueExtern(s,p.c||'alt',p.stadt,base(p.c));if(!p.c)st.dname=`${st.dname.split(' · ')[0]} · ex Übernahme`;}
+ if(!(a.stores||[]).length)delete s.away.japan;return k;}
 // Pleite (Erik 23.10.): Läden schließen in allen Städten, Kette verschwindet, eine neu gegründete rückt nach
 export function rvPleite(s,c,rep){const fz=ensure(s),r=rvState(s,fz,c),ch=H.CHAINS[c],n=rvN(s,c);s.stores=s.stores.filter(x=>x.chain!==c);for(const a of Object.values(s.away||{}))a.stores=(a.stores||[]).filter(x=>x.chain!==c);
  r.weg=true;r.pleite=s.week;r.virt=0;const i=H.RIVALS.indexOf(c);if(i>=0)H.RIVALS.splice(i,1);if(s.priceActs)delete s.priceActs[c];
@@ -145,6 +179,14 @@ function rvStadtWahl(r,c){const RS=C.RIVAL_STAEDTE,h=rvHeimat(c),st=r.staedte;if
 function rvStaedteInit(s,r,c,n0){if(!r.staedte){r.staedte={[rvHeimat(c)]:n0+(r.virt||0)};r.neuStadt={};}}
 // Umsatzabschlag in neuen Städten (Vorschlag Bob): Läden in Städten, die die Kette vor < 52 Wochen betreten hat
 function rvNeuAbzug(s,r){const N=C.RIVAL_STAEDTE.neuStadt;if(!N.an)return 0;let a=0;for(const [k,w0] of Object.entries(r.neuStadt||{}))if(s.week-w0<N.wochen)a+=(r.staedte[k]||0)*(1-N.umsatzFaktor);return a;}
+// V7 (R46): Umsatz je Kartenladen aus Lage (Passanten / City) und Nähe zu Spieler-Läden (S.spielerLoss, beim Kundenlauf gemerkt); übrige Läden zählen 1,0
+function rvLaedenWert(s,c,n){const T=S.TIERS||{},ref=(T.city&&T.city.pass)||1;let v=0,k=0;for(const x of s.stores){if(x.chain!==c||x.build)continue;k++;const p=(T[x.tier]||{}).pass||ref;v+=p/ref*(1-(x.lastLoss??(S.spielerLoss?S.spielerLoss(x):0)));}return v+Math.max(0,n-k);}
+// V7 (R49): Startläden – in der Heimatstadt (= aktuelle Stadt) auf die Karte, sonst in der Heimatstadt außerhalb der Karte (r.virt)
+function rvStartLaeden(s,r,c,w){const SL=C.RIVAL_STARTLAEDEN;if(!SL||!(SL.max>0))return 0;const k=SL.min+Math.floor(Math.random()*(SL.max-SL.min+1)),h=rvHeimat(c);let m=0;
+ for(let i=0;i<k;i++){let o=null;if(h===(s.city||'tokio')&&H.RIVALS.includes(c)&&S.freeTotal()>C.RIVAL_KARTE.freiLassen)o=S.rivalOpen(c,Math.max(1,w));if(o)m++;else r.virt=(r.virt||0)+1;}
+ r.staedte={[h]:k};r.neuStadt={};return k;}
+// Whitebeard b4dc47d (neueketten_v7 wackelte): Neulinge (Zabu, Ausland, Nachfolger) starten bei 0 Läden wie angekündigt – die 1–2 Startläden aus R49 gibt es nur für die Ketten vom Spielstart
+const rvNeuling=(s,c)=>!!(s.nk&&(s.nk.nf||[]).some(n=>n.id===c));
 const rvRate=a=>{const K=C.RIVAL_KREDIT,i=K.zins/52;return a*i/(1-Math.pow(1+i,-K.laufWochen));};
 // Jede Kette eigenes Umsatzniveau (Seed aus der ID) + Wochenrauschen → keine identischen Werte
 const rvFaktor=c=>{const P=rvProfil(c);return P?P.f*C.RIVAL_PROFIL[P.p].umsatz:1;};
@@ -215,8 +257,8 @@ function insAbschluss(s,fz,rep){const I=fz.ins,c=I.c,r=rvState(s,fz,c),h=insHoch
  if(!h){const Q=C.INSOLVENZ,pl=s.stores.filter(x=>x.chain===c).map(x=>({d:x.d,slot:x.slot,bis:s.week+Q.sperrWochen})),erl=I.info.n*C.RIVAL_LADEN.buchwert*Q.liquidQuote;
   rvPleite(s,c,rep);fz.sperre=(fz.sperre||[]).filter(x=>x.bis>s.week).concat(pl);
   say(s,{id:'liquidation:'+c,chain:c,text:`🏚️ Kein Gebot für <b>${kn}</b>: Die Läden werden für ${fY(erl)} liquidiert (${Math.round(Q.liquidQuote*100)} % Buchwert). Die Standorte sind ${Q.sperrWochen} Wochen gesperrt.`},rep);return;}// niemand bietet → Kette schließt, Nachfolger wie bisher
- if(h[0]==='player'){s.cash-=h[1];const vorher=s.stores.filter(x=>x.chain==='player');const n=uebernahme(s,c);const J=UE.ON?ueIntegration(s,c,vorher):{zu:0};
-  say(s,{chain:'player',text:`⚖️ Zuschlag! Wir übernehmen <b>${kn}</b> aus der Insolvenz für ${fY(h[1])}${J.zu?` – ${J.zu} doppelte Läden geschlossen`:''}.`},rep);return;}
+ if(h[0]==='player'){s.cash-=h[1];const n=uebernahme(s,c,{still:true}),A=s.ueAssets,J=UE.ON?ueIntegration(s,c):{n:0},U=s.ueNeu||{};
+  say(s,{chain:'player',text:`⚖️ Zuschlag! Wir übernehmen <b>${kn}</b> aus der Insolvenz für ${fY(h[1])}: alle ${n} Läden bleiben (${U.aufKarte||0} auf der Karte${n-(U.aufKarte||0)-(U.weitere||0)>0?`, ${n-(U.aufKarte||0)-(U.weitere||0)} in bereits besuchten Städten`:''}, ${U.weitere||0} in weiteren Städten), ${A.prod} Produkte, ${A.vert} Verträge${J.n?` · Integration ${fY(J.n*UE.INTEGRATION.jeLaden)}`:''}.`},rep);return;}
  const k=h[0],w=rvState(s,fz,k);let n=0,zu=0;const alle=[];
  for(const st of s.stores.filter(x=>x.chain===c)){st.chain=k;alle.push(st);n++;}
  for(const a of Object.values(s.away||{}))for(const st of (a.stores||[]).filter(x=>x.chain===c)){st.chain=k;n++;}
@@ -241,11 +283,12 @@ function pInsolvenz(s,fz){const I=fz.ins;if(!I)return pKonkurrenz(s,fz);const c=
   <div class="fzc fzline">Deine Kasse: <b>${fY(s.cash)}</b>${b>s.cash?' · reicht nicht für das nächste Gebot':''}</div>
   <div class="fzg2"><button class="fzbtn" data-act="fz" data-v="insbieten" ${h&&h[0]==='player'?'disabled':''}>${h&&h[0]==='player'?'👑 Du führst':`🔨 Bieten: ${fY(b)}`}</button><button class="fzbtn ghost" data-act="fz" data-v="inspassen">✋ Passen</button></div>`;}
  return `<button class="fzlink" data-act="fz" data-v="back">◀ Konkurrenz</button>`+x;}
-function rvWeek(s,fz,rep){const w=s.week,L=C.RIVAL_LADEN,K=C.RIVAL_KREDIT;insWoche(s,fz,rep);rvProfileVerteilen(s,fz);rvProfilWechsel(s,fz,rep);
+function rvWeek(s,fz,rep){const w=s.week,L=C.RIVAL_LADEN,K=C.RIVAL_KREDIT;rvProfileVerteilen(s,fz);rvProfilWechsel(s,fz,rep);
  rvVerkauf(s,fz,rep);
  for(const c of rvChains(s)){const r=rvState(s,fz,c);if(r.weg)continue;r.loans=r.loans||[];r.virt=r.virt||0;
-  const n0=rvStores(s,c).length;if(n0>r.laeden)r.kasse-=(n0-r.laeden)*L.ladenKosten;r.laeden=n0;// Läden, die anders entstanden sind, aus der Kasse
-  rvStaedteInit(s,r,c,n0);rvEvent(s,r,c,rep);const k0=r.kasse;const EV=rvEv(r),n=n0+r.virt,rev=Math.max(0,n-rvNeuAbzug(s,r))*L.umsatzWoche*rvFaktor(c)*(EV?EV.umsatz:1)*(1+(Math.random()-.5)*C.RIVAL_STREU.woche);let zins=0,inst=0;
+  let n0=rvStores(s,c).length;if(n0>r.laeden)r.kasse-=(n0-r.laeden)*L.ladenKosten;r.laeden=n0;// Läden, die anders entstanden sind, aus der Kasse
+  if(r.startLaeden==null){r.startLaeden=r.hist.length||rvNeuling(s,c)?0:rvStartLaeden(s,r,c,w);n0=rvStores(s,c).length;r.laeden=n0;}// V7 (R49): 1–2 Startläden je Kette, ohne Kosten
+  rvStaedteInit(s,r,c,n0);rvEvent(s,r,c,rep);const k0=r.kasse;const EV=rvEv(r),n=n0+r.virt,rev=Math.max(0,rvLaedenWert(s,c,n)-rvNeuAbzug(s,r))*L.umsatzWoche*rvFaktor(c)*(EV?EV.umsatz:1)*(1+(Math.random()-.5)*C.RIVAL_STREU.woche);let zins=0,inst=0;
   for(const l of r.loans){const z=l.rest*(l.zins??K.zins)/52,t=Math.min(l.rest,l.rate-z);l.rest-=t;zins+=z;inst+=z+t;}r.loans=r.loans.filter(l=>l.rest>1);
   const KR=C.RIVAL_KRISE;if(r.krise>0)r.krise--;else if(n>0&&r.hist.length>=KR.abWoche&&Math.random()<((rvProfil(c)||{p:'solide'}).p==='schwach'?(KR.chanceSchwach??KR.chance):KR.chance)*C.RIVAL_PROFIL[(rvProfil(c)||{p:'solide'}).p].krise){r.krise=Math.round(KR.dauer[0]+Math.random()*(KR.dauer[1]-KR.dauer[0]));}
   const PP=C.RIVAL_PROFIL[(rvProfil(c)||{p:'solide'}).p],marge=r.krise>0?KR.marge+(PP===C.RIVAL_PROFIL.schwach?KR.schwach:0):L.gewinnQuote+PP.marge;
@@ -262,7 +305,13 @@ function rvWeek(s,fz,rep){const w=s.week,L=C.RIVAL_LADEN,K=C.RIVAL_KREDIT;insWoc
   const avg=r.hist.slice(-13).reduce((a,x)=>a+x.g,0)/Math.min(13,r.hist.length),raten=r.loans.reduce((a,l)=>a+l.rate,0);
   if(!r.startKredit){r.startKredit=true;r.loans.push({rest:K.start,rate:rvRate(K.start)});r.kasse+=K.start;}// Startkredit (wie Spieler ¥20 Mio) für den ersten Laden – erst hier, damit die erste Rate nicht vorher abgeht
   let neu=false;const darf=!(r.krise>0)&&w-(r.letzte??-99)>=(C.RIVAL_EXPANSION.abstand?Math.max(C.RIVAL_EXPANSION.abstand*(EV&&EV.abstand||1),PP.abstand*(EV&&EV.abstand||1)):0)&&!(EV&&EV.wachstum===0);
-  if(darf&&n===0&&r.kasse>=L.ladenKosten){r.kasse-=L.ladenKosten;neu=true;}
+  // V7 (Erik 29.10., R49): Aufbaujahr – jede Kette hat nach 52 Wochen 3–6 Läden (Deckel oben, Mindestpfad unten, Mindestpfad notfalls per Kredit)
+  const AU=C.RIVAL_AUFBAU,alter=r.hist.length,imAufbau=AU&&alter<=AU.wochen&&(r.startLaeden||0)>0,deckel=imAufbau&&n>=AU.max,
+   soll=imAufbau?Math.min(AU.min,(r.startLaeden||0)+Math.floor((AU.min-(r.startLaeden||0))*alter/(AU.wochen*AU.bis))):0,
+   muss=imAufbau&&!deckel&&n<soll&&!(r.krise>0)&&w-(r.letzte??-99)>=C.RIVAL_EXPANSION.abstand;
+  if(muss){if(r.kasse>=L.ladenKosten+K.reserve)r.kasse-=L.ladenKosten;else r.loans.push({rest:L.ladenKosten,rate:rvRate(L.ladenKosten)});neu=true;}
+  else if(deckel){}
+  else if(darf&&n===0&&r.kasse>=L.ladenKosten){r.kasse-=L.ladenKosten;neu=true;}
   else if(darf&&Math.random()<((C.RIVAL_WACHSTUM[c]??0)>=1?1:PP.wachstum*(EV?EV.wachstum:1))){if(r.kasse>=L.ladenKosten+K.reserve){r.kasse-=L.ladenKosten;neu=true;}
    else if(n>0&&r.kasse>=K.reserve&&avg>=K.regel*(raten+rvRate(L.ladenKosten))){r.loans.push({rest:L.ladenKosten,rate:rvRate(L.ladenKosten)});neu=true;}}
   if(neu){r.letzte=w;const stadt=rvStadtWahl(r,c),RS=C.RIVAL_STAEDTE,erst=!(r.staedte[stadt]>0);r.staedte[stadt]=(r.staedte[stadt]||0)+1;
@@ -304,13 +353,10 @@ function ueStart(s,fz,c){const A=ueAngebot(s,fz,c,V.praemie,V.wochen);if(!A)retu
  s.cash-=A.kosten;fz.tender={c,praemie:V.praemie,preis:A.preis,ende:s.week+V.wochen,start:s.week,kosten:A.kosten,feind:A.feind};
  news(s,{chain:'player',text:`📣 Übernahmeangebot an alle Aktionäre von <b>${H.CHAINS[c].name}</b>: +${V.praemie} % Prämie, ${V.wochen} Wochen Annahmefrist.${A.feind?' Der Vorstand lehnt ab – feindliche Übernahme.':''}`});
  H.toast(`📣 Angebot läuft ${V.wochen} Wochen`);V.view='firma';S.save();}
-function ueIntegration(s,c,vorher){const I=UE.INTEGRATION;let n=0,zu=0;const neu=s.stores.filter(x=>x.chain==='player'&&x.von===c&&!x.integ);
- for(const a of Object.values(s.away||{}))for(const st of (a.stores||[]))if(st.chain==='player'&&st.von===c&&!st.integ){s.cash-=I.jeLaden;st.integ={bis:s.week+I.wochen,kunden:I.kunden,ek:I.ekDanach};n++;}
- for(const st of neu){s.cash-=I.jeLaden;st.integ={bis:s.week+I.wochen,kunden:I.kunden,ek:I.ekDanach};n++;
-  const nah=vorher.find(o=>S.storeDist&&S.storeDist(o,st)<I.abstandFelder);if(nah){s.stores=s.stores.filter(x=>x!==st);zu++;}}
- // Bob V4: übernommene Läden < 4 Felder voneinander – der zweite wird geschlossen
- const bleib=[];for(const st of neu){if(!s.stores.includes(st))continue;if(S.storeDist&&bleib.some(o=>S.storeDist(o,st)<I.untereinander)){s.stores=s.stores.filter(x=>x!==st);zu++;}else bleib.push(st);}
- return {n,zu};}
+// V7 (Erik 29.10., R47): keine Schließungen mehr – jeder übernommene Laden bleibt, Integration ¥3 Mio je behaltenem Laden
+function ueIntegration(s,c){const I=UE.INTEGRATION;let n=0;const alle=s.stores.concat(...Object.values(s.away||{}).map(a=>a.stores||[]));
+ for(const st of alle)if(st.chain==='player'&&st.von===c&&!st.integ){s.cash-=I.jeLaden;st.integ={bis:s.week+I.wochen,kunden:I.kunden,ek:I.ekDanach};n++;}
+ return {n,zu:0};}
 function ueWoche(s,fz){const T=fz.tender;if(!T||s.week<T.ende)return;const c=T.c,id=RVK(c),f=rvFirma(s,c),r=rvState(s,fz,c),kn=H.CHAINS[c]?H.CHAINS[c].name:c;fz.tender=null;
  if(!f){return;}const have=(fz.depot[id]||0)/f.aktien,stabil=ueStabil(c);let ch=ueChance(T.praemie,T.feind),grund='';
  const ritter=T.feind&&Object.entries(fz.rv||{}).some(([k,x])=>k!==c&&!x.weg&&x.kasse>=(1-have)*f.aktien*T.preis*(1+UE.ABWEHR.ritterAufschlag));
@@ -320,9 +366,9 @@ function ueWoche(s,fz){const T=fz.tender;if(!T||s.week<T.ende)return;const c=T.c
  if(tot<=UE.KONTROLLE){r.ueSperre=s.week+UE.SPERRE_WOCHEN;fz.ueLog={c,ok:false,anteil:tot,eigen:hv,prog,week:s.week};news(s,{chain:c,text:`❌ Übernahmeangebot für <b>${kn}</b> abgelehnt: ${de(tot*100,1)} % Ja-Stimmen (Prognose ${Math.round(prog*100)} %, davon ${Math.round(hv*100)} % unsere)${grund}. Beraterkosten ${fY(T.kosten)} verloren, ${UE.SPERRE_WOCHEN} Wochen kein neues Angebot.`});return;}
  // Erik 23.10.: bei Erfolg alle fremden Aktien zum Angebotspreis
  let teil=1-hv;const preis=teil*f.aktien*T.preis;s.cash-=preis;
- const vorher=s.stores.filter(x=>x.chain==='player');const n=uebernahme(s,c,{mitSchulden:true});const A=s.ueAssets;delete fz.depot[id];const I=ueIntegration(s,c,vorher);
- fz.ueLog={c,ok:true,anteil:tot,eigen:hv,prog,preis,n,zu:I.zu,week:s.week,text:'',prod:A.prod,vert:A.vert,kasse:A.kasse,kredit:A.kredit};
- news(s,{chain:c,text:`🏆 Übernahme von <b>${kn}</b> gelungen: ${de(tot*100,1)} % Ja-Stimmen (Prognose ${Math.round(prog*100)} %${hv>0?`, davon ${Math.round(hv*100)} % unsere`:''}), alle übrigen Aktien für ${fY(preis)} gekauft. Übernommen: ${n} Läden, ${A.prod} Produkte, ${A.vert} Verträge · Kasse ${fY(A.kasse)} · Kredite ${fY(A.kredit)}. Integration ${fY(I.n*UE.INTEGRATION.jeLaden)}${I.zu?`, ${I.zu} Läden zu nah an eigenen – geschlossen`:''}.`});}
+ const n=uebernahme(s,c,{mitSchulden:true,still:true});const A=s.ueAssets,U=s.ueNeu||{};delete fz.depot[id];const I=ueIntegration(s,c);
+ fz.ueLog={c,ok:true,anteil:tot,eigen:hv,prog,preis,n,zu:0,karte:U.aufKarte||0,neuAufKarte:(U.karte||[]).length,weitere:U.weitere||0,integ:I.n*UE.INTEGRATION.jeLaden,week:s.week,text:'',prod:A.prod,vert:A.vert,kasse:A.kasse,kredit:A.kredit};
+ news(s,{chain:c,text:`🏆 Übernahme von <b>${kn}</b> gelungen: ${de(tot*100,1)} % Ja-Stimmen (Prognose ${Math.round(prog*100)} %${hv>0?`, davon ${Math.round(hv*100)} % unsere`:''}), alle übrigen Aktien für ${fY(preis)} gekauft. Übernommen: alle ${n} Läden bleiben (${U.aufKarte||0} auf der Karte${n-(U.aufKarte||0)-(U.weitere||0)>0?`, ${n-(U.aufKarte||0)-(U.weitere||0)} in bereits besuchten Städten`:''}, ${U.weitere||0} in weiteren Städten), ${A.prod} Produkte, ${A.vert} Verträge · Kasse ${fY(A.kasse)} · Kredite ${fY(A.kredit)}. Integration ${fY(I.n*UE.INTEGRATION.jeLaden)} (${I.n} × ${fY(UE.INTEGRATION.jeLaden)}).`});H.toast&&H.toast(`🏆 ${kn} übernommen – ${n} Läden`);}
 // Spieler kauft Rivalen-Aktien: je 5 % Anteil steigt der Kurs ~3 %; ohne Gründer-Verkauf nur Streubesitz kaufbar
 function rvMax(r){if(UE.ON)return Math.min(UE.MARKT_MAX,r.boerse.streu);return C.GRUENDER_VERKAUF?1:r.boerse.streu;}
 function rvKauf(s,fz,c,anteil){const r=rvState(s,fz,c),id=RVK(c),f=rvFirma(s,c),q=fz.kurse[id],have=(fz.depot[id]||0)/f.aktien;
@@ -382,6 +428,9 @@ function pAngebot(s,fz){const c=V.id,ch=H.CHAINS[c],r=rvState(s,fz,c),w=rvWert(s
  <div class="fzc fzline">Annahme-Chance <span class="grow"></span><b class="${ch2>=.5?'p':'n'}">${Math.round(ch2*100)} %</b></div>
  <div class="fzsm">Bei Absage ${C.ANGEBOT.sperreWochen} Wochen kein neues Angebot${r.sperre>0?` · gesperrt: noch ${r.sperre} Wo.`:''}</div>
  <button class="fzbtn full" data-act="fz" data-v="kaufsenden" ${r.sperre>0?'disabled':''}>🤝 Angebot über ${fY(w*f)} senden</button>`;}
+/* ---------- V7: vor der Ladensimulation (sim.preWeekHooks) – Übernahmen/Insolvenz-Zuschlag wirken in derselben Woche (R48) ---------- */
+export function preWeek(s,rep){if(!ON)return;const fz=ensure(s);ueMigrate(s);insWoche(s,fz,rep);if(UE.ON)ueWoche(s,fz);
+ if(s.ueNeu&&s.ueNeu.week===s.week){const L=fz.ueLog&&fz.ueLog.week===s.week?fz.ueLog:null;rep.uebernahme={...s.ueNeu,n:L?L.n:s.ueNeu.karte.length+s.ueNeu.weitere,name:(H.CHAINS[s.ueNeu.c]||{name:s.ueNeu.c}).name};}}
 /* ---------- Wochen-Hook (aus sim.endWeek) ---------- */
 export function weekHook(s,rep,T){if(!ON)return;const fz=ensure(s);const w=s.week,d=S.weekDate(w);
  for(const f of FIRMEN){const q=fz.kurse[f.id];if(!q||!f.kurs)continue;const r=Math.random;const nk=q.k*Math.exp(f.vol/Math.sqrt(52)*gauss(r));q.ch=nk/q.k-1;q.k=nk;q.h.push(nk);if(q.h.length>30)q.h.shift();}
@@ -391,7 +440,7 @@ export function weekHook(s,rep,T){if(!ON)return;const fz=ensure(s);const w=s.wee
  if(fz.ipo&&T.net>0){const div=PV.dividende(s,T.net);cash-=div;net-=div;}// Spieler: freiwillige Dividende (Erik 22:07), Rivalen bleiben bei 30 %
  if(fz.ipo){fz.pwert=(fz.pwert||[]).concat(companyValue(s,fz).wert).slice(-52);}
  {const o=startKredit(s,fz);if(o.ok&&!fz.startKreditInfo){fz.startKreditInfo=s.week;if(!C.tippProfi(s)){const t=`🐾 Kobo: Die Bank gibt dir jetzt einen <b>Startkredit über ${fY(WG.STARTKREDIT.betrag)}</b> – genug für den zweiten Laden! (Finanzen › Börse › Kredite)`;if(rep.events)rep.events.push(t);news(s,{chain:'player',text:t});}}}
- rvWeek(s,fz,rep);if(UE.ON)ueWoche(s,fz);
+ rvWeek(s,fz,rep);
  s.cash+=cash;T.net+=net;rep.fz={cash,net,extra};}
 // Vertragsende (Erik 15:49/15:58, Inland + Messe): 2 Wochen vorher Hinweis mit „Verlängern“, am Ende raus aus dem Regal + Meldung, Umsatz 0
 function vertragsWoche(s,fz,rep,d){const ev=rep&&rep.events,say2=t=>{if(ev)ev.push(t);if(rep&&rep.news)rep.news.push({chain:'player',text:t});news(s,{chain:'player',text:t});};
@@ -431,9 +480,10 @@ export function act(b){const s=S.state,fz=ensure(s),a=b.dataset.v,x=b.dataset.x;
  case 'marke':{if(!FM[x]||!SO.artikel(FM[x]).length){V.view=null;V.id=null;H.toast('Diese Firma hat kein Produkt für uns');break;}// V6 (Whitebeard f0a9f12): Firma ohne Produkt → kein Verhandeln (sonst Pageerror „reading 'ek'“)
  if(abLaeden(FM[x])>nStores(s)){V.view='zuklein';V.id=x;break;}V.view='verhandeln';V.id=x;V.laufzeit=12;V.exkl=false;V.ren=false;const A=SO.artikel(FM[x]);const o=A.find(a=>!fz.vertraege[a.id])||A[0];V.art=o?o.id:null;break;}
  case 'verlaengern':{if(MM[x]){V.tab='produkte';V.view='deal';V.id=x;V.jahre=1;V.ren=true;break;}const fid=x.split('#')[0];if(!FM[fid])break;V.tab='produkte';V.view='verhandeln';V.id=fid;V.art=x;V.laufzeit=12;V.exkl=!!(fz.vertraege[x]&&fz.vertraege[x].exkl);V.ren=true;break;}
- case 'artikel':V.art=x;V.ren=false;break;
+ case 'artikel':if(!V.ren&&FM[V.id]&&abLaeden(FM[V.id])>nStores(s)){V.view='zuklein';break;}V.art=x;V.ren=false;break;// Whitebeard 8efc3e2: Größen-Check auch bei Artikel/Angebot, nicht nur bei der Marke
  case 'exkl':V.exkl=!V.exkl;break;
  case 'angebot':{const f=FM[V.id],A=f?SO.artikel(f):[],art=A.find(a=>a.id===V.art)||A[0];if(!art)break;const key=art.id,alt=fz.vertraege[key],ren=!!(alt&&V.ren);
+  if(!ren&&abLaeden(f)>nStores(s)){V.view='zuklein';H.toast(`${f.name} liefert erst ab ${abLaeden(f)} Läden`);break;}
   if(alt&&!ren){H.toast('Für diesen Artikel gibt es schon einen Vertrag');break;}// jeder Artikel nur einmal verhandelbar (Verlängern ist ein eigener Weg)
   const o=inlandDeal(s,f,art);const e=new Date(ren?alt.ende:S.weekDate(s.week));e.setMonth(e.getMonth()+V.laufzeit);
   if(o.zahlung>s.cash){H.toast('Nicht genug Geld 💸');break;}s.cash-=o.zahlung;

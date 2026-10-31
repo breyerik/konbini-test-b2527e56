@@ -47,19 +47,19 @@ export const RIVAL_RULES={
  chanceFaktor:.40,     // Bob V2: Wochen-Chance je Kette = aggr (data.js) × Faktor
  anteilMax:.5,         // PH: Rivalen belegen höchstens 50 % der freigeschalteten Standorte
  freiLassen:3,         // PH: so viele Standorte bleiben immer für den Spieler frei
- nahFelder:4,          // PH: „gegenüber/nah“ = Abstand ≤ 4 Felder (ca. 40 m)
+ nahFelder:5,          // V7 (R46): „gegenüber/direkt daneben“ = Abstand ≤ 5 Felder – Erik nannte ≤ 4 F, die engsten Kartenplätze liegen aber 4,47 F auseinander (vorher 4)
  eigenAbstand:8,        // Bob V4: Rivalen bauen ≥ 8 Felder von eigenen Läden (außer Bahnhof/Bürolage)
  kannibMax:.25,         // Bob V4: kein Neubau, wenn ≥ 25 % vom eigenen Umsatz kannibalisiert
  mehrUmsatzMin:.75,     // Bob V4 (Erik): erwarteter Mehrumsatz ≥ 0,75 × Ø-Laden – Stadtrand (0,8) bleibt auch mit einem eigenen Laden in 10–30 F möglich × Ø-Laden (¥2,2 Mio/Woche, City = 1)
  umfeldFelder:10,      // PH: „in der Nähe“ = Abstand ≤ 10 Felder (ca. 100 m)
- verlustUmfeld:.03,    // Bob V2: −3 % je Rivalen-Filiale im Umfeld (statt Stadtteil-Wert)
+ verlustUmfeld:.08,    // V7 (Erik 29.10., R46): −8 % je fremder Filiale ≤ 10 F – in beide Richtungen (vorher .03)
  nahBevorzugt:.6,      // PH: Chance, dass eine Kette gezielt neben einer Spieler-Filiale eröffnet
- verlustNahNeu:.12,    // Bob (PREISE.md, 21.10.): −12 % je naher Rivalen-Filiale in den ersten 8 Wochen nach deren Eröffnung
+ verlustNahNeu:.20,    // V7 (R46): −20 % je naher Filiale ≤ 5 F (nahFelder), dauerhaft (vorher .12 nur 8 Wochen)
  verlustNahWochen:8,   // Bob
- verlustNah:.06,       // Bob: danach dauerhaft −6 %
+ verlustNah:.20,       // V7 (R46): dauerhaft −20 % (vorher .06)
  nahMaxEinmal:true,    // Bob/Whitebeard: Nah-Abzug max. 1× pro Laden (weitere nahe Rivalen zählen wie Umfeld)
  verlustBezirk:.03,    // PH: −3 % je weiterer Rivalen-Filiale im selben Stadtteil
- verlustMax:.12,       // Bob V3: Rivalen kosten eine Filiale höchstens 12 % Kunden (kein Bankrott nur durch Rivalen)
+ verlustMax:.30,       // V7 (R46): Deckel 30 % je Laden, beide Richtungen (vorher .12); Umsatz bleibt > 0
  aktionChance:.06,     // PH: Wochen-Chance, dass eine Kette mit Läden eine Preisaktion startet
  aktionWochen:2,       // PH
  aktionVerlust:.04,    // PH: zusätzlich −4 % je naher Filiale der Kette während der Aktion (innerhalb verlustMax)
