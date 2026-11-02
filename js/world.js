@@ -6,7 +6,7 @@ import {designOf} from './sim.js';
 import {GFX,svgColored,svgImage} from './gfx.js';
 import {logoCanvas,shade} from './logo.js';
 import * as LG from './logo.js';
-import {SKYSCRAPERS,TOWERS,SHOPS,LANDMARK_AREAS,lm as LM,F as FIELD,FEATURES,LM_BLOCKS,BRIDGES,wx,wz,CITY as PCITY} from './plan.js';
+import {SKYSCRAPERS,TOWERS,SHOPS,LANDMARK_AREAS,lm as LM,F as FIELD,FEATURES,LM_BLOCKS,BRIDGES,wx,wz,CITY as PCITY,YOKOHAMA_A} from './plan.js';
 import {buildYokohamaLM,bayBridgeParts,LT_HEIGHT} from './lm_yokohama.js';
 import {SHOP_FOOT,groundTexture as planGround,buildTowers,buildCity,buildShops,treeSpots,loadImg} from './city.js';
 import {PLAN_SLOTS,slotOpen} from './data.js';
@@ -379,6 +379,20 @@ export function createWorld(container,cb){
    const K=B.baueKreuzung(THREE,{basis,vorlage,wege,schirm1:KR.s1,kamera:camera});const [ox,oz]=vorlage.kreuzungsmitte.welt;
    K.gruppe.position.set(ox,0,oz);K.gruppe.name='shibuya-kreuzung-a';scene.add(K.gruppe);KR.K=K;renderer.shadowMap.needsUpdate=true;return true;})
   .catch(e=>{console.warn('Kreuzung A nicht geladen:',e);return false;});}
+ // Yokohama A (R82–R86, Yuki Runde 3): Bahnhofsplatz, Promenade, Stege, Kap und optische Hochbahn (FEATURES.hochbahn) als eigene Gruppe direkt in der Szene
+ // (Welt-Koordinaten, nicht in lmGroup, ohne Versatz). Bildschirm 1 zeigt die Spielerkette live wie bei der Kreuzung. Abbau beim Stadtwechsel (entfernen).
+ const YO={Y:null,h:null,s1:null,look:null,t:null,fertig:null};
+ if(YOKOHAMA_A){const basis=new URL('../yokohama/',import.meta.url).href,kb=new URL('../kreuzung/',import.meta.url).href,bild=u=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=kb+u;});
+  const lc=(l,w)=>{if(l&&l.bg)return logoCanvas(l,w);const c=document.createElement('canvas');c.width=c.height=w||256;return c;};
+  YO.fertig=Promise.all([import('../yokohama/einbau/yokohama_bau.js'),import('../kreuzung/einbau/spieler_schirm.js'),fetch(basis+'bauvorlage_yokohama.json').then(r=>r.json()),bild('screens/s1_spielerkette_f2.png'),bild('screens/s1_spielerkette_f3.png')])
+  .then(([B,S,vorlage,f2,f3])=>{YO.h=S.spielerSchirmLive(YO.look||KR.look||{name:'',main:'#8A8279',second:'#FFFFFF',logo:null},lc,f2,f3,()=>{if(YO.s1)YO.s1.needsUpdate=true;});
+   YO.s1=new THREE.CanvasTexture(YO.h.canvas);YO.s1.colorSpace=THREE.SRGBColorSpace;
+   // basis nur für Bilder der Bildschirme (screens/… liegen bei der Kreuzung)
+   const Y=B.baueYokohama(THREE,{basis:kb,vorlage,kamera:camera,schirm1:YO.s1,schatten:true,zeigeAbZoom:1.5,features:FEATURES});
+   Y.gruppe.name='yokohama-a';scene.add(Y.gruppe);YO.Y=Y;renderer.shadowMap.needsUpdate=true;return true;})
+  .catch(e=>{console.warn('Yokohama A nicht geladen:',e);return false;});}
+ function yokohamaEntfernen(){if(!YO.Y)return false;const Y=YO.Y;YO.Y=null;scene.remove(Y.gruppe);Y.entfernen();if(YO.s1)YO.s1.dispose();return true;}
+ if(YOKOHAMA_A)addEventListener('pagehide',yokohamaEntfernen);
  const bridges=buildBridges();scene.add(bridges);if(STIL5){{const HB=BRIDGES.filter(b=>b.art==='haengebruecke');scene.add(bridgeRails(PN,pCellAt,wx,wz,FIELD,(x,y)=>HB.some(b=>x>=Math.min(b.von[0],b.bis[0])-1&&x<=Math.max(b.von[0],b.bis[0])+1&&y>=Math.min(b.von[1],b.bis[1])-1&&y<=Math.max(b.von[1],b.bis[1])+1)));}}
  // v3.2: jedes Wahrzeichen auf eigenem Rasenblock mit Bordstein
  {const kg=new THREE.Group();for(const b of LM_BLOCKS){const x0=wx(b.x),x1=wx(b.x+b.breite),z0=wz(b.y),z1=wz(b.y+b.tiefe),k=.35,h=.32,cx=(x0+x1)/2,cz=(z0+z1)/2;
@@ -479,6 +493,7 @@ export function createWorld(container,cb){
  const YUKI_PPL=new URLSearchParams(location.search).get('kunden')==='yuki',pSpr=[];
  if(YUKI_PPL){const mats=[1,2,3,4,5,6].map(n=>{const cv=document.createElement('canvas');cv.width=64;cv.height=128;const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;const im=new Image();im.onload=()=>{const g=cv.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(im,0,0,64,128);t.needsUpdate=true;};im.src=`grafik/kunden/kunde-${n}.svg`;return new THREE.SpriteMaterial({map:t,transparent:true});});
   for(let i=0;i<PPL_MAX;i++){const sp=new THREE.Sprite(mats[(i*5)%6]);sp.center.set(.5,.03);sp.scale.set(.46,.92,1);sp.visible=false;sp.renderOrder=3;scene.add(sp);pSpr.push(sp);}}
+ const VAN_PER=12,VAN_WEG=10;// R75: Wagen vor eigenen Läden – Takt (s) und Anfahrweg (Welt); vorher 26 s / 16, d. h. oft >20 s kein Wagen
  const VAN_MAX=24,vans=new THREE.InstancedMesh(new THREE.BoxGeometry(1.1,.66,.62).translate(-.18,.45,0),new THREE.MeshLambertMaterial({color:'#F4F4F0'}),VAN_MAX),
   vanCab=new THREE.InstancedMesh(mergeLife([new THREE.BoxGeometry(.42,.44,.6).translate(.58,.34,0),new THREE.BoxGeometry(1.12,.1,.64).translate(-.18,.22,0)]),new THREE.MeshLambertMaterial({color:'#E94F4F'}),VAN_MAX);
  vans.count=vanCab.count=0;scene.add(vans,vanCab);for(const m of[...PPL,vans,vanCab]){m.frustumCulled=false;m.castShadow=true;}
@@ -499,8 +514,8 @@ export function createWorld(container,cb){
     else{const a=(u-.35)/.65;x=L.door[0]+L.dir[0]*out+L.lat[0]*side*a;z=L.door[1]+L.dir[1]*out+L.lat[1]*side*a;ry=Math.atan2(L.lat[0]*side,L.lat[1]*side);}
     if(inb)ry+=Math.PI;const bob=Math.abs(Math.sin(t*9+k))*.04,sc=u<.03?0:1;
     e.set(0,ry,0);q.setFromEuler(e);ls.set(sc,sc,sc);ls.multiplyScalar(1.25);mtx.compose(lv.set(x,bob,z),q,ls);for(const m of PPL)m.setMatrixAt(i,mtx);if(YUKI_PPL){pSpr[i].position.set(x,bob,z);pSpr[i].scale.set(.46*sc*1.25,.92*sc*1.25,1);}}}
-  life.forEach((L,j)=>{if(j>=VAN_MAX)return;const per=26,ph=((t+L.seed*per+j*7)%per)/per;let a;// anfahren – 40 % parken – wegfahren
-   a=ph<.3?-1+ph/.3:ph<.7?0:(ph-.7)/.3;const lane=Math.abs((L.edge[0]-L.door[0])*L.dir[0]+(L.edge[1]-L.door[1])*L.dir[1])+FIELD*.3,d=a*16;
+  life.forEach((L,j)=>{if(j>=VAN_MAX)return;const per=VAN_PER,ph=((t+L.seed*per+j*3.7)%per)/per;let a;// Gganbu R3 #6 (R75): 12-s-Takt – 20 % anfahren, 60 % parken, 20 % wegfahren
+   a=ph<.2?-1+ph/.2:ph<.8?0:(ph-.8)/.2;const lane=Math.abs((L.edge[0]-L.door[0])*L.dir[0]+(L.edge[1]-L.door[1])*L.dir[1])+FIELD*.3,d=a*VAN_WEG;
    const x=L.door[0]+L.dir[0]*lane+L.lat[0]*d,z=L.door[1]+L.dir[1]*lane+L.lat[1]*d,sc=Math.abs(a)>.97?0:1;
    e.set(0,-Math.atan2(L.lat[1],L.lat[0]),0);q.setFromEuler(e);ls.set(sc,sc,sc);mtx.compose(lv.set(x,0,z),q,ls);vans.setMatrixAt(j,mtx);vanCab.setMatrixAt(j,mtx);});
   for(const m of PPL)m.instanceMatrix.needsUpdate=true;vans.instanceMatrix.needsUpdate=vanCab.instanceMatrix.needsUpdate=true;}
@@ -520,7 +535,7 @@ export function createWorld(container,cb){
   const b=new THREE.Mesh(new THREE.PlaneGeometry(ft.z1-ft.z0-.1,H),mat);b.rotation.y=Math.PI/2;b.position.set(ft.x1+e-sl.x,H/2,cz-sl.z);o.add(b);
   return {cx:cx-sl.x,cz:cz-sl.z,top:roofY(cx,cz,o)};}
  function syncStores(stores,logo,week){if(week)curWeek=week;lifeFor(stores);
-  if(KR_A&&logo&&logo.bg){const k=JSON.stringify(logo);if(k!==KR.lk){KR.lk=k;KR.look=chainLook('player',logo,{facade:'brand'});if(KR.h)KR.h.neu(KR.look);}}
+  if((KR_A||YOKOHAMA_A)&&logo&&logo.bg){const k=JSON.stringify(logo);if(k!==KR.lk){KR.lk=k;KR.look=YO.look=chainLook('player',logo,{facade:'brand'});if(KR.h)KR.h.neu(KR.look);if(YO.h)YO.h.neu(YO.look);}}
   occupied=new Set(stores.map(s=>s.d+':'+s.slot));const seen=new Set(),used=new Set();
   for(const s of stores){const sl=SLOTS[s.d]&&SLOTS[s.d][s.slot];if(!sl)continue;used.add(sl.k);paintShop(sl.k,s.chain,logo);
    const key=JSON.stringify([s.chain,s.build>0,s.chain==='player'?logo:0,s.chain==='player'?LG.logoVer:0]);seen.add(s.id);let o=storeObjs.get(s.id);
@@ -592,6 +607,7 @@ export function createWorld(container,cb){
  controls.addEventListener('change',()=>{const t=controls.target,ox=t.x,oz=t.z;clampT(t);if(ox!==t.x||oz!==t.z){camera.position.copy(t).add(camOff);}});
  function loop(){if(!running)return;const t=clock.getElapsedTime();frame++;
   if(KR.K){KR.K.update(KR.t==null?0:Math.min(.1,t-KR.t));}KR.t=t;
+  if(YO.Y){YO.Y.update(YO.t==null?0:Math.min(.1,t-YO.t));}YO.t=t;
   if(fly){const p=Math.min(1,(performance.now()-fly.t0)/750),k=1-Math.pow(1-p,3);controls.target.lerpVectors(fly.from,fly.to,k);camera.position.copy(controls.target).add(camOff);camera.zoom=fly.z0+(fly.z1-fly.z0)*k;camera.updateProjectionMatrix();if(p>=1)fly=null;}
   controls.update();
   const u=(t/80)%1;if(curve)train.forEach((c,i)=>{const a=(u+i*.0068)%1;const p=curve.getPointAt(a),p2=curve.getPointAt((a+.002)%1);c.position.set(p.x,.62,p.z);c.lookAt(p2.x,.62,p2.z);});
@@ -609,7 +625,7 @@ export function createWorld(container,cb){
  function resize(){const w=container.clientWidth,h=container.clientHeight;renderer.setSize(w,h);const a=w/h;camera.left=-VH*a/2;camera.right=VH*a/2;camera.top=VH/2;camera.bottom=-VH/2;camera.updateProjectionMatrix();}
  addEventListener('resize',resize);
  document.addEventListener('visibilitychange',()=>{running=!document.hidden;if(running)renderer.setAnimationLoop(loop);else renderer.setAnimationLoop(null);});
- return {kreuzungA:()=>KR.fertig?KR.fertig.then(ok=>ok&&KR.K?{gruppe:KR.K.gruppe,info:KR.K.info(),zug:!!KR.K.zug}:null):Promise.resolve(null),pinLayer,pinsShown:()=>pinShow.size,storePins:()=>{let p=0,r=0;for(const o of storeObjs.values()){let own=false;o.traverse(c=>{if(c.userData.ownPin)own=true;});if(own)p++;else r++;}return {player:p,rival:r};},// V7: Test-Hook (sichtbare Laden-Pins)
+ return {yokohama:()=>YO.fertig?YO.fertig.then(ok=>ok&&YO.Y?{gruppe:YO.Y.gruppe,info:YO.Y.info(),zug:!!YO.Y.zug,features:{...FEATURES}}:null):Promise.resolve(null),yokohamaEntfernen,kreuzungA:()=>KR.fertig?KR.fertig.then(ok=>ok&&KR.K?{gruppe:KR.K.gruppe,info:KR.K.info(),zug:!!KR.K.zug}:null):Promise.resolve(null),pinLayer,pinsShown:()=>pinShow.size,storePins:()=>{let p=0,r=0;for(const o of storeObjs.values()){let own=false;o.traverse(c=>{if(c.userData.ownPin)own=true;});if(own)p++;else r++;}return {player:p,rival:r};},// V7: Test-Hook (sichtbare Laden-Pins)
  life:()=>({n:pBody.count,vis:pBody.visible||pSpr.some(s=>s.visible),yuki:YUKI_PPL,L:life.slice(0,2)}),bridges,CAM,clampT,lmGroup,roadCoverage:()=>ground.material.map.userData.roadCoverage,scene,tierOfSlot:(d,i)=>tierOf(d,i),syncStores,flyTo,select,setSeason,slotPos:(d,i)=>SLOTS[d][i],renderer,camera,controls,towers,stats:()=>({roofs:city.mesh.userData.roofs,stil:STIL5?5:4,buildings:bl.length,towerLots:TOWERS.filter(t=>t.lot!=null).length,towers:towers.children.filter(o=>!o.userData.roof).length,shops:SHOPS.length,landmarks:LANDMARKS.length,trees:trees.length,calls:renderer.info.render.calls,tris:renderer.info.render.triangles})};
 }
 

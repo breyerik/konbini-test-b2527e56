@@ -1,11 +1,12 @@
 import {NEUESTAEDTE} from './cities.js';
+import {SPIELNAME,SPIELNAME_JA} from './data.js';// R87: Spieltitel und Kürzel am Zug (KE → TT) auf dem Ladebildschirm
 // Bahnhof: Stadtwechsel-Menü + Zug-Ladescreen (Franky nach Yukis Entwurf). Standard an (Erik 21.10.), ?bahnhof=0 = altes ✈️-Menü.
 import * as B from './bahnhof_cfg.js';
 export const ON=new URLSearchParams(location.search).get('bahnhof')!=='0';
 let FAHRT=null,SVG=null;
 export function load(){if(!ON)return;
  fetch('daten/BAHNHOF_FAHRTEN.json').then(r=>r.json()).then(j=>FAHRT=j.verbindungen).catch(()=>{});
- fetch('grafik/bahnhof/ladescreen-zug.svg').then(r=>r.text()).then(t=>SVG=t).catch(()=>{});
+ fetch('grafik/bahnhof/ladescreen-zug.svg').then(r=>r.text()).then(t=>SVG=t.split('Konbini Empire').join(SPIELNAME).split('コンビニ・エンパイア').join(SPIELNAME_JA).replace('>KE</text>','>'+SPIELNAME.split(' ').map(w=>w[0]).join('')+'</text>')).catch(()=>{});
  if(!document.getElementById('bfcss')){const l=document.createElement('link');l.id='bfcss';l.rel='stylesheet';l.href='css/bahnhof.css';document.head.appendChild(l);}}
 export const staedte=()=>B.STAEDTE.filter(s=>s.live||(NEUESTAEDTE&&['nagoya','kyoto','osaka'].includes(s.id)));// andere Städte bleiben verborgen, bis sie spielbar sind
 export function fahrt(vonId,nachId){const v=B.STAEDTE.find(s=>s.id===vonId),n=B.STAEDTE.find(s=>s.id===nachId);if(!v||!n||v===n)return null;

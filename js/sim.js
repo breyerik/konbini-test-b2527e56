@@ -388,7 +388,82 @@ export function kannib(s,list){let l=0;for(const o of list){if(o===s||o.build)co
 // → gleiche Ecke 2×0,556 = 1,11×, 14,5 F ≈ 1,42×, ab 30 F kein Abzug (2,0×)
 export const TEILEN={gewicht:.8,felder:30};
 export function kShare(s,list){let x=0;for(const o of (list||mine())){if(o===s||o.build||o.chain!=='player')continue;const dd=storeDist(s,o);x+=TEILEN.gewicht*Math.max(0,1-dd/TEILEN.felder);}return 1/(1+x);}
-export const ownLoss=s=>1-kShare(s);// Anteil, den eigene Nachbarn abziehen (Anzeige/Tests)
+export const ownLoss=s=>1-kShare(s);
+// Gganbu R3 #5 (R74): Wie viele Kunden/Tag zieht ein jüngerer eigener Laden N von einem älteren eigenen Laden A ab?
+// Aus der echten Formel: Kunden(A) ist proportional zu kShare(A) → ohne N hätte A Kunden·(kShare ohne N / kShare mit N). Ändert nichts an der Sim.
+export function kannibZeilen(res){const O=mine().filter(x=>!x.build),out=[];
+ for(const A of O){const r=(res||[]).find(x=>x.id===A.id&&!x.building);if(!r||!r.cust)continue;const ks=kShare(A,O);
+  for(const N of O){if(N===A||(N.opened||0)<=(A.opened||0)||storeDist(A,N)>=TEILEN.felder)continue;const ks0=kShare(A,O.filter(x=>x!==N));
+   const proTag=Math.round(r.cust*(ks0/ks-1)/7);if(proTag>=1)out.push({von:N.id,vonName:storeLabel(N),an:A.id,anName:storeLabel(A),proTag,felder:Math.round(storeDist(A,N)*10)/10});}}
+ return out.sort((a,b)=>b.proTag-a.proTag).slice(0,4);}
+// Bau-Fenster: Vorschau für ein Grundstück (d,slot) – Abzug je naher eigener Laden aus dessen letzter Woche
+export function kannibVorschau(d,slot){const O=mine().filter(x=>!x.build),N={chain:'player',d,slot,build:0,id:-1},out=[];
+ for(const A of O){if(storeDist(A,N)>=TEILEN.felder)continue;const c=A.last&&A.last.cust?A.last.cust:custFor(A,DMAP[A.d],seasonInfo(state.week));
+  const proTag=Math.round(c*(1-kShare(A,[...O,N])/kShare(A,O))/7);out.push({an:A.id,anName:storeLabel(A),proTag,felder:Math.round(storeDist(A,N)*10)/10});}
+ return out.sort((a,b)=>b.proTag-a.proTag);}// Anteil, den eigene Nachbarn abziehen (Anzeige/Tests)
+// ---------- Gganbu R3 Zusatz A (R77/R78): Kobos Wochen-Aufträge – Ziele aus echten Sim-Größen der Vorwoche ----------
+// Eigener Zufall (Hash aus state.auftr.seed + Woche) – verbraucht KEIN Math.random, damit die Sim mit/ohne Aufträge gleich läuft.
+// Belohnungen bescheiden: höchstens ~¥0,1 Mio pro Woche (ein Ladenbau kostet rund ¥20 Mio), ?auftraege=0 schaltet ab (Balance-Messung).
+export const AUFTRAG={ON:!(typeof location!=='undefined'&&/[?&]auftraege=0\b/.test(location.search||'')),
+ lohn:{stueck:40000,kunden:30000,besser:50000,ruf:30000,plus:40000},minN:2,maxN:3,hist:12};
+function hashRng(a,b){let h=(Math.imul(a|0,2654435761)^Math.imul((b|0)+1,40503))>>>0;return()=>{h=(h+0x6D2B79F5)>>>0;let t=Math.imul(h^h>>>15,1|h);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function auftrSeed(){const g=globalThis.__seed;return g!=null?((Number(g)*7919+13)>>>0)||1:((Date.now()%2147483646)+1);}
+const offenHier=()=>mine().filter(s=>!s.build&&s.last&&!s.last.building);
+export function auftraege(){
+ if(!AUFTRAG.ON||!state)return [];
+ const A=state.auftr||(state.auftr={seed:auftrSeed(),w:-1,list:[],hist:[]});
+ if(A.w===state.week&&A.city===CITY.id)return A.list;
+ const w=state.week,R=hashRng(A.seed,w*31+(CITY.id||'').length),O=offenHier(),C=[];
+ const P={};for(const s of O)for(const id in s.last.prod||{}){const x=s.last.prod[id];if(x.u>0){(P[id]=P[id]||{name:x.name,u:0}).u+=x.u;}}
+ const top=Object.entries(P).sort((a,b)=>b[1].u-a[1].u).slice(0,6);
+ if(top.length){const [id,x]=top[Math.floor(R()*top.length)],ziel=Math.max(10,Math.ceil(x.u*(1.08+R()*.06)/10)*10);
+  C.push({typ:'stueck',pid:id,ziel,ref:Math.round(x.u),text:`Verkaufe ${ziel.toLocaleString('de-DE')} × ${x.name}`,info:`letzte Woche ${Math.round(x.u).toLocaleString('de-DE')}`});}
+ if(O.length){const k=O.reduce((a,s)=>a+s.last.cust,0)/7,ziel=Math.ceil(k*1.04/5)*5;
+  C.push({typ:'kunden',ziel,ref:Math.round(k),text:`Mindestens ${ziel.toLocaleString('de-DE')} Kunden/Tag in deinen Läden`,info:`letzte Woche ${Math.round(k).toLocaleString('de-DE')}`});}
+ else{const N=mine().filter(s=>!s.build&&DMAP[s.d]);// erste Woche (noch keine Vorwoche): Ziel aus der erwarteten Kundenzahl der Sim (custFor, ohne Zufall)
+  if(N.length){const ev=seasonInfo(w),k=N.reduce((a,s)=>a+custFor(s,DMAP[s.d],ev),0)/7,ziel=Math.ceil(k*.97/5)*5;
+   C.push({typ:'kunden',ziel,ref:Math.round(k),text:`Mindestens ${ziel.toLocaleString('de-DE')} Kunden/Tag in deinen Läden`,info:`erwartet rund ${Math.round(k).toLocaleString('de-DE')}`});}}
+ const h=state.hist&&state.hist[state.hist.length-1];
+ if(h&&O.length){const ev=seasonInfo(w);C.push({typ:'besser',ziel:Math.round(h.net),ref:Math.round(h.net),text:`Wochenergebnis besser als letzte Woche${ev.key==='rain'?' – trotz Regenzeit':''}`,info:`letzte Woche ${Math.round(h.net).toLocaleString('de-DE')} ¥`});}
+ {const z=Math.min(100,Math.floor(state.rep)+1);C.push({typ:'ruf',ziel:z,ref:Math.round(state.rep*10)/10,text:`Ruf auf mindestens ${z} bringen`,info:`jetzt ${(Math.round(state.rep*10)/10).toLocaleString('de-DE')}`});}
+ if(O.length>1){const n=O.filter(s=>s.last.op>0).length;if(n<O.length)C.push({typ:'plus',ziel:n+1,ref:n,text:`${n+1} Läden mit Gewinn (Laden-Ergebnis im Plus)`,info:`letzte Woche ${n} von ${O.length}`});}
+ for(let i=C.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[C[i],C[j]]=[C[j],C[i]];}
+ const n=Math.min(C.length,AUFTRAG.minN+(R()<.5?1:0));
+ A.list=C.slice(0,n).map((c,i)=>({...c,id:w+':'+i,lohn:AUFTRAG.lohn[c.typ]}));A.w=w;A.city=CITY.id;
+ return A.list;}
+// Auswertung am Wochenende (nach Ladenschleife, Steuer und Ruf): erfüllt → Belohnung direkt in die Kasse
+function auftragWerten(rep,T){
+ const A=state.auftr;if(!AUFTRAG.ON||!A||A.w!==rep.week||!A.list.length)return null;
+ const R=rep.stores.filter(r=>!r.building);let bonus=0;
+ const list=A.list.map(a=>{let ist;
+  if(a.typ==='stueck')ist=Math.round(R.reduce((s,r)=>s+((r.prod||{})[a.pid]?.u||0),0));
+  else if(a.typ==='kunden')ist=Math.round(R.reduce((s,r)=>s+r.cust,0)/7);
+  else if(a.typ==='besser')ist=Math.round(T.net);
+  else if(a.typ==='ruf')ist=Math.round(state.rep*10)/10;
+  else ist=R.filter(r=>r.op>0).length;
+  const ok=a.typ==='besser'?ist>a.ziel:ist>=a.ziel;if(ok)bonus+=a.lohn;return {...a,ist,ok};});
+ state.cash+=bonus;A.hist=[{w:rep.week,list,bonus},...(A.hist||[])].slice(0,AUFTRAG.hist);A.sum=(A.sum||0)+bonus;A.list=[];A.w=-1;
+ return {list,bonus,n:list.filter(a=>a.ok).length};}
+// ---------- Gganbu R3 Zusatz B (R79–R81): Gewinnkurve – Prognose „im Plus ab KW x“ aus der Sim ----------
+// Rechnet custFor+runStore Woche für Woche mit Mittelwert-Zufall (0,5 → alle rnd-Faktoren = 1, keine Zwischenfälle) und heutiger Konkurrenz.
+// Ändert weder Zufallsfolge noch Spielstand (alles in try/finally zurückgesetzt).
+export const GEWINNKURVE={maxWochen:30,fruehBonus:100000};
+export function plusPrognose(s,start){
+ const d=DMAP[s.d];if(!d||s.chain!=='player')return null;
+ const mr=Math.random,w0=state.week,b0=s.build,ev0=state.evMods;
+ try{Math.random=()=>.5;s.build=0;state.evMods=[];
+  for(let i=0;i<GEWINNKURVE.maxWochen;i++){const w=start+i;state.week=w;const ev=seasonInfo(w),ce=custFor(s,d,ev),r=runStore(s,d,ev,ce,ce,[]);
+   if(r.op>0)return {week:w,kw:kw(w),wochen:w-(s.opened||start)+1,ab:start,op:Math.round(r.op)};}
+  return {week:null,kw:null,wochen:null,ab:start};}
+ finally{Math.random=mr;state.week=w0;s.build=b0;state.evMods=ev0;}}
+export function prognoseVon(s){if(!s||s.chain!=='player'||s.plusAb!=null)return null;
+ if(!s.prog||s.prog.ab!==(s.build?s.opened:s.prog.ab))s.prog=plusPrognose(s,s.build?s.opened:state.week);return s.prog;}
+function fruehPlus(rep){const out=[];
+ for(const r of rep.stores){if(r.building)continue;const s=state.stores.find(x=>x.id===r.id);if(!s||s.plusAb!=null)continue;
+  if(r.op>0){s.plusAb=rep.week;if(s.prog&&s.prog.week!=null&&rep.week<s.prog.week){state.cash+=GEWINNKURVE.fruehBonus;out.push({id:s.id,name:storeLabel(s),kw:kw(rep.week),progKw:s.prog.kw,bonus:GEWINNKURVE.fruehBonus,frueh:true});}
+   else if(s.prog)out.push({id:s.id,name:storeLabel(s),kw:kw(rep.week),progKw:s.prog.kw,bonus:0,frueh:false});}}
+ const offen=mine().filter(s=>s.plusAb==null&&s.prog&&s.prog.week!=null).map(s=>({id:s.id,name:storeLabel(s),progKw:s.prog.kw,wochen:s.prog.wochen,build:!!s.build}));
+ return {plus:out,offen};}
 export const lossTotal=s=>rivalLoss(s);// V7: eigene Läden über kShare (multiplikativ), Rivalen über rivalLoss (Deckel verlustMax)
 // V7 (R46): Konkurrenz in beide Richtungen – gleiche Abstandsformel: je fremdem Laden ≤ 5 F (nahFelder) −20 %, ≤ 10 F −8 %, sonst im Bezirk −3 %, zusammen höchstens 30 %
 export function rivalLoss(s){const R=RIVAL_RULES;let l=0,nearUsed=false;const act=state.priceActs||{};
@@ -408,6 +483,7 @@ export function endWeek(){
  const rep={week:w,date:dateLabel(weekDate(w)),ev:{label:ev.label,emoji:ev.emoji,desc:ev.desc},stores:[],news:[],tips:[],events:[],share:{},milestones:[],opened:[],closed:[],ready:[],paper:[]};
  const cust={player:0};RIVALS.forEach(c=>cust[c]=0);
  devHinweise(rep);
+ auftraege();// R77: Aufträge der Woche stehen fest, bevor simuliert wird (auch ohne HUD-Render)
  for(const f of preWeekHooks)f(state,rep);// V7: z. B. Übernahme-Abschluss vor der Simulation
  // offene Entscheidung der Woche: wer nichts wählt, bekommt Option B (wirkt noch in dieser Woche)
  if(state.event&&!state.event.done&&state.event.w<=w)chooseEvent('b',rep.events);
@@ -415,9 +491,12 @@ export function endWeek(){
  {const G={};for(const e of state.evMods||[]){if(e.cust==null||e.left<=0)continue;const t=eventText(e.id);if(!t)continue;const k=e.id+'@'+(e.wk??'');const g=G[k]||(G[k]={id:e.id,wk:e.wk??null,text:t.text.replace(/\{\w+\}/g,'…').replace(/<[^>]+>/g,'').slice(0,60),cust:1,left:0,neu:e.wk===w});g.cust*=e.cust;g.left=Math.max(g.left,e.left);}
   rep.evFolgen=Object.values(G).map(g=>({...g,pct:Math.round((g.cust-1)*100),noch:g.left-1}));}
  const T={rev:0,cogs:0,gross:0,wages:0,salary:0,rent:0,mkt:0,admin:0,svcFixed:0,power:0,fees:0,cust:0,dep:0,assetTax:0,heiss:0,kalt:0,essen:0,sonst:0};
+ // Gganbu R2 #1 (R64): ein Laden, der in dieser Woche fertig wird, öffnet erst nächste Woche – er bleibt bis nach der Ladenschleife „im Bau“
+ // (sonst lief er in derselben Woche zusätzlich durch runStore: doppelt im Bericht, doppelte Kosten/Umsatz, zählte schon als offener Nachbar)
+ const fertigJetzt=[];
  for(const s of mine()){
   const d=DMAP[s.d];
-  if(s.build>0){rep.stores.push(bauWoche(s,rep));continue;}
+  if(s.build>0){rep.stores.push(bauWoche(s,rep));if(s.build===0){s.build=1;fertigJetzt.push(s);}continue;}
  }
  for(const dd of DISTRICTS){
   const ds=inD(dd.id).filter(s=>!s.build);if(!ds.length)continue;
@@ -433,6 +512,9 @@ export function endWeek(){
    }
   }
  }
+ rep.kannib=kannibZeilen(rep.stores);// Gganbu R3 #5 (R74): nur Anzeige, Spiellogik unverändert
+ for(const s of fertigJetzt)s.build=0;
+ for(const s of fertigJetzt)s.prog=plusPrognose(s,w+1);// R79: Prognose bei Fertigstellung mit aktueller Konkurrenz
  const here={city:CITY.id,name:CITY.name,n:mine().length,rev:sum(rep.stores.map(r=>r.rev)),op:sum(rep.stores.map(r=>r.op)),opened:rep.ready.slice(),aktuell:true};
  const aw=awayWeek(rep,ev,T,cust);rep.cities=[here,...aw.lines];// V6: eine Zeile je Stadt im Wochenbericht
  for(const r of [...rep.stores,...aw.res])for(const k in T)if(k in r&&!['heiss','kalt','essen','sonst'].includes(k))T[k]+=r[k]||0;
@@ -461,6 +543,7 @@ export function endWeek(){
  let dr=rep.stores.filter(r=>!r.building).length?0:-.1;
  for(const r of rep.stores){if(r.building)continue;const s=state.stores.find(x=>x.id===r.id);dr+=.25+((s.bh?s.bh.overall:3)-3)*.15-r.stockout*5-r.queue*3;}
  state.rep=clamp(state.rep+dr,0,100);
+ rep.auftr=auftragWerten(rep,T);rep.gk=fruehPlus(rep);// R77/R80: Aufträge abhaken, Frühstart-Bonus (direkt in die Kasse)
  // Tipps
  const nx=seasonInfo(w+1),profi=tippProfi(state);
  for(const r of rep.stores){if(r.building)continue;const s=state.stores.find(x=>x.id===r.id),n=storeLabel(s);

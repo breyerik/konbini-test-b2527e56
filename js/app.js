@@ -44,15 +44,34 @@ function svcIcon(v,size=40){return `<img src="grafik/icons/services/${v.icon}.sv
 function stars(v){const f=Math.floor(v),h=v-f>=.5;return `<span class="stars">${'★'.repeat(f)}${h?'<b class="half">★</b>':''}<i>${'★'.repeat(5-f-(h?1:0))}</i></span>`;}
 function seg(act,id,k,arr,cur,fmt){return `<div class="seg">${arr.map((o,i)=>`<button class="${i===cur?'on':''}" data-act="${act}" data-id="${id}" data-k="${k}" data-v="${i}">${o.label}${fmt?`<small>${fmt(o,i)}</small>`:''}</button>`).join('')}</div>`}
 let toastT;function toast(m,cls){const t=$('#toast');t.className=cls||'';t.innerHTML=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),3000);}
-function showSheet(h,kind){const el=$('#sheet');el.innerHTML='<div class="grab"></div>'+h;el.scrollTop=0;el.dataset.kind=kind||'';if(!document.body.classList.contains('sheet'))ui.sheetT=performance.now();document.body.classList.add('sheet');}
+function showSheet(h,kind){const el=$('#sheet');el.innerHTML='<div class="grab"></div>'+h;el.scrollTop=0;el.dataset.kind=kind||'';document.body.classList.add('sheet');}
 // Gganbu R1 #3 (R60): offene „Entscheidung der Woche“ – eigenes Fenster, kein Auto-B im Spiel
 const evOffen=()=>{const v=S.state&&S.eventView();return !!(v&&!v.done);};
 const sheetKind=()=>sheetOpen()?($('#sheet').dataset.kind||''):'';
-const frischOffen=()=>sheetOpen()&&performance.now()-(ui.sheetT||0)<700;// #7: zweiter Tipp eines Doppeltipps schließt das neue Fenster nicht
+// Gganbu R2 #2 (R65): Doppeltipp-Schutz nur noch für echte Doppeltipps – zweiter Klick an (fast) derselben Stelle innerhalb 450 ms.
+// Vorher sperrte #7 jeden Tipp in den ersten 700 ms nach dem Öffnen eines Fensters; ein bewusster erster Klick wirkt jetzt sofort.
+// Gganbu R3 #4 (R73): Kobo-Knöpfe („Verstanden“/„Weiter“/„Tutorial ausblenden“) wirken schon beim Drücken. Verschiebt sich das Layout
+// zwischen Drücken und Loslassen, geht der Klick sonst daneben. Der nachfolgende echte Klick wird verschluckt (er träfe sonst, was darunter liegt).
+const TUTDN={t:-1e9};
+document.addEventListener('pointerdown',e=>{if(e.button)return;const tb=e.target.closest&&e.target.closest('#tutor.show [data-act=tutnext],#tutor.show [data-act=tutoff]');if(!tb)return;
+ e.preventDefault();TUTDN.t=0;tb.click();TUTDN.t=performance.now();},true);
+document.addEventListener('click',e=>{if(e.isTrusted&&performance.now()-TUTDN.t<900){TUTDN.t=-1e9;e.stopImmediatePropagation();e.preventDefault();}},true);
+const TAP={t:-1e9,x:-1e3,y:-1e3,vt:-1e9,vx:-1e3,vy:-1e3};
+document.addEventListener('click',e=>{TAP.vt=TAP.t;TAP.vx=TAP.x;TAP.vy=TAP.y;TAP.t=performance.now();TAP.x=e.clientX;TAP.y=e.clientY;},true);
+const doppelTipp=()=>TAP.t-TAP.vt<450&&Math.hypot(TAP.x-TAP.vx,TAP.y-TAP.vy)<40;
+// R65: wird ein Knopf zwischen Drücken und Loslassen neu gezeichnet (innerHTML), landet der Klick auf dem Eltern-Element und war verloren.
+// Dann zählt der Knopf, der jetzt an derselben Stelle liegt, wenn er dieselbe Aktion hat wie der beim Drücken.
+const DOWN={act:null,v:null,t:0,el:null};
+document.addEventListener('pointerdown',e=>{if(performance.now()-TUTDN.t<50)return;const b=e.target.closest&&e.target.closest('[data-act]');DOWN.act=b?b.dataset.act:null;DOWN.v=b?(b.dataset.v||''):null;DOWN.t=performance.now();DOWN.el=b;},true);
+// Ist der gedrückte Knopf beim Loslassen schon ersetzt (nicht mehr im Dokument), schickt der Browser oft gar keinen Klick → hier selbst auslösen
+document.addEventListener('pointerup',e=>{const d=DOWN.el;if(!d||d.isConnected||e.button)return;const b=knopfNachRender(e);DOWN.act=null;DOWN.el=null;
+ if(b)b.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,clientX:e.clientX,clientY:e.clientY}));},true);
+function knopfNachRender(e){if(!DOWN.act||performance.now()-DOWN.t>1500||!(e.clientX||e.clientY))return null;const el=document.elementFromPoint(e.clientX,e.clientY),b=el&&el.closest('[data-act]');
+ return b&&b.dataset.act===DOWN.act&&(b.dataset.v||'')===DOWN.v?b:null;}
 // Städte: eine Firma, Wechsel = speichern + neu laden in die andere Stadt (Karte/Plan hängen am Seitenstart)
 const TRAVEL=[{id:'tokio',name:'Tokio',jp:'東京',emoji:'🗼'},{id:'yokohama',name:'Yokohama',jp:'横浜',emoji:'🎡'}].concat(NEUESTAEDTE?Object.values(NEUE_STAEDTE).map(c=>({id:c.id,name:c.name,jp:c.jp,emoji:c.emoji})):[]);
 const cityURL=(id,q)=>{const p=new URLSearchParams(location.search);p.delete('stadt');p.delete('weiter');const keep=p.toString();return location.pathname+'?'+[id==='tokio'?'':'stadt='+id,keep,q].filter(Boolean).join('&');};// Schalter (z. B. ?neuestaedte=1) bleiben beim Reisen erhalten
-function travel(id){if(id===CITY.id){closeSheet();return;}S.save();location.href=cityURL(id,'weiter='+((S.state&&S.state.slot)||1));}
+function travel(id){if(id===CITY.id){closeSheet();return;}S.save();if(W&&W.yokohamaEntfernen)W.yokohamaEntfernen();location.href=cityURL(id,'weiter='+((S.state&&S.state.slot)||1));}
 function cityCards(){const aw=S.state?S.awayStores(S.state):[];return TRAVEL.map(c=>{const on=c.id===CITY.id,a=aw.find(x=>x.city===c.id);
  const sub=on?`Aktiv · ${filN(S.mine().length)}`:a?`✈️ Reisen · ${filN(a.n)}`:(c.id==='tokio'?'✈️ Reisen':'✈️ Expandieren · freie Läden');
  return `<div class="city ${on?'on':''}" data-act="travel" data-v="${c.id}" style="cursor:pointer"><span class="jp">${c.jp}</span><b>${c.emoji} ${c.name}</b><small>${sub}</small></div>`;}).join('');}
@@ -61,7 +80,12 @@ function bahnhofOpen(){closeSheet();let el=$('#bf');if(!el){el=document.createEl
 function abfahrt(id){S.save();document.body.classList.remove('bfopen');BF.ladescreen(id);setTimeout(()=>travel(id),BF.LADEZEIT);}
 function travelSheet(){showSheet(`<div class="h">✈️ Städte</div><div class="cities">${cityCards()}</div><div style="color:var(--mut);font-size:12px;font-weight:700;margin-top:8px">Eine Firma, eine Kasse. Filialen in anderen Städten laufen weiter und werden jede Woche voll mitgerechnet.</div>`);}
 const filN=n=>n===1?'1 Filiale':`${n} Filialen`,ladenN=n=>n===1?'1 Laden':`${n} Läden`;// Singular/Plural (Whitebeard)
-function closeSheet(){closePick();document.body.classList.remove('sheet');$('#sheet').dataset.kind='';ui.storeId=null;W&&W.select(null);}
+function closeSheet(){closePick();document.body.classList.remove('sheet');$('#sheet').dataset.kind='';ui.storeId=null;W&&W.select(null);
+ if(NACH_BERICHT.length)setTimeout(nachBericht,250);}
+// Gganbu R3 #3 (R72): Was das Wochenende sonst automatisch öffnet (Finanzen-Vollbild bei Insolvenz/neuer Kette), wartet, bis der Bericht zu ist.
+// Ursache KW51: das Finanzen-Vollbild (#fz, z-index 60) legte sich direkt über den frischen Wochenbericht, die Kobo-Box (z-index 95) darüber.
+const NACH_BERICHT=[];
+function nachBericht(){if(sheetOpen()||!NACH_BERICHT.length)return;const f=NACH_BERICHT.shift();f();if(NACH_BERICHT.length)setTimeout(nachBericht,250);}
 const sheetOpen=()=>document.body.classList.contains('sheet');
 
 const GH=(g,size=22)=>{let h='';for(let i=1;i<=5;i++){const k=g>=i?'voll':g>=i-.5?'halb':'leer';h+=`<img src="grafik/bewertung/geist-${k}.svg" width="${size}" height="${size}" alt="">`;}return `<span class="gh">${h}</span>`;};
@@ -76,8 +100,10 @@ const designOf=b=>S.designOf({b});
 const TUT_NEXT={start:'sortiment',sortiment:'personal',personal:'services',zweiter_laden:'karte'};
 const TUT_ZUSATZ={start:' 📍 Das ist Omas Laden – auf der Karte mit dem Ring markiert. Mit ihm verdienst du dein erstes Geld.',miete:''};
 ['kobo','kobo-besorgt','kobo-jubelnd'].forEach(f=>{const i=new Image();i.src='grafik/maskottchen/'+f+'.svg';});// #13: Kobo vorladen, Blase erscheint ohne leeren Zwischenstand
+// Gganbu R2 #5 (R68): einmaliger Kobo-Hinweis, sobald der Startkredit verfügbar ist (Text hier, marketing/texte.json bleibt unberührt)
+const TUT_EXTRA={gewinnkurve:{id:'gewinnkurve',figur:'kobo-jubelnd',text:'{name} ist fertig und öffnet nächste Woche! {prognose}'},startkredit_da:{id:'startkredit_da',figur:'kobo-jubelnd',text:'Die Bank gibt dir jetzt einen Startkredit über {betrag} – genug für deinen zweiten Laden! Tipp auf ein freies Grundstück: Im Bau-Fenster steht unter „Bau beginnen“ der Knopf „Startkredit aufnehmen“. (Auch unter Finanzen › Börse › Kredite.)'}};
 function tut(id,force,vars,extra){
- const s=st(),X=GFX.texte||{},T=(X.tutorial||[]).find(x=>x.id===id)||(X.hinweise||[]).find(x=>x.id===id)||rescueText(id);
+ const s=st(),X=GFX.texte||{},T=(X.tutorial||[]).find(x=>x.id===id)||(X.hinweise||[]).find(x=>x.id===id)||rescueText(id)||TUT_EXTRA[id];
  const always=['warnung_kasse','warnung_minus','rettung_gerettet'].includes(id);// Kassen-Warnung auch bei ausgeblendetem Tutorial
  if(!T||!s||(s.tutOff&&!always)||(s.tut[id]&&!force))return;s.tut[id]=1;ui.tutId=id;
  const fig=({'kobo':'kobo','kobo-besorgt':'kobo-besorgt','kobo-jubelnd':'kobo-jubelnd'})[T.figur]||'kobo';
@@ -95,6 +121,8 @@ function renderHUD(){
  const ev=S.seasonInfo(s.week),sa=S.saisonFor(ev);
  {const key=ev.label+'|'+st().week;if(ui.chipKey!==key){ui.chipKey=key;ui.chipOpen=true;clearTimeout(ui.chipT);ui.chipT=setTimeout(()=>{ui.chipOpen=false;const c=document.querySelector('#seasonChip .schip');c&&c.classList.add('mini');},4000);}}
  $('#seasonChip').innerHTML=`<div class="schip${ui.chipOpen?'':' mini'}" data-act="chip" role="button" aria-expanded="${!!ui.chipOpen}" title="${esc(ev.label)}"><span class="e">${ico(seasonIco(ev),18)}</span><div>${ev.label}<small>${ev.desc} · ${esc(sa.name)}</small></div></div>`;
+ {const A=S.auftraege();if(ui.aOpen==null)ui.aOpen=innerWidth>=900;// R78: Kobos Aufträge im HUD (unter dem Saison-Chip), antippen klappt auf/zu
+  if(A.length)$('#seasonChip').insertAdjacentHTML('beforeend',`<div class="achip${ui.aOpen?'':' mini'}" id="auftrChip" data-act="auftr" role="button" aria-expanded="${!!ui.aOpen}"><div class="ah">🎯 <b>Kobos Aufträge</b> <small>KW ${S.kw(s.week)} · ${A.length} offen</small></div>${ui.aOpen?`<ul>${A.map(a=>`<li data-typ="${a.typ}"><span>${esc(a.text)}</span><small>${esc(a.info)} · Lohn ${fmtY(a.lohn)}</small></li>`).join('')}</ul>`:''}</div>`);}
  W&&W.setSeason(ev.key==='hanami'?'hanami':(ev.base||ev.key));
 }
 const TABS=[['map','map','Karte'],['stores','shop','Filialen'],null,['fin','chart','Finanzen'],['market','trophy','Markt']];
@@ -205,6 +233,7 @@ function builderSheet(){
  <div class="lbl">Kostenzusammenfassung</div><div class="card"><table class="fin">${summaryRows(b).map(([a,v])=>`<tr class="sub"><td>${esc(a)}</td><td>${fmtY(v)}</td></tr>`).join('')}
  <tr><td>Kaution (${info.tier.depM} Monatsmieten, kommt zurück)</td><td>${fmtY(parts.deposit)}</td></tr><tr><td>Erstbestückung Ware</td><td>${fmtY(parts.ware)}</td></tr>
  <tr class="sum"><td>Gesamt</td><td>${fmtY(total)}</td></tr><tr class="sub"><td>Verfügbar</td><td class="${cash>=total?'pos':'neg'}">${fmtY(cash)}</td></tr></table></div>
+ ${(()=>{const k=S.kannibVorschau(dr.did,dr.slot).filter(x=>x.proTag>=1);return k.length?`<div class="tip bad kannibbau" id="kannibBau"><span>🔀 <b>Nah an deinem Laden:</b> ${k.map(x=>`${esc(x.anName)} (${fmtN(x.felder)} Felder entfernt) verliert voraussichtlich ca. <b>${fmtN(x.proTag)} Kunden/Tag</b>`).join('; ')} an den neuen Laden.</span></div>`:'';})()}
  <div style="margin-top:12px"><button class="btn primary full" data-act="dobuild" ${cash<total?'disabled':''}>Bau beginnen</button>${cash<total?geldFehlt(dr,total,cash):''}</div>`);
  mountPreview(b);syncPv();tut('bauen',false,null,cash<total?geldTutor(total-cash):'');
 }
@@ -241,6 +270,7 @@ function openStoreSheet(id){
  const open=s.opened-st().week;
  showSheet(`<div class="sh-title">${chainLogo('player',44)}<div class="grow"><b>${S.storeLabel(s)}</b><small>${esc(info.address)}</small></div><button class="x" style="position:static" data-act="close">✕</button></div>
  ${s.build?`<div class="soon"><img src="${GFX.svg.ban_soon?svgURL(GFX.svg.ban_soon):''}" alt=""><div><b>Eröffnungstag: KW ${S.kw(s.opened)} · ${S.dateLabel(S.weekDate(s.opened))}</b><small>In ein paar Wochen fertig (noch ${s.build} ${s.build>1?'Wochen':'Woche'}).</small></div></div>`:''}
+ ${(()=>{const g=S.prognoseVon(s);return g?`<div class="tip gkline" id="gkLaden">📈 <span>${g.week!=null?`<b>Voraussichtlich im Plus ab KW ${g.kw}</b> (${g.wochen} ${g.wochen===1?'Woche':'Wochen'} nach Eröffnung). Früher geschafft: ${fmtY(S.GEWINNKURVE.fruehBonus)} Bonus.`:`<b>Noch nicht absehbar, wann der Laden ins Plus kommt</b> (nicht in den nächsten ${S.GEWINNKURVE.maxWochen} Wochen). Miete, Personal oder Nachbarn prüfen.`}</span></div>`:''})()}
  ${s.last&&!s.last.building&&s.last.op<0?`<div class="tip bad minuswarn">🔻 <span><b>Rote Zahlen:</b> ${fmtY(s.last.rev)} Umsatz, aber ${sgn(s.last.op)} Ergebnis letzte Woche. Miete, Personal oder ein eigener/fremder Laden in der Nähe drücken den Gewinn.</span></div>`:''}
  <div class="preview short" id="pv">${pvToggle}</div>
  <div class="tabs4">${tabs.map(([k,e,l])=>`<button class="${T===k?'on':''}" data-act="stab" data-v="${k}"><span>${e}</span>${l}</button>`).join('')}</div>${body}`);
@@ -354,6 +384,8 @@ function reportSheet(r){
  <div class="lbl">Cashflow</div><div class="card" style="padding:6px 14px"><table class="fin"><tr><td>Geschäft</td><td class="${T.cf.op>=0?'pos':'neg'}">${sgn(T.cf.op)}</td></tr><tr><td>Investition</td><td class="${T.cf.inv>=0?'pos':'neg'}">${sgn(T.cf.inv)}</td></tr><tr><td>Finanzierung</td><td class="${T.cf.fin>=0?'pos':'neg'}">${sgn(T.cf.fin)}</td></tr></table></div>
  ${r.uebernahme?`<div class="tip ok uecard">🏆 <span><b>Übernahme ${esc(r.uebernahme.name||'')}</b>: ${r.uebernahme.n} Läden sind jetzt deine – ${r.uebernahme.aufKarte||0} auf der Karte (${r.uebernahme.karte.length} davon neu platziert), ${r.uebernahme.weitere} in weiteren Städten. Ihr Umsatz zählt schon in dieser Woche.</span></div>`:''}
  ${(()=>{const m=r.stores.filter(x=>!x.building&&x.op<0).length;return m?`<div class="tip bad minuswarn">🔻 ${m===1?'Ein Laden schreibt':m+' Läden schreiben'} diese Woche rote Zahlen (Umsatz da, Kosten höher).</div>`:''})()}
+ ${r.auftr?`<div class="lbl">Kobos Aufträge · KW ${S.kw(r.week)}</div><div class="card auftrcard" id="auftrBericht" style="padding:6px 14px">${r.auftr.list.map(a=>`<div class="srow auftrrow ${a.ok?'ok':'nein'}" data-ok="${a.ok?1:0}"><div class="grow" style="font-size:13px;font-weight:700">${a.ok?'✅':'❌'} ${esc(a.text)}<div style="color:var(--mut);font-size:11px;font-weight:600">${a.typ==='besser'?`Ergebnis ${sgn(a.ist)} (Ziel: mehr als ${sgn(a.ziel)})`:`geschafft: ${a.ist.toLocaleString('de-DE')} · Ziel ${a.ziel.toLocaleString('de-DE')}`}</div></div><b class="${a.ok?'pos':''}" style="font-size:13px">${a.ok?'+'+fmtY(a.lohn):'–'}</b></div>`).join('')}<div style="font-size:11.5px;color:var(--mut);font-weight:700;margin:4px 0">${r.auftr.n} von ${r.auftr.list.length} erfüllt${r.auftr.bonus?` · ${fmtY(r.auftr.bonus)} Belohnung schon in der Kasse`:''}</div></div>`:''}
+ ${(r.gk&&(r.gk.plus.length||r.gk.offen.length))||(r.kannib||[]).length?`<div class="lbl">Neue Läden · Gewinnkurve</div><div class="card gkcard" id="gewinnkurve" style="padding:6px 14px">${(r.gk?r.gk.plus:[]).map(g=>`<div class="srow gkrow"><div class="grow" style="font-size:13px;font-weight:700">${g.frueh?'⚡':'📈'} <b>${esc(g.name)}</b> ist ab KW ${g.kw} im Plus${g.frueh?` – früher als die Prognose (KW ${g.progKw})`:''}</div>${g.bonus?`<b class="pos" style="font-size:13px">+${fmtY(g.bonus)}</b>`:''}</div>`).join('')}${(r.gk?r.gk.offen:[]).map(g=>`<div class="srow gkrow"><div class="grow" style="font-size:13px;font-weight:700">📈 <b>${esc(g.name)}</b>: voraussichtlich im Plus ab KW ${g.progKw}</div></div>`).join('')}${(r.kannib||[]).length?`<div id="kannibZeile" class="kannibin">${r.kannib.map(k=>`<div class="srow kannibrow"><div class="grow" style="font-size:13px;font-weight:700">🔀 <b>${esc(k.vonName)}</b> zieht Kunden von <b>${esc(k.anName)}</b> ab: <b class="neg">−${fmtN(k.proTag)} Kunden/Tag</b></div></div>`).join('')}<div style="font-size:11.5px;color:var(--mut);font-weight:700;margin:4px 0">Eigene Läden unter ${S.TEILEN.felder} Feldern Abstand teilen sich die Kundschaft (je näher, desto mehr).</div></div></div>`:''}</div>`:''}
  ${r.stores.length?`<div class="lbl">Filialen · Laden-Ergebnis vor Zentrale & Steuer</div><div class="card" style="padding:4px 14px">${r.stores.map(x=>{const s=st().stores.find(y=>y.id===x.id);return `<div class="srow">${chainLogo('player',28)}<div class="grow"><b>${s?S.storeLabel(s):''}</b><div style="color:var(--mut);font-size:11px;font-weight:600">${x.building?'🚧 im Bau':fmtN(x.cust/7)+' Kunden/Tag · '+GH(x.ghosts||3,12).replace(/<\/?span[^>]*>/g,'')+''}</div></div><div class="v"><b class="${x.net>=0?'pos':'neg'}">${!x.building&&x.op<0?'🔻 ':''}${sgn(x.net)}</b><small>${fmtY(x.rev)}</small></div></div>`}).join('')}</div>`:`<div class="tip">🏪 Noch keine Filiale. Tippe auf der Karte auf einen 空き-Pin.</div>`}
  ${(r.cities||[]).length>1?`<div class="lbl">Städte</div><div class="card cities" style="padding:4px 14px">${r.cities.map(c=>`<div class="srow"><div class="grow"><b>${esc(c.name)}</b>${c.aktuell?' <small style="color:var(--mut)">(hier)</small>':''}<div style="color:var(--mut);font-size:11px;font-weight:600">${c.n} ${c.n===1?'Laden':'Läden'} · Umsatz ${fmtY(c.rev||0)}${(c.opened||[]).length?` · 🎉 ${c.opened.length} neu eröffnet`:''}</div></div><b class="${(c.op||0)>=0?'pos':'neg'}" style="font-size:13px">${sgn(c.op||0)}</b></div>`).join('')}</div>`:''}
  ${(r.vertraege||[]).length?`<div class="lbl">Verträge laufen aus</div>${r.vertraege.map(v=>`<div class="tip bad vende"><span>📄 <b>${esc(v.name)}</b>: noch ${v.left} ${v.left===1?'Woche':'Wochen'}, danach nicht mehr im Regal.</span><button class="btn sm" data-act="fzverl" data-x="${esc(v.id)}">🔁 Verlängern</button></div>`).join('')}`:''}
@@ -384,8 +416,13 @@ function rivalSheet(x){const ch=D.CHAINS[x.chain]||{name:x.chain},si=S.siteInfo(
 function eventSheet(){const v=S.eventView();if(!v||v.done){closeSheet();return;}
  showSheet(`<div style="text-align:center;color:var(--mut);font-size:12px;font-weight:900;letter-spacing:1.4px">ENTSCHEIDUNG · KW ${S.kw(st().week)}</div>
  <div class="story evcard"><img src="grafik/maskottchen/${esc(v.figur)}.svg" alt="Kobo"><p>${esc(v.text)}</p><small style="color:var(--mut);font-weight:700">${v.ziel==='alle'?'Betrifft alle Filialen':v.ziel==='stadtteil'?'Betrifft Filialen im Stadtteil':'Betrifft '+esc(v.laden)}</small></div>
- <button class="btn primary full evopt" data-act="evpick" data-v="a" style="margin-top:12px"><b>${esc(v.a)}</b><small>${esc(v.effA)}</small></button>
- <button class="btn full evopt" data-act="evpick" data-v="b" style="margin-top:8px"><b>${esc(v.b)}</b><small>${esc(v.effB)}</small></button>${v.hint?`<div class="evhint">${esc(v.hint)}</div>`:''}<div class="evpflicht" id="evPflicht">Bitte wähle eine Option. Ohne Entscheidung startet die nächste Woche nicht.</div>`,'event');}
+ <div class="evbtns" id="evBtns"><button class="btn primary full evopt" data-act="evpick" data-v="a" style="margin-top:12px"><b>${esc(v.a)}</b><small>${esc(v.effA)}</small></button>
+ <button class="btn full evopt" data-act="evpick" data-v="b" style="margin-top:8px"><b>${esc(v.b)}</b><small>${esc(v.effB)}</small></button></div>${v.hint?`<div class="evhint">${esc(v.hint)}</div>`:''}<div class="evpflicht" id="evPflicht">Bitte wähle eine Option. Ohne Entscheidung startet die nächste Woche nicht.</div><div class="evplatz" id="evPlatz"></div>`,'event');fitEv();setTimeout(fitEv,400);}
+// Gganbu R3 #2 (R71): Die beiden Optionen bleiben bei jeder Breite/Höhe ohne Scrollen sichtbar – klebend am unteren Fensterrand, oberhalb der Nav-Leiste
+function fitEv(){const sh=$('#sheet'),bx=sh&&sh.querySelector('#evBtns');if(!bx||sheetKind()!=='event')return;bx.style.bottom='0px';
+ const bar=$('#bar').getBoundingClientRect(),unterkante=sh.offsetTop+sh.offsetHeight,unten=bar.height&&bar.top<unterkante?Math.ceil(unterkante-bar.top+6):0;// offsetTop: ohne Einblend-Transform
+ bx.style.bottom=unten+'px';const pl=sh.querySelector('#evPlatz');if(pl)pl.style.height=unten+'px';}
+addEventListener('resize',()=>fitEv());
 // Gganbu-Playtest R1 #1 (R59): Startgeld reicht bewusst nicht für Laden 2 – erst mit Omas Laden sparen, dann Bankkredit.
 // „Wähle günstigere Modelle“ nur, wenn es wirklich eine günstigere Ausstattung gibt (Pflichtgeräte billigstes Modell, Rest weg).
 function minBuild(b){const m={...b};for(const k of ['fac','inn',...D.EQUIP_KEYS]){const B=D.BUILD[k];if(k==='fac'||k==='inn'||B.must){let bi=0;B.opts.forEach((_,i)=>{if(D.optPrice(k,i)<D.optPrice(k,bi))bi=i;});m[k]=bi;}else m[k]=-1;}return m;}
@@ -395,7 +432,11 @@ function kreditInfo(){const s=st();
  return {jetzt:false,kw:S.kw(D.LOAN.fromWeek),text:`Ab KW ${S.kw(D.LOAN.fromWeek)} gibt dir die Bank einen Kredit (Finanzen › Bankkredit).`};}
 function geldFehlt(dr,total,cash){const mb=minBuild(dr.b),mp=S.openCostParts(dr.did,dr.slot,mb),min=mp.bau+mp.deposit+mp.ware,k=kreditInfo();
  const billiger=min<total-1?`<br>Günstigste Ausstattung hier: ${fmtY(min)} – wähle günstigere Modelle oder lass Extras weg (spart ${fmtY(total-min)}).`:'<br>Das ist schon die günstigste Ausstattung für diesen Standort.';
- return `<div class="tip geldfehlt" id="geldFehlt"><span>💴 <b>Dir fehlen ${fmtY(total-cash)}</b> (Gesamt ${fmtY(total)}, verfügbar ${fmtY(cash)}).${min<=cash?billiger:billiger+`<br>🏪 Spar zuerst mit <b>Omas Laden</b>. ${k?esc(k.text):''}`}</span></div>`;}
+ return `<div class="tip geldfehlt" id="geldFehlt"><span>💴 <b>Dir fehlen ${fmtY(total-cash)}</b> (Gesamt ${fmtY(total)}, verfügbar ${fmtY(cash)}).${min<=cash?billiger:billiger+`<br>🏪 Spar zuerst mit <b>Omas Laden</b>. ${k?esc(k.text):''}`}</span>${kreditKnopf()}</div>`;}
+// Gganbu R2 #5 (R68): Startkredit direkt im Bau-Hinweis – derselbe Knopf/dieselbe Aktion wie Finanzen › Börse › Kredite (FZ.act 'startkredit'), danach Bau-Fenster neu
+const kreditBetrag=b=>'¥'+(b/1e6).toLocaleString('de-DE')+' Mio';
+function kreditKnopf(){if(!FZ.ON)return '';const k=FZ.startKreditStatus(st());if(!k.ok||k.fertig)return '';
+ return `<button class="btn primary full" data-act="fz" data-v="startkredit" data-nach="bau" id="startKreditBau" style="margin-top:10px">🏦 Startkredit aufnehmen (${kreditBetrag(k.betrag)})</button>`;}
 function geldTutor(fehlt){const k=kreditInfo();return ` Dir fehlen gerade ${fmtY(fehlt)}. Das ist normal: Spar zuerst mit Omas Laden.${k?' '+k.text:''}`;}
 // #13: Omas Laden auf der Karte zeigen (Ring + Kamera)
 function zeigeOma(){const o=S.mine().find(x=>x.oma)||S.mine()[0];if(!o||!W||!W.slotPos)return;const p=W.slotPos(o.d,o.slot);if(!p)return;W.select(p.x,p.z);W.flyTo(p.x,p.z,72);ui.omaSel=true;}
@@ -413,12 +454,12 @@ function storyCard(i){
 // #3: Hinweis im Entscheidungsfenster aufblinken lassen statt Toast (der Toast lag über Option B)
 function evHinweis(){const e=$('#evPflicht');if(!e)return;e.classList.remove('blink');void e.offsetWidth;e.classList.add('blink');e.scrollIntoView({block:'nearest',behavior:'smooth'});}
 function doEndWeek(o){
- if(frischOffen())return null;// #7: Doppeltipp beendet nur eine Woche und lässt das Wochenergebnis stehen
+ if(o&&o.tipp&&doppelTipp()&&sheetOpen())return null;// #7/R65: zweiter Tipp eines Doppeltipps beendet keine zweite Woche, das Wochenergebnis bleibt stehen
  if(evOffen()&&!(o&&o.test)){eventSheet();evHinweis();return null;}// #3
  if(sheetOpen())closeSheet();
  const c0=st().cash;const r=S.endWeek();renderAll();reportSheet(r);setTimeout(MM.banner,700);
- {const fz=st().fz;if(fz&&fz.insZeigen&&FZ.ON&&FZ.zeigeInsolvenz){fz.insZeigen=false;S.save();FZ.zeigeInsolvenz();ui.finK=false;ui.tab='fin';renderBar();renderPanel();}}
- {const nk=st().nk;if(nk&&nk.zeigen){const id=nk.zeigen;nk.zeigen=null;S.save();if(FZ.ON){FZ.zeigeNeueKette(id);ui.finK=false;ui.tab='fin';renderBar();renderPanel();}}}
+ {const fz=st().fz;if(fz&&fz.insZeigen&&FZ.ON&&FZ.zeigeInsolvenz){fz.insZeigen=false;S.save();NACH_BERICHT.push(()=>{FZ.zeigeInsolvenz();ui.finK=false;ui.tab='fin';renderBar();renderPanel();});}}// R72: erst Bericht
+ {const nk=st().nk;if(nk&&nk.zeigen){const id=nk.zeigen;nk.zeigen=null;S.save();if(FZ.ON)NACH_BERICHT.push(()=>{FZ.zeigeNeueKette(id);ui.finK=false;ui.tab='fin';renderBar();renderPanel();});}}
  {const s=st();s.cashDown=s.cash<c0?(s.cashDown||0)+1:0;
   // Erik: 4 Wochen in Folge im Minus = Spiel verloren; Warnung mit Restwochen nach jeder Minus-Woche
   const wasNeg=(s.negWeeks||0)>0;s.negWeeks=s.cash<0?(s.negWeeks||0)+1:0;S.save();
@@ -428,12 +469,17 @@ function doEndWeek(o){
   if(s.negWeeks>0){const n=s.negWeeks,left=NEG_LIMIT-n;setTimeout(()=>{showMinus(left);toast(`⚠️ Woche ${n}/${NEG_LIMIT} im Minus`);},1200);}
   else if(s.cashDown>=4){s.cashDown=0;setTimeout(()=>tut('warnung_kasse',true),1200);}}
  if(r.unlocked)setTimeout(()=>toast(`🗺️ Neue Standorte verfügbar: ${r.unlocked}`),900);
- if(r.ready.length&&S.mine().length>1)tut('ende');// V6: zweite Filiale eröffnet → Abschluss (statt „Omas Laden“-Text)
+ {const k=FZ.ON?FZ.startKreditStatus(st()):null;if(k&&k.ok&&!k.fertig&&!st().tutOff&&!st().tut.startkredit_da){tut('startkredit_da',false,{betrag:kreditBetrag(k.betrag)});return r;}}// R68
+ const gk=progText(r);// R81: Eröffnung → Kobo nennt die Prognose aus der Sim (statt fester „4–6 Wochen“)
+ if(gk){TUT_NEXT.gewinnkurve=S.mine().length>1&&!st().tut.ende?'ende':undefined;tut('gewinnkurve',true,{name:gk.name,prognose:gk.text});}// danach (einmalig) der Abschluss-Text
+ else if(r.ready.length&&S.mine().length>1)tut('ende');// V6: zweite Filiale eröffnet → Abschluss (statt „Omas Laden“-Text)
  else if(st().week===2)tut('eroeffnung');
  else if(r.T.net<0&&S.mine().some(s=>!s.build&&s.last&&!s.last.building&&state_age(s)>1))tut('verlust');
  else if(S.mine().length===1&&st().cash+(S.loanAvailable()?S.loanRoom():0)>=cheapestStore()){st().tut.zweiter_laden=1;tut('karte');}// V6: 2. Filiale nur einmal ankündigen (karte enthält den Hinweis)
  return r;
 }
+function progText(r){const s=(r.ready||[]).map(id=>st().stores.find(x=>x.id===id)).find(x=>x&&x.prog);if(!s)return null;const g=s.prog,b=fmtY(S.GEWINNKURVE.fruehBonus);
+ return {name:S.storeLabel(s),text:g.week!=null&&g.wochen<=1?`Nach meiner Rechnung schreibt der Laden schon in der ersten Woche schwarze Zahlen (ab KW ${g.kw} im Plus) – die Lage passt.`:g.week!=null?`Neue Läden brauchen ein paar Wochen, bis die Stammkundschaft da ist. Nach meiner Rechnung ist der Laden ab KW ${g.kw} im Plus – ${g.wochen} ${g.wochen===1?'Woche':'Wochen'} nach der Eröffnung, solange die Stammkundschaft wächst. Schaffst du es früher, gibt es ${b} Bonus.`:`Nach meiner Rechnung kommt der Laden in den nächsten ${S.GEWINNKURVE.maxWochen} Wochen nicht ins Plus. Prüf Miete, Personal und Nachbarn.`};}
 // V4: Yukis Toast „Spiel gespeichert“ (toast-gespeichert.svg)
 function toastSaved(){if(!SC.SCREENS_OK)return toast(`💾 ${SB().gespeichert} (Slot ${st().slot||1})`);
  toast(SC.screen({name:'toast-gespeichert',mutate:r=>{const tx=r.querySelector('text');if(tx)tx.textContent=SB().gespeichert;}})+`<span class="sr">Slot ${st().slot||1}</span>`,'svgtoast');}
@@ -562,7 +608,7 @@ function showIntroPlain(view){
  <button class="btn ${lt?'':'primary'} full" data-act="newgame">${esc(T.neues_spiel)}</button><div style="height:10px"></div>
  <button class="btn full" data-act="loadmenu" ${has?'':'disabled'} aria-disabled="${!has}">${esc(T.laden)}</button>${has?'':`<small style="display:block;margin-top:6px;color:var(--mut)">${esc(T.kein_spielstand)}</small>`}`;}
  $('#intro').classList.remove('scrmode');
- $('#intro').innerHTML=`<div class="introcard"><div class="brandmark">コンビニ</div><div class="title">KONBINI EMPIRE</div>${body}
+ $('#intro').innerHTML=`<div class="introcard"><div class="brandmark">コンビニ</div><div class="title">${esc(D.SPIELNAME.toUpperCase())}</div>${body}
  <div style="color:var(--mut);font-size:11px;margin-top:14px;font-weight:700">Prototyp V7 · alle Marken sind fiktive Parodien</div></div>`;
  $('#intro').classList.add('show');
 }
@@ -592,14 +638,14 @@ S.setTexte(GFX.texte);$('#intro').classList.remove('show','scrmode');setTimeout(
 
 // Namenseingabe (Yuki a_name_eingabe, Text Ito startbildschirm.name_eingabe)
 function nameScreen(mode){ui.nameMode=mode;$('#pvname')?.remove();const el=document.createElement('div');el.id='pvname';const firm=mode==='neu'?D.defaultLogo().name:(st().logo.name||'');
- el.innerHTML=`<div class="pvn-in"><div class="pvn-star">⭐</div><h1>Konbini Empire</h1><small>${mode==='neu'?'Neues Spiel':'Spielstand fortsetzen'}</small>
+ el.innerHTML=`<div class="pvn-in"><div class="pvn-star">⭐</div><h1>${esc(D.SPIELNAME)}</h1><small>${mode==='neu'?'Neues Spiel':'Spielstand fortsetzen'}</small>
  <label>👤 Dein Name</label><input id="pvn" maxlength="24" autocomplete="off" placeholder="Dein Name"><p class="pvn-hint">${esc(PV.nameText())}</p>
  ${mode==='neu'?`<label>🏪 Firmenname <small>(optional)</small></label><input id="pvf" class="dark" maxlength="18" placeholder="${esc(firm)}">`:''}
  <button class="btn primary full" data-act="nameok">Los geht's 🚀</button><div class="pvn-kobo"><img src="grafik/maskottchen/kobo.svg" alt=""><div id="pvkobo">Irasshaimase! Ich bin Kobo. Zusammen bauen wir das größte Konbini-Imperium Japans!</div></div></div>`;
  document.body.appendChild(el);const i=el.querySelector('#pvn');i.addEventListener('input',()=>{const v=i.value.trim();el.querySelector('#pvkobo').innerHTML=v?`Irasshaimase, <b>${esc(v)}</b>! Ich bin Kobo. Zusammen bauen wir das größte Konbini-Imperium Japans!`:'Irasshaimase! Ich bin Kobo. Zusammen bauen wir das größte Konbini-Imperium Japans!';});setTimeout(()=>i.focus(),50);}
 /* ---------- Events ---------- */
 document.addEventListener('click',e=>{
- const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+ const b=e.target.closest('[data-act]')||knopfNachRender(e);if(!b||b.disabled)return;
  const a=b.dataset.act,id=+b.dataset.id||null,s=id&&st()?st().stores.find(x=>x.id===id):null;
  switch(a){
   case 'neweditor':ui.editLogo=null;logoEditor('new');break;
@@ -607,6 +653,7 @@ document.addEventListener('click',e=>{
   case 'lg':{const k=b.dataset.k;ui.editLogo[k]=k==='ring'?!!b.dataset.v:b.dataset.v;rerenderEditor();break}
   case 'startgame':{if(CITY.id!=='tokio'){location.href=cityURL('tokio','neu=1');break;}const L={...ui.editLogo,name:(ui.editLogo.name||'').trim()||'Hoshi Mart'};const ns=S.newState(L);ns.slot=ui.slot||1;PV.ensure(ns).name=ui.pname||PV.CFG.NAME_STANDARD;startGame(ns);S.save();break}
   case 'continue':startGame(S.load());break;
+  case 'auftr':{ui.aOpen=!ui.aOpen;renderHUD();break;}
   case 'chip':{ui.chipOpen=!b.classList.contains('mini')?false:true;b.classList.toggle('mini',!ui.chipOpen);b.setAttribute('aria-expanded',ui.chipOpen);clearTimeout(ui.chipT);if(ui.chipOpen)ui.chipT=setTimeout(()=>{ui.chipOpen=false;b.classList.add('mini');},4000);break;}
   case 'minusclose':{const el=$('#minusBanner');el&&el.classList.remove('show');break;}
   case 'newgame':if(CITY.id!=='tokio'){location.href=cityURL('tokio','neu=1');break;}closeSheet();document.body.classList.remove('panel');showIntro('new');break;
@@ -629,7 +676,7 @@ document.addEventListener('click',e=>{
   case 'plane':if(BF.ON)bahnhofOpen();else travelSheet();break;
   case 'bfzu':document.body.classList.remove('bfopen');break;
   case 'abfahrt':abfahrt(b.dataset.v);break;
-  case 'fz':FZ.act(b);break;
+  case 'fz':FZ.act(b);if(b.dataset.nach==='bau'&&ui.draft&&$('#sheet [data-act=dobuild]')){const y=$('#sheet').scrollTop;builderSheet();$('#sheet').scrollTop=y;}break;
   case 'fzbuero':ui.finK=false;ui.tab='fin';closeSheet();renderBar();renderPanel();FZ.act({dataset:{v:'zentrale'}});break;
   case 'fzkarte':FZ.schliessen();ui.finK=false;ui.tab='map';closeSheet();renderBar();renderPanel();break;
   case 'fzverl':closeSheet();ui.finK=false;ui.tab='fin';renderBar();renderPanel();FZ.act({dataset:{v:'verlaengern',x:b.dataset.x}});break;
@@ -657,7 +704,7 @@ document.addEventListener('click',e=>{
   case 'store':ui.storeTab='service';ui.confirmClose=null;openStoreSheet(id);break;
   case 'stab':ui.storeTab=b.dataset.v;openStoreSheet(ui.storeId);$('#sheet').scrollTop=0;break;
   case 'pgroup':ui.pgroup=b.dataset.v;openStoreSheet(ui.storeId);break;
-  case 'close':{const k=sheetKind();if(b.id==='scrim'&&frischOffen())break;// #7
+  case 'close':{const k=sheetKind();if(b.id==='scrim'&&doppelTipp())break;// #7/R65: nur der zweite Tipp eines Doppeltipps
    if(k==='event'&&evOffen()){evHinweis();break;}// #3: Danebentippen schließt nicht
    if((k==='report'||k==='paper')&&evOffen()){eventSheet();break;}// #3: nach dem Wochenergebnis kommt die Entscheidung als eigenes Fenster
    closeSheet();break;}
@@ -681,7 +728,7 @@ document.addEventListener('click',e=>{
   case 'story':storyCard(+b.dataset.v);break;
   case 'paper':paperSheet('top');break;
   case 'ptab':paperSheet(b.dataset.v);break;
-  case 'endweek':doEndWeek();break;
+  case 'endweek':doEndWeek({tipp:true});break;
  }
 });
 
@@ -702,7 +749,7 @@ document.addEventListener('click',e=>{
  BF.load();
  FZ.init(S,{chainLogo,esc,toast,ladenN,CHAINS:D.CHAINS,RIVALS:D.RIVALS,dname:id=>(D.DMAP[id]||{name:id}).name,dtype:id=>(D.DMAP[id]||{}).type||'standard',CATS:D.CATS,texte:()=>GFX.texte,gameOver:()=>gameOver(),chainLogoFile:(f,sz)=>`<img class="fzlogo" src="grafik/logos/${f}.svg" width="${sz}" height="${sz}" alt="">`,cityName:CITY.name,rerender:()=>{if(ui.tab==='fin'&&FZ.ON)renderFZ();renderHUD();}});if(FZ.ON){S.preTaxHooks.push(FZ.preTax,BU.preTax,PV.preTax);S.weekHooks.push(FZ.weekHook);S.preWeekHooks.push(FZ.preWeek);S.rivalFinanz.on=true;if(BU.ON)S.weekHooks.push(BU.weekHook);S.weekHooks.push(PV.weekHook);}
  NK.init(S,{CHAINS:D.CHAINS,RIVALS:D.RIVALS,GFX,firmenwert:FZ.firmenwert,fY:fmtY,dname:id=>(D.DMAP[id]||{name:id}).name});S.weekHooks.unshift(NK.weekHook);S.weekHooks.push(MM.weekHook);
- window.__game={get state(){return S.state},S,D,W,ui,marktAnteile,FZ,NK,BF,BU,PV,nettoRechnung,endWeek:()=>doEndWeek({test:true}),endWeekUI:doEndWeek,/* Test-Hilfe: offene Entscheidung → Option B wie bisher (nur Tests; im Spiel blockiert sie, R60) */openStoreSheet,propertySheet,builderSheet,GFX};
+ window.__game={get state(){return S.state},S,D,W,ui,marktAnteile,FZ,NK,BF,BU,PV,nettoRechnung,endWeek:()=>doEndWeek({test:true}),endWeekUI:doEndWeek,/* Test-Hilfe: offene Entscheidung → Option B wie bisher (nur Tests; im Spiel blockiert sie, R60) */openStoreSheet,propertySheet,builderSheet,GFX,tut,eventSheet,renderAll};
  // Whitebeard 659f1e1 B1: neue Version übernommen → einmal neu laden (sessionStorage-Sperre 30 s gegen Schleifen; Erstbesuch ohne alten Worker lädt nicht neu)
  if('serviceWorker' in navigator&&window.isSecureContext){const hatte=!!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!hatte)return;const k='konbini-sw-reload',t=+sessionStorage.getItem(k)||0;if(Date.now()-t<30000)return;sessionStorage.setItem(k,String(Date.now()));location.reload();});

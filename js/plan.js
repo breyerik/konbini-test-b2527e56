@@ -11,9 +11,15 @@ export const PLAN=_city.plan, CITY=_city.city;// Mehrstadt: cities.js (Tokio Sta
 // ?kreuzung=alt zeigt zum Vergleich die alte Kreuzung.
 const _krQ=new URLSearchParams(globalThis.location?location.search:'').get('kreuzung');
 const _krA=PLAN_VERSION===7&&CITY.id==='tokio'&&_krQ!=='alt'?await fetch(new URL('../kreuzung/plan_a.json',import.meta.url)).then(r=>r.ok?r.json():null).catch(()=>null):null;
+// V7 Yokohama A (Yuki Runde 3, Erik 02.11. 19:58 „Ja, bau Yokohama so ein, mit Hochbahn“, R82): Laufzeit-Diff yokohama/plan_yokohama_a.json
+// (138 Felder, 10 ladenlose Grundstücke weg, 5 Wahrzeichen-Ringe null, Laden 94 → 106). Greift nur, wenn jedes Feld den alten Typ hat und alle Grundstücke da sind. ?yokohama=alt zeigt den alten Plan.
+const _yoQ=new URLSearchParams(globalThis.location?location.search:'').get('yokohama');
+const _yoA=PLAN_VERSION===7&&CITY.id==='yokohama'&&_yoQ!=='alt'?await fetch(new URL('../yokohama/plan_yokohama_a.json',import.meta.url)).then(r=>r.ok?r.json():null).catch(()=>null):null;
+export let YOKOHAMA_A=false;// true, wenn der Diff angewendet ist (dann baut world.js Yukis Bausatz mit Bahnhofsplatz, Promenade und Hochbahn)
 export let KREUZUNG_A=null;// {mitte:[x,z] Welt, feld:[x,y]} wenn Lage A aktiv
 // v3.2: abschaltbare Kartenteile (true = wieder da). data.js reicht FEATURES weiter.
-export const FEATURES={rail:false,haneda:false,hq:false};
+// hochbahn (R83): rein optische Hochbahn mit Zug in Yokohama; unabhängig von rail (Spielfunktionen Bahn bleiben aus).
+export const FEATURES={rail:false,haneda:false,hq:false,hochbahn:true};
 export const PLAN_FIX={dropped:[],landfill:0,pruned:0,islands:0};
 // v3.2: Yukis Plan V5 (Wahrzeichen auf eigenem Parkblock mit Ringstraße, Odaiba als Insel mit Brücken).
 // Laufzeit: Haneda ist per FEATURES abschaltbar (Fläche wird Park, Ringstraße bleibt); Grundstücke müssen ganz auf bebautem Land liegen.
@@ -29,6 +35,14 @@ export const LM_BLOCKS=[];
    const {ring:_r,...alt}=PLAN.wahrzeichen[wi];PLAN.wahrzeichen[wi]={...alt,wahrzeichen:w.wahrzeichen,name:w.name,x:w.x,y:w.y,breite:w.breite,tiefe:w.tiefe,block:{...w.block},baeume:[],kreuzungA:true};
    KREUZUNG_A={mitte:_krA.kreuzungsmitte.welt,feld:_krA.kreuzungsmitte.gitterpunkt};}
   else console.warn('Kreuzung A nicht angewendet (Plan passt nicht):',falsch.length,'Felder',fehlt,'Grundstücke',wi);}
+ if(_yoA){const ids=new Set(PLAN.grundstuecke.map(g=>g.id)),gi=new Map(PLAN.grundstuecke.map(g=>[g.id,g]));
+  const falsch=_yoA.felder.filter(([x,y,alt])=>!inb(x,y)||Fd[y][x]!==alt),fehlt=[..._yoA.grundstuecke_weg,..._yoA.laden_umzuege.flatMap(u=>[u.von,u.nach])].filter(id=>!ids.has(id));
+  const umzugOk=_yoA.laden_umzuege.every(u=>gi.get(u.von)?.laden&&!gi.get(u.nach)?.laden),wegOk=_yoA.grundstuecke_weg.every(id=>!gi.get(id)?.laden);
+  if(!falsch.length&&!fehlt.length&&umzugOk&&wegOk){for(const [x,y,,neu] of _yoA.felder)Fd[y][x]=neu;const weg=new Set(_yoA.grundstuecke_weg);
+   for(const u of _yoA.laden_umzuege){const v={...gi.get(u.von)},n={...gi.get(u.nach),laden:v.laden};delete v.laden;gi.set(u.von,v);gi.set(u.nach,n);}
+   PLAN.grundstuecke=PLAN.grundstuecke.filter(g=>!weg.has(g.id)).map(g=>gi.get(g.id));const rn=new Set(_yoA.ringe_null);
+   PLAN.wahrzeichen=PLAN.wahrzeichen.map(w=>rn.has(w.wahrzeichen)?{...w,ring:null}:w);YOKOHAMA_A=true;}
+  else console.warn('Yokohama A nicht angewendet (Plan passt nicht):',falsch.length,'Felder',fehlt,'Grundstücke',umzugOk,wegOk);}
  if(!FEATURES.haneda){for(const w of PLAN.wahrzeichen.filter(w=>w.wahrzeichen==='haneda'))for(let y=w.y;y<w.y+w.tiefe;y++)for(let x=w.x;x<w.x+w.breite;x++)if(inb(x,y))Fd[y][x]='park';
   PLAN.wahrzeichen=PLAN.wahrzeichen.filter(w=>w.wahrzeichen!=='haneda');}
  // Neue Städte (?neuestaedte=1): Wahrzeichen aus Yukis Bauvorlagen ohne Platz im Plan an realer Lage ergänzen; Tsūtenkaku mit Straße durch die Bögen

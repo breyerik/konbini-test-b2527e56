@@ -1,4 +1,7 @@
 // Konbini Empire v2 – Spieldaten
+// Spieltitel (Erik 02.11. 20:41): „Tanuki Tycoon“ statt „Konbini Empire“. Nur der sichtbare Name – Speicher-Keys, Cache-Präfix und interne IDs bleiben (alte Spielstände laden weiter, R87).
+export const SPIELNAME='Tanuki Tycoon';
+export const SPIELNAME_JA='タヌキ・タイクーン';// japanische Unterzeile (Ladebildschirm)
 export const SAVE_KEY='konbini-empire-v2';
 export const START=new Date(2026,9,19); // Mo, 19. Oktober 2026 (Erik 25.10.: echte KW 43)
 export const WAGE=1150;

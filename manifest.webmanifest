@@ -1,6 +1,6 @@
 {
- "name": "Konbini Empire",
- "short_name": "Konbini",
+ "name": "Tanuki Tycoon",
+ "short_name": "Tanuki",
  "description": "Tycoon-Spiel \u00fcber Konbini in Tokio (Prototyp)",
  "start_url": "./index.html",
  "scope": "./",

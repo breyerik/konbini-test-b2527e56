@@ -1,11 +1,15 @@
 // Konbini Empire V4 – Yukis Bildschirme (grafik/screens/*.svg, von Erik freigegeben) als Inline-SVG
 // Platzhalter (data-placeholder) werden per DOM gefüllt; foreignObject-Fließtext wird durch eigene HTML-Overlays ersetzt
 // (auch für Renderer ohne foreignObject). Klickflächen sind transparente HTML-Knöpfe über den gezeichneten Knöpfen.
+import {SPIELNAME} from './data.js';
+// R87 (Erik 02.11. 20:41): Spieltitel „Tanuki Tycoon“ – Yukis SVGs (grafik/, nicht geändert) zeigen noch „Konbini Empire“; beim Laden als Schriftzug ersetzt (Logo/Icon von Yuki folgen)
+const [NAME1,NAME2]=SPIELNAME.split(' ');
+const umbenennen=(n,t)=>{t=t.split('Konbini Empire').join(SPIELNAME);if(n==='start')t=t.replace(/>Konbini<\/text>/,'>'+NAME1+'</text>').replace(/>Empire<\/text>/,'>'+NAME2+'</text>');return t;};
 const NAMES=['start','spielstand-auswahl','spielstand-karte','spielstand-karte-leer','spielstand-karte-verloren','toast-gespeichert','ueberschreiben','minus-warnung-1','minus-warnung-2','minus-warnung-3','pleite'];
 const RAW={};
 // Japanische Schrift: Noto Sans/Serif CJK JP, sonst die Systemschrift (iOS: Hiragino) – keine CDN-Abhängigkeit
 const JP_SANS='Noto Sans CJK JP, Noto Sans JP, Hiragino Sans, Hiragino Kaku Gothic ProN, Yu Gothic, sans-serif';
-await Promise.all(NAMES.map(n=>fetch(new URL('../grafik/screens/'+n+'.svg',import.meta.url)).then(r=>r.ok?r.text():null).then(t=>{if(t)RAW[n]=t.replace(/font-family="Noto Sans CJK JP, sans-serif"/g,`font-family="${JP_SANS}"`);}).catch(()=>{})));
+await Promise.all(NAMES.map(n=>fetch(new URL('../grafik/screens/'+n+'.svg',import.meta.url)).then(r=>r.ok?r.text():null).then(t=>{if(t)RAW[n]=umbenennen(n,t).replace(/font-family="Noto Sans CJK JP, sans-serif"/g,`font-family="${JP_SANS}"`);}).catch(()=>{})));
 export const SCREENS_OK=NAMES.every(n=>RAW[n]);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let uid=0;
