@@ -343,6 +343,8 @@ body.sheet #tutor,body.panel #tutor,body.fzopen #tutor,body.bfopen #tutor,body.m
 body.sheet #tutor *,body.panel #tutor *,body.fzopen #tutor *,body.bfopen #tutor *,body.mmopen #tutor *,body:has(#pick.show) #tutor *,body:has(#pvname) #tutor *{pointer-events:none!important}
 /* Gganbu R3 #2 (R71): Optionen im Entscheidungsfenster kleben unten, oberhalb der Nav-Leiste; niedrige Fenster: Kobo kleiner */
 #sheet[data-kind=event] .evbtns{position:sticky;z-index:2;background:inherit;padding:2px 0 8px;margin:0 -4px;padding-left:4px;padding-right:4px}
+/* Gganbu R4 B1 (R90): Desktop – Fenster steht mittig über der Leiste, Knöpfe fließen unter Text und „Betrifft …“ (nicht kleben, nichts verdecken) */
+@media (min-width:860px){#sheet[data-kind=event] .evbtns{position:static}#sheet[data-kind=event] #evPlatz{height:0!important}}
 @media (max-height:640px){#sheet[data-kind=event] .evcard img{width:56px;height:64px}#sheet[data-kind=event] .story p{font-size:14px;margin:6px 2px 4px}#sheet[data-kind=event] .evopt{padding:8px 12px}}
 /* #3 Entscheidungsfenster */
 .evpflicht{margin-top:12px;text-align:center;font-size:12px;font-weight:800;color:var(--mut)}

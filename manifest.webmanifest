@@ -1,7 +1,7 @@
 {
  "name": "Tanuki Tycoon",
  "short_name": "Tanuki",
- "description": "Tycoon-Spiel \u00fcber Konbini in Tokio (Prototyp)",
+ "description": "Tanuki Tycoon \u2013 Aufbauspiel um eine Ladenkette in Tokio (Prototyp)",
  "start_url": "./index.html",
  "scope": "./",
  "display": "standalone",

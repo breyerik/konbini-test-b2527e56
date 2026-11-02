@@ -399,7 +399,7 @@ export function kannibZeilen(res){const O=mine().filter(x=>!x.build),out=[];
 // Bau-Fenster: Vorschau für ein Grundstück (d,slot) – Abzug je naher eigener Laden aus dessen letzter Woche
 export function kannibVorschau(d,slot){const O=mine().filter(x=>!x.build),N={chain:'player',d,slot,build:0,id:-1},out=[];
  for(const A of O){if(storeDist(A,N)>=TEILEN.felder)continue;const c=A.last&&A.last.cust?A.last.cust:custFor(A,DMAP[A.d],seasonInfo(state.week));
-  const proTag=Math.round(c*(1-kShare(A,[...O,N])/kShare(A,O))/7);out.push({an:A.id,anName:storeLabel(A),proTag,felder:Math.round(storeDist(A,N)*10)/10});}
+  const proTag=Math.round(c*(1-kShare(A,[...O,N])/kShare(A,O))/7);out.push({an:A.id,anName:storeLabel(A),proTag,felder:Math.round(storeDist(A,N)*10)/10,dist:storeDist(A,N)});}
  return out.sort((a,b)=>b.proTag-a.proTag);}// Anteil, den eigene Nachbarn abziehen (Anzeige/Tests)
 // ---------- Gganbu R3 Zusatz A (R77/R78): Kobos Wochen-Aufträge – Ziele aus echten Sim-Größen der Vorwoche ----------
 // Eigener Zufall (Hash aus state.auftr.seed + Woche) – verbraucht KEIN Math.random, damit die Sim mit/ohne Aufträge gleich läuft.

@@ -166,8 +166,11 @@ export function render(){const s=S.state;if(!s)return '';collect(s);const p=V.po
 function el(){let e=document.getElementById('mm');if(!e){e=document.createElement('div');e.id='mm';e.setAttribute('role','dialog');e.setAttribute('aria-label','MiteMite!');document.body.appendChild(e);
  e.addEventListener('input',ev=>{if(ev.target&&ev.target.dataset.mmq){V.q=ev.target.value;const pos=ev.target.selectionStart;draw(false);const i=document.getElementById('mmq');if(i){i.focus();try{i.setSelectionRange(pos,pos);}catch(_){}}}});}return e;}
 function draw(top=true){const e=el(),sc=e.querySelector('.mmscroll'),y=sc?sc.scrollTop:0;e.innerHTML=render();const n=e.querySelector('.mmscroll');if(n)n.scrollTop=top?0:y;}
-export function open(o={}){close0ban();Object.assign(V,{open:true,post:null},o);const s=S.state;if(s){collect(s);const m=mm(s);m.read=m.seq;S.save();}document.body.classList.add('mmopen');draw();H.rerender();}
-export function close(){V.open=false;V.post=null;const e=document.getElementById('mm');if(e)e.remove();document.body.classList.remove('mmopen');H.rerender();}
+export function open(o={}){close0ban();if(!V.open){const a=document.activeElement;V.fokus=a&&a!==document.body?a:null;}Object.assign(V,{open:true,post:null},o);const s=S.state;if(s){collect(s);const m=mm(s);m.read=m.seq;S.save();}document.body.classList.add('mmopen');draw();H.rerender();}
+// Gganbu R4 B2 (R91): Schließen räumt alles auf (Vollbild, Klasse, Banner) und gibt den Fokus zurück; Escape schließt ebenfalls
+export function close(){V.open=false;V.post=null;close0ban();const e=document.getElementById('mm');if(e)e.remove();document.body.classList.remove('mmopen');H.rerender();
+ const f=V.fokus;V.fokus=null;try{if(f&&f.isConnected&&f.offsetParent)f.focus({preventScroll:true});else{const w=document.querySelector('[data-act=endweek]');if(w)w.focus({preventScroll:true});}}catch(_){}}
+if(typeof document!=='undefined')document.addEventListener('keydown',ev=>{if(V.open&&ev.key==='Escape'){ev.preventDefault();close();}});
 export const isOpen=()=>V.open;
 export function act(b){const v=b.dataset.v,x=b.dataset.x;
  if(v==='open'){open({nav:'feed',post:null});return;}
@@ -181,8 +184,18 @@ export function act(b){const v=b.dataset.v,x=b.dataset.x;
  else if(v==='ban'){const id=x;close0ban();open({post:id});return;}
  draw(v!=='typ');}
 // Push-Banner oben, 4 s, Tippen öffnet den Post
-let banT=0;function close0ban(){const b=document.getElementById('mmban');if(b)b.remove();clearTimeout(banT);}
-export function banner(){const s=S.state;if(!s||!s.mm||!s.mm.ban)return;const id=s.mm.ban;s.mm.ban=null;const p=s.mm.posts.find(q=>q.id===id);if(!p||V.open)return;close0ban();
- const b=document.createElement('button');b.id='mmban';b.dataset.act='mm';b.dataset.v='ban';b.dataset.x=id;
+let banT=0,banW=0,banI=0;function close0ban(){const b=document.getElementById('mmban');if(b)b.remove();clearTimeout(banT);clearTimeout(banW);clearInterval(banI);}
+// Gganbu R4 B2 (R91): Der Banner legt sich nie über ein Schließen-X (Fenster, Panel, Vollbild). Liegt eins darunter, wartet er, bis die Stelle frei ist (höchstens ~90 s).
+const XSEL='[data-act=close],[data-act=closestore],[data-act=closeeditor],[data-act=bfzu],[data-act=pickclose],[data-v=close]';
+export function bannerStoert(b){const r0=b.getBoundingClientRect();if(!r0.width)return false;const tf=getComputedStyle(b).transform,dy=tf&&tf!=='none'?new DOMMatrix(tf).f:0,r={left:r0.left,right:r0.right,top:r0.top-dy,bottom:r0.bottom-dy};// Ruhelage (ohne Einflug-Verschiebung)
+
+ return [...document.querySelectorAll(XSEL)].some(x=>{if(x.closest('#mm')||!x.offsetParent)return false;const q=x.getBoundingClientRect();return q.width&&q.left<r.right+6&&q.right>r.left-6&&q.top<r.bottom+6&&q.bottom>r.top-6;});}
+export function banner(){const s=S.state;if(!s||!s.mm||!s.mm.ban)return;const id=s.mm.ban;s.mm.ban=null;const p=s.mm.posts.find(q=>q.id===id);if(!p||V.open)return;close0ban();zeigeBan(p,id,0);}
+function zeigeBan(p,id,n){if(V.open)return;
+ const b=document.createElement('button');b.id='mmban';b.dataset.act='mm';b.dataset.v='ban';b.dataset.x=id;b.style.visibility='hidden';b.style.animation='none';// messen in Ruhelage (ohne Einflug-Animation)
  b.innerHTML=`<img src="${G}mitemite-logo.svg" alt="" width="36" height="36"><span><b>MiteMite! · ${esc(chainN(p.who))}</b><small>${p.t.replace(/<[^>]+>/g,'').slice(0,90)}</small></span>`;
- document.body.appendChild(b);banT=setTimeout(close0ban,4000);}
+ document.body.appendChild(b);
+ if(bannerStoert(b)){b.remove();if(n<130)banW=setTimeout(()=>zeigeBan(p,id,n+1),700);return;}
+ b.style.animation='';b.style.visibility='';banT=setTimeout(close0ban,4000);
+ // R91: geht danach ein Fenster auf (X unter dem Banner), weicht das Banner aus und kommt wieder, sobald die Stelle frei ist (gemessen in Ruhelage)
+banI=setInterval(()=>{if(!document.contains(b)){clearInterval(banI);return;}if(bannerStoert(b)){close0ban();if(n<130)banW=setTimeout(()=>zeigeBan(p,id,n+1),700);}},120);}
