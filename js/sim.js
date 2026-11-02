@@ -21,6 +21,17 @@ export function dateLabel(d){return d.getDate()+'. '+MONTHS[d.getMonth()]+' '+d.
 export const fmtY=n=>{const s=n<0?'−':'';n=Math.abs(n);if(n>=1e6)return s+'¥'+(n/1e6).toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})+' Mio';return s+'¥'+Math.round(n).toLocaleString('de-DE');};
 export const fmtN=n=>Math.round(n).toLocaleString('de-DE');
 export const pct=n=>(n*100).toLocaleString('de-DE',{maximumFractionDigits:1})+' %';
+// Whitebeard 8efc3e2/7ed371e (R52): EINE Quelle für den Marktanteil – Markt-Tab, Donut und Zeitung lesen alle hier.
+// Ohne Umsatzwoche in dieser Stadt oder solange eine Kette mit offenen Läden im Bericht noch keinen Umsatz hat, zählen die offenen Läden;
+// ganz ohne offene Läden: kein Markt (null).
+export function marktAnteile(s,r=s&&s.lastReport){if(!s)return null;const ch=['player',...RIVALS],offen=c=>s.stores.filter(x=>x.chain===c&&!x.building&&!(x.build>0)).length,n=ch.reduce((a,c)=>a+offen(c),0);
+ if(!n)return null;
+ if(r&&r.share&&ch.every(c=>!offen(c)||(r.share[c]||0)>0))return {art:'umsatz',v:Object.fromEntries(ch.map(c=>[c,r.share[c]||0]))};
+ return {art:'laeden',v:Object.fromEntries(ch.map(c=>[c,offen(c)/n]))};}
+export const MARKT_HINWEIS='Anteil nach offenen Läden – der Umsatz zählt, sobald alle Ketten eine Woche geöffnet hatten';
+// Zeitungsmeldung zum Marktanteil aus derselben Quelle wie der Markt-Tab (erst nach den Wochen-Hooks, die noch Läden eröffnen können)
+function shareText(name,M){if(!M)return `Marktanteil von ${name}: – (noch kein Markt).`;const v=M.v,lead=Object.keys(v).reduce((a,c)=>v[c]>v[a]?c:a,'player');
+ return `Marktanteil von ${name}: ${pct(v.player||0)}${M.art==='laeden'?' (nach offenen Läden)':''}. ${lead==='eight'&&v.eight>.3?'Eight bleibt Marktführer.':'Das Rennen ist offen.'}`;}
 export const sgn=n=>(n>=0?'+':'')+fmtY(n);
 
 /* ---------- Saisons ---------- */
@@ -481,6 +492,7 @@ export function endWeek(){
  checkMilestones(rep,T);// vor der Zeitung: Meilenstein-Artikel (z. B. zweite Filiale) erscheint in derselben Woche
  rep.paper=makePaper(rep,ev,w);state.paper=rep.paper;
  for(const f of weekHooks)f(state,rep,T);// Zusatzmodule (Finanzmenü) – Kasse/Netto
+ {const it=rep.paper.find(p=>/^share:/.test(p.id));if(it){rep.marktAnteil=marktAnteile(state,rep);it.text=shareText(it.nm,rep.marktAnteil);}}// R52: Zeitung = Markt-Tab
  state.hist.push({week:w,rev:T.rev,net:T.net,cash:state.cash,share:rep.share.player});
  if(state.hist.length>104)state.hist.shift();
  checkMilestones(rep,T);
@@ -570,7 +582,7 @@ function makePaper0(rep,ev,w){
   {const i=pickI(tx.wirtschaft,'wirt');if(i>=0)P.push({id:'wirt:'+i+':'+Y,tab:'wirt',text:tx.wirtschaft[i]});}
  }
  if(foodTaxCut(w)&&w<=3)P.push({id:'foodtax',tab:'wirt',text:'Spielregel (angenommen, nicht real bestätigt): Im Spiel gilt ab April 2027 vorübergehend ein Steuersatz von 1 % auf Lebensmittel. Das bringt etwas mehr Absatz.'});
- P.push({id:'share:'+Math.floor((w-1)/13),tab:'markt',text:`Marktanteil von ${name}: ${pct(rep.share.player||0)}. ${rep.share.eight>.3?'Eight bleibt Marktführer.':'Das Rennen ist offen.'}`});
+ P.push({id:'share:'+Math.floor((w-1)/13),tab:'markt',nm:name,text:`Marktanteil von ${name}: ${pct(rep.share.player||0)}. ${rep.share.eight>.3?'Eight bleibt Marktführer.':'Das Rennen ist offen.'}`});
  for(const s of own){if(s.bh&&s.bh.overall<=2)P.push({id:'bh2:'+s.id+':'+Y,tab:'top',text:`BuuHuu-Ranking: ${name} in ${DMAP[s.d].name} nur ${s.bh.overall} Geister – Kunden meckern.`});}
  if(!P.some(p=>p.tab==='top'))P.push({id:'ev:'+w,tab:'top',text:`${ev.emoji} ${ev.label}: ${ev.desc}`});
  return P;
@@ -584,7 +596,7 @@ export const MILESTONES=[
  {id:'three',label:'3 Filialen',test:()=>allOpen()>=3},
  {id:'ghost5',label:'5 Geister bei BuuHuu',test:()=>mine().some(s=>s.bh&&s.bh.overall>=5)},
  {id:'mio',label:'¥1 Mio Gewinn in einer Woche',test:(r,T)=>T&&T.net>=1e6},
- {id:'share15',label:'15 % Marktanteil in Tokio',test:r=>r&&r.share.player>=.15},
+ {id:'share15',label:'15 % Marktanteil in Tokio',test:r=>{const M=r&&marktAnteile(state,r);return !!M&&M.art==='umsatz'&&Object.keys(M.v).some(c=>c!=='player'&&M.v[c]>0)&&(M.v.player||0)>=.15;}},// R56: derselbe Wert wie Markt-Tab/Zeitung (R52), erst mit voller Basis und mindestens einer offenen Konkurrenzkette – nicht schon in KW1 mit einem Laden allein am Markt
 ];
 export function checkMilestones(rep,T){const out=[];for(const m of MILESTONES)if(!state.milestones[m.id]&&m.test(rep,T)){state.milestones[m.id]=state.week;out.push(m.label);rep&&rep.milestones.push(m.label);}return out;}
 

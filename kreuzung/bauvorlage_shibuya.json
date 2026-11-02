@@ -1,0 +1,744 @@
+{
+ "version": 3,
+ "variante": "A",
+ "status": "Yuki 01.11.2026, Runde 4b – Variante A: echte Kreuzung mit vier angeschlossenen Armen (Vorschlag, Einbau Franky)",
+ "einheit": "Felder (1 Stock = 0,25)",
+ "koordinaten": "x=Ost, y=Süd, z=Höhe; relativ zur NW-Ecke von Feld (21|38) (Wahrzeichen-Eintrag); negative Werte = westlich/nördlich davon; z=0 = Boden",
+ "kreuzungsmitte": {
+  "feld": [
+   23,
+   40
+  ],
+  "welt": [
+   -36.5625,
+   32.5
+  ],
+  "hinweis": "Gitterpunkt (NW-Ecke dieses Feldes); Gruppe der Kreuzung hier ansetzen"
+ },
+ "kontur": "#3A3632",
+ "wahrzeichen": [
+  {
+   "id": "shibuya-crossing",
+   "name": "Shibuya-Kreuzung",
+   "grundflaeche": [
+    4,
+    4
+   ],
+   "bezirk_felder": {
+    "x": -2,
+    "y": -3,
+    "breite": 10,
+    "tiefe": 11
+   },
+   "skalierung": "NICHT skalieren (world.js:363 verkleinert sonst auf w·0,95) – Maße sind echte Felder",
+   "hoehe": 3.0,
+   "hinweis": "Generische Gebäude, keine echten Marken, keine Nachbauten. Bildschirme nur auf den zur Kamera (SO) sichtbaren Seiten.",
+   "boden": {
+    "textur": "ebenen/0_boden_komplett.png",
+    "reduziert": "ebenen/0_boden_komplett_reduziert.png",
+    "x": -2,
+    "y": -3,
+    "b": 10,
+    "t": 11,
+    "y_versatz_welt": 0.02,
+    "hinweis": "deckt den ganzen Bezirk x19–28/y35–45 ab; auf bebaut-Feldern transparent (dort baut das Spiel wie gewohnt). Ebenen einzeln: 1_fahrbahn, 2_gehwege_plaetze, 3_zebrastreifen."
+   },
+   "teile": [
+    {
+     "form": "quader",
+     "name": "NW Turm (Bildschirm-Turm)",
+     "x": -1.2,
+     "y": -2.8,
+     "z": 0.0,
+     "b": 1.4,
+     "t": 3.0,
+     "h": 3.0,
+     "farbe": "#FBF8F2",
+     "fassade": "fenster"
+    },
+    {
+     "form": "quader",
+     "name": "NW Turm (Bildschirm-Turm) – Dachkante",
+     "x": -1.17,
+     "y": -2.77,
+     "z": 3.0,
+     "b": 1.34,
+     "t": 2.94,
+     "h": 0.05,
+     "farbe": "#D8D1C3"
+    },
+    {
+     "form": "quader",
+     "name": "NW Bahnbau (Gleise führen hinein)",
+     "x": -2.0,
+     "y": -3.0,
+     "z": 0.0,
+     "b": 0.8,
+     "t": 3.2,
+     "h": 1.4,
+     "farbe": "#EFE9DD",
+     "fassade": "fenster"
+    },
+    {
+     "form": "quader",
+     "name": "NW Bahnbau (Gleise führen hinein) – Dachkante",
+     "x": -1.97,
+     "y": -2.97,
+     "z": 1.4,
+     "b": 0.74,
+     "t": 3.14,
+     "h": 0.05,
+     "farbe": "#D8D1C3"
+    },
+    {
+     "form": "quader",
+     "name": "Bahnhofshalle (Hochbahn, generisch)",
+     "x": -2.0,
+     "y": 4.6,
+     "z": 0.0,
+     "b": 1.8,
+     "t": 3.4,
+     "h": 1.4,
+     "farbe": "#F1E6CF",
+     "fassade": "band"
+    },
+    {
+     "form": "quader",
+     "name": "Bahnhofshalle (Hochbahn, generisch) – Dachkante",
+     "x": -1.97,
+     "y": 4.63,
+     "z": 1.4,
+     "b": 1.74,
+     "t": 3.34,
+     "h": 0.05,
+     "farbe": "#D8D1C3"
+    },
+    {
+     "form": "quader",
+     "name": "NO Turm (schmal)",
+     "x": 3.45,
+     "y": -2.8,
+     "z": 0.0,
+     "b": 0.55,
+     "t": 3.0,
+     "h": 2.0,
+     "farbe": "#EFE9DD",
+     "fassade": "fenster"
+    },
+    {
+     "form": "quader",
+     "name": "NO Turm (schmal) – Dachkante",
+     "x": 3.48,
+     "y": -2.77,
+     "z": 2.0,
+     "b": 0.49,
+     "t": 2.94,
+     "h": 0.05,
+     "farbe": "#D8D1C3"
+    },
+    {
+     "form": "quader",
+     "name": "SO Kiosk",
+     "x": 4.2,
+     "y": 3.5,
+     "z": 0.0,
+     "b": 0.7,
+     "t": 0.45,
+     "h": 0.35,
+     "farbe": "#F1E6CF",
+     "fassade": "laden"
+    },
+    {
+     "form": "quader",
+     "name": "SO Kiosk – Dachkante",
+     "x": 4.23,
+     "y": 3.53,
+     "z": 0.35,
+     "b": 0.64,
+     "t": 0.39,
+     "h": 0.05,
+     "farbe": "#D8D1C3"
+    },
+    {
+     "form": "quader",
+     "name": "Kiosk-Dach (Akzent)",
+     "x": 4.16,
+     "y": 3.46,
+     "z": 0.35,
+     "b": 0.78,
+     "t": 0.53,
+     "h": 0.035,
+     "farbe": "#C0614A"
+    },
+    {
+     "form": "quader",
+     "name": "Bahnhof Vordach",
+     "x": -0.2,
+     "y": 4.9,
+     "z": 0.34,
+     "b": 0.25,
+     "t": 1.0,
+     "h": 0.03,
+     "farbe": "#3A3632"
+    },
+    {
+     "form": "quader",
+     "name": "Bahnhof Eingang (Glas)",
+     "x": -0.205,
+     "y": 5.0,
+     "z": 0.0,
+     "b": 0.01,
+     "t": 0.8,
+     "h": 0.32,
+     "farbe": "#3E4E6A"
+    },
+    {
+     "form": "quader",
+     "name": "NW Bahnbau Gleisportal",
+     "x": -1.96,
+     "y": 0.194,
+     "z": 0.8,
+     "b": 0.72,
+     "t": 0.01,
+     "h": 0.42,
+     "farbe": "#3A3632"
+    },
+    {
+     "form": "quader",
+     "name": "Viadukt-Pfeiler",
+     "x": -1.67,
+     "y": 0.38,
+     "z": 0.0,
+     "b": 0.14,
+     "t": 0.14,
+     "h": 0.66,
+     "farbe": "#D9D2C4"
+    },
+    {
+     "form": "quader",
+     "name": "Viadukt-Pfeiler",
+     "x": -1.67,
+     "y": 3.48,
+     "z": 0.0,
+     "b": 0.14,
+     "t": 0.14,
+     "h": 0.66,
+     "farbe": "#D9D2C4"
+    },
+    {
+     "form": "quader",
+     "name": "Viadukt-Fahrbahn (Träger)",
+     "x": -2.0,
+     "y": 0.2,
+     "z": 0.66,
+     "b": 0.8,
+     "t": 4.4,
+     "h": 0.14,
+     "farbe": "#3E4E6A"
+    },
+    {
+     "form": "quader",
+     "name": "Viadukt Zierband",
+     "x": -1.202,
+     "y": 0.2,
+     "z": 0.75,
+     "b": 0.006,
+     "t": 4.4,
+     "h": 0.025,
+     "farbe": "#F4EFE6"
+    },
+    {
+     "form": "quader",
+     "name": "Viadukt Brüstung",
+     "x": -2.0,
+     "y": 0.2,
+     "z": 0.8,
+     "b": 0.03,
+     "t": 4.4,
+     "h": 0.1,
+     "farbe": "#F4EFE6"
+    },
+    {
+     "form": "quader",
+     "name": "Viadukt Brüstung",
+     "x": -1.23,
+     "y": 0.2,
+     "z": 0.8,
+     "b": 0.03,
+     "t": 4.4,
+     "h": 0.1,
+     "farbe": "#F4EFE6"
+    },
+    {
+     "form": "quader",
+     "name": "Gleisbett",
+     "x": -1.93,
+     "y": 0.2,
+     "z": 0.8,
+     "b": 0.26,
+     "t": 4.4,
+     "h": 0.012,
+     "farbe": "#8A847A"
+    },
+    {
+     "form": "quader",
+     "name": "Schiene",
+     "x": -1.861,
+     "y": 0.2,
+     "z": 0.812,
+     "b": 0.012,
+     "t": 4.4,
+     "h": 0.015,
+     "farbe": "#5E6066"
+    },
+    {
+     "form": "quader",
+     "name": "Schiene",
+     "x": -1.751,
+     "y": 0.2,
+     "z": 0.812,
+     "b": 0.012,
+     "t": 4.4,
+     "h": 0.015,
+     "farbe": "#5E6066"
+    },
+    {
+     "form": "quader",
+     "name": "Gleisbett",
+     "x": -1.53,
+     "y": 0.2,
+     "z": 0.8,
+     "b": 0.26,
+     "t": 4.4,
+     "h": 0.012,
+     "farbe": "#8A847A"
+    },
+    {
+     "form": "quader",
+     "name": "Schiene",
+     "x": -1.461,
+     "y": 0.2,
+     "z": 0.812,
+     "b": 0.012,
+     "t": 4.4,
+     "h": 0.015,
+     "farbe": "#5E6066"
+    },
+    {
+     "form": "quader",
+     "name": "Schiene",
+     "x": -1.351,
+     "y": 0.2,
+     "z": 0.812,
+     "b": 0.012,
+     "t": 4.4,
+     "h": 0.015,
+     "farbe": "#5E6066"
+    },
+    {
+     "form": "quader",
+     "name": "Zug Wagen 1",
+     "x": -1.54,
+     "y": 0.24,
+     "z": 0.83,
+     "b": 0.28,
+     "t": 1.82,
+     "h": 0.33,
+     "farbe": "#FBF8F2",
+     "rolle": "zug"
+    },
+    {
+     "form": "quader",
+     "name": "Zug Wagen 1 Fensterband",
+     "x": -1.543,
+     "y": 0.3,
+     "z": 0.97,
+     "b": 0.286,
+     "t": 1.7,
+     "h": 0.09,
+     "farbe": "#3E4E6A",
+     "rolle": "zug"
+    },
+    {
+     "form": "quader",
+     "name": "Zug Wagen 1 Streifen",
+     "x": -1.544,
+     "y": 0.24,
+     "z": 0.9,
+     "b": 0.288,
+     "t": 1.82,
+     "h": 0.035,
+     "farbe": "#C0614A",
+     "rolle": "zug"
+    },
+    {
+     "form": "quader",
+     "name": "Zug Wagen 1 Dach",
+     "x": -1.52,
+     "y": 0.27,
+     "z": 1.16,
+     "b": 0.24,
+     "t": 1.76,
+     "h": 0.025,
+     "farbe": "#B9B2A4",
+     "rolle": "zug"
+    },
+    {
+     "form": "quader",
+     "name": "Zug Wagen 2",
+     "x": -1.54,
+     "y": 2.12,
+     "z": 0.83,
+     "b": 0.28,
+     "t": 1.82,
+     "h": 0.33,
+     "farbe": "#FBF8F2",
+     "rolle": "zug"
+    },
+    {
+     "form": "quader",
+     "name": "Zug Wagen 2 Fensterband",
+     "x": -1.543,
+     "y": 2.18,
+     "z": 0.97,
+     "b": 0.286,
+     "t": 1.7,
+     "h": 0.09,
+     "farbe": "#3E4E6A",
+     "rolle": "zug"
+    },
+    {
+     "form": "quader",
+     "name": "Zug Wagen 2 Streifen",
+     "x": -1.544,
+     "y": 2.12,
+     "z": 0.9,
+     "b": 0.288,
+     "t": 1.82,
+     "h": 0.035,
+     "farbe": "#C0614A",
+     "rolle": "zug"
+    },
+    {
+     "form": "quader",
+     "name": "Zug Wagen 2 Dach",
+     "x": -1.52,
+     "y": 2.15,
+     "z": 1.16,
+     "b": 0.24,
+     "t": 1.76,
+     "h": 0.025,
+     "farbe": "#B9B2A4",
+     "rolle": "zug"
+    },
+    {
+     "form": "quader",
+     "name": "Hecke Mittelinsel nord",
+     "x": 1.97,
+     "y": -2.41,
+     "z": 0.0,
+     "b": 0.06,
+     "t": 1.87,
+     "h": 0.06,
+     "farbe": "#7FA34A"
+    },
+    {
+     "form": "quader",
+     "name": "Hecke Mittelinsel sued",
+     "x": 1.97,
+     "y": 4.54,
+     "z": 0.0,
+     "b": 0.06,
+     "t": 2.87,
+     "h": 0.06,
+     "farbe": "#7FA34A"
+    },
+    {
+     "form": "quader",
+     "name": "Hecke Mittelinsel west",
+     "x": -1.41,
+     "y": 1.97,
+     "z": 0.0,
+     "b": 0.87,
+     "t": 0.06,
+     "h": 0.06,
+     "farbe": "#7FA34A"
+    },
+    {
+     "form": "quader",
+     "name": "Hecke Mittelinsel ost",
+     "x": 4.54,
+     "y": 1.97,
+     "z": 0.0,
+     "b": 2.87,
+     "t": 0.06,
+     "h": 0.06,
+     "farbe": "#7FA34A"
+    }
+   ],
+   "bildschirme": [
+    {
+     "name": "NW Turm Ostseite (Spielerkette)",
+     "textur": "screens/s1_spielerkette_streifen.png",
+     "frames": 3,
+     "frame_s": 4,
+     "seite": "+x",
+     "mitte": {
+      "x": 0.2,
+      "y": -1.3,
+      "z": 2.1
+     },
+     "b": 1.6,
+     "h": 0.9,
+     "rahmen": "#3A3632",
+     "rahmen_breite": 0.03,
+     "hinweis": "MeshBasicMaterial (unbeleuchtet), 3 cm vor die Fassade",
+     "textur_laufzeit": "einbau/spieler_schirm.js",
+     "platzhalter": "screens/s1_spielerkette_f1.png",
+     "hinweis_spieler": "Frame 1 NICHT als PNG einbauen: h = spielerSchirmLive(chainLook('player', logo, {facade:'brand'}), logoCanvas, f2, f3, () => tex.needsUpdate = true); tex = CanvasTexture(h.canvas). Zeichnet neu nach document.fonts.ready / Laden von \"Nunito W\" + \"M PLUS Rounded W\", bei logo-ready und f2/f3-onload; bei Namens-/Farbänderung h.neu(look), beim Abbauen h.weg(). Lange Namen: verkleinern bis 26 px, dann „…“. Das PNG ist nur der neutrale Platzhalter."
+    },
+    {
+     "name": "NW Turm Südseite",
+     "textur": "screens/s3_hotaru_denchi_streifen.png",
+     "frames": 3,
+     "frame_s": 4,
+     "seite": "+z",
+     "mitte": {
+      "x": -0.5,
+      "y": 0.2,
+      "z": 2.1
+     },
+     "b": 1.1,
+     "h": 0.619,
+     "rahmen": "#3A3632",
+     "rahmen_breite": 0.03,
+     "hinweis": "MeshBasicMaterial (unbeleuchtet), 3 cm vor die Fassade"
+    },
+    {
+     "name": "Bahnhof Ostseite Nord",
+     "textur": "screens/s2_kiraku_shoji_streifen.png",
+     "frames": 3,
+     "frame_s": 4,
+     "seite": "+x",
+     "mitte": {
+      "x": -0.2,
+      "y": 5.6,
+      "z": 0.9
+     },
+     "b": 0.9,
+     "h": 0.506,
+     "rahmen": "#3A3632",
+     "rahmen_breite": 0.03,
+     "hinweis": "MeshBasicMaterial (unbeleuchtet), 3 cm vor die Fassade"
+    },
+    {
+     "name": "Bahnhof Ostseite Süd",
+     "textur": "screens/s4_farbflaechen_streifen.png",
+     "frames": 3,
+     "frame_s": 4,
+     "seite": "+x",
+     "mitte": {
+      "x": -0.2,
+      "y": 7.2,
+      "z": 0.8
+     },
+     "b": 0.9,
+     "h": 0.506,
+     "rahmen": "#3A3632",
+     "rahmen_breite": 0.03,
+     "hinweis": "MeshBasicMaterial (unbeleuchtet), 3 cm vor die Fassade"
+    }
+   ],
+   "schilder": [
+    {
+     "name": "Bahn-Piktogramm (generisch)",
+     "textur": "schilder/bahn_piktogramm.png",
+     "seite": "+x",
+     "mitte": {
+      "x": -0.2,
+      "y": 4.8,
+      "z": 0.62
+     },
+     "b": 0.3,
+     "h": 0.3
+    }
+   ],
+   "baeume": [
+    {
+     "x": 3.7,
+     "y": 4.4
+    },
+    {
+     "x": 3.7,
+     "y": 5.4
+    },
+    {
+     "x": 3.7,
+     "y": 6.4
+    },
+    {
+     "x": 3.7,
+     "y": 7.4
+    },
+    {
+     "x": 5.4,
+     "y": 3.7
+    },
+    {
+     "x": 6.4,
+     "y": 3.7
+    },
+    {
+     "x": 7.4,
+     "y": 3.7
+    },
+    {
+     "x": 0.2,
+     "y": 5.2
+    },
+    {
+     "x": 0.2,
+     "y": 6.2
+    },
+    {
+     "x": 0.2,
+     "y": 7.2
+    },
+    {
+     "x": -1.0,
+     "y": 4.45
+    },
+    {
+     "x": 0.25,
+     "y": 4.45
+    },
+    {
+     "x": 0.4,
+     "y": -0.6
+    },
+    {
+     "x": 0.4,
+     "y": -1.6
+    },
+    {
+     "x": 0.4,
+     "y": -2.6
+    }
+   ],
+   "baeume_hinweis": "Baum-Bausatz des Spiels (city.js), Baumscheiben sind in der Bodentextur",
+   "ebene_ampeln": {
+    "optional": true,
+    "hinweis": "eigene Ebene, abschaltbar. Leuchten MeshBasicMaterial; Farbe je Phase aus wege_phasen.json (signal rot/gruen). Gemeinsame Materialien, InstancedMesh.",
+    "mast": {
+     "form": "zylinder",
+     "d": 0.024,
+     "h": 0.3,
+     "farbe": "#5E6066"
+    },
+    "kopf": {
+     "form": "quader",
+     "b": 0.04,
+     "t": 0.04,
+     "h": 0.08,
+     "z": 0.26,
+     "farbe": "#3A3632"
+    },
+    "leuchte_rot": {
+     "form": "quader",
+     "b": 0.045,
+     "t": 0.045,
+     "h": 0.028,
+     "z": 0.31,
+     "an": "#E94F4F",
+     "aus": "#6B3F3C"
+    },
+    "leuchte_gruen": {
+     "form": "quader",
+     "b": 0.045,
+     "t": 0.045,
+     "h": 0.028,
+     "z": 0.28,
+     "an": "#5DBB73",
+     "aus": "#3F5A46"
+    },
+    "positionen": [
+     {
+      "x": 0.965,
+      "y": 0.3
+     },
+     {
+      "x": 0.3,
+      "y": 0.965
+     },
+     {
+      "x": 3.035,
+      "y": 0.3
+     },
+     {
+      "x": 0.3,
+      "y": 3.035
+     },
+     {
+      "x": 0.965,
+      "y": 3.7
+     },
+     {
+      "x": 3.7,
+      "y": 0.965
+     },
+     {
+      "x": 3.035,
+      "y": 3.7
+     },
+     {
+      "x": 3.7,
+      "y": 3.035
+     }
+    ]
+   },
+   "figuren": {
+    "standard": "Low-Poly-Figuren des Spiels (world.js pLegs/pBody/pHead/pHair, PCOL/LCOL/SKIN/HAIR) – world.js:464 „Low-Poly-Figuren sind final Standard“",
+    "wege": "wege_phasen.json + einbau/kreuzung_wege.mjs",
+    "anzahl": {
+     "querende": 110,
+     "bummler": 14,
+     "passanten": 16,
+     "summe": 140,
+     "hinweis": "NICHT den PPL-Pool (PPL_MAX 96, Kunden der Spielerläden) mitbenutzen: eigene Figurengruppe (Runde 4b: EIN InstancedMesh, count 140, +1 Draw Call; Farben je Instanz). Rückfall: 82 + 14. Wahl: Franky/Erik."
+    },
+    "alternative": {
+     "textur": "fussgaenger/fussgaenger_blatt.png",
+     "groesse_basis": [
+      0.46,
+      0.92
+     ],
+     "groesse_im_spiel": [
+      0.575,
+      1.15
+     ],
+     "center": [
+      0.5,
+      0.03
+     ],
+     "hinweis": "nur Alternative; Faktor 1,25 aus world.js:487 GENAU EINMAL."
+    }
+   },
+   "sprites": [
+    {
+     "name": "Hachiko",
+     "textur": "hachiko/hachiko_sprite.png",
+     "x": -0.4,
+     "y": 4.0,
+     "center": [
+      0.5,
+      0.05
+     ],
+     "groesse_felder": [
+      0.49,
+      0.49
+     ]
+    }
+   ]
+  }
+ ]
+}

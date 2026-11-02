@@ -1,0 +1,687 @@
+{
+ "version": 4,
+ "variante": "A",
+ "einheit": "Meter, Ursprung = Kreuzungsmitte = Gitterpunkt (23|40) = Welt (-36,5625 | 32,5); +x Ost, +z Süd; Welt = m × 0,40625",
+ "logik": "einbau/kreuzung_wege.mjs (erzeugeMenge / schritt) – Ziel einer Querung = nächster Start, nur integrierte Bewegung",
+ "zyklus_s": 44,
+ "phasen": [
+  {
+   "name": "warten",
+   "dauer_s": 14,
+   "signal": "rot",
+   "text": "Alle stehen in den Wartezonen; wer gerade angekommen ist, stellt sich auf dem Gehweg für die nächste Querung an"
+  },
+  {
+   "name": "alle_gehen",
+   "dauer_s": 24,
+   "signal": "gruen",
+   "text": "Alle Richtungen gleichzeitig, auch diagonal; Start je Person 0–2 s versetzt, spätestens 3 s nach Grün"
+  },
+  {
+   "name": "nachzuegler",
+   "dauer_s": 6,
+   "signal": "rot",
+   "tempo_faktor": 1.6,
+   "text": "Wer noch auf dem Zebra ist, geht ab der aktuellen Stelle 1,6× schneller weiter – kein Sprung, keine neuen Starter"
+  }
+ ],
+ "tempo_m_s": [
+  1.3,
+  1.5
+ ],
+ "tempo_hinweis": "1,3–1,5 m/s ist eine Empfehlung von Whitebeard/Yuki (realistisches Gehtempo), keine Vorgabe von Erik. Nachzügler × 1,6.",
+ "startversatz_s": 2.0,
+ "start_spaetestens_s": 3.0,
+ "knoten_m": 14.0,
+ "hachiko": {
+  "x": -24.0,
+  "z": 20.0
+ },
+ "hachiko_abstand_m": 3.2,
+ "wartezonen": {
+  "nw": {
+   "ost_west": {
+    "x": [
+     -15.0,
+     -10.6
+    ],
+    "z": [
+     -16.0,
+     -12.0
+    ]
+   },
+   "nord_sued": {
+    "x": [
+     -16.0,
+     -12.0
+    ],
+    "z": [
+     -15.0,
+     -10.6
+    ]
+   },
+   "diagonal": {
+    "u": [
+     15.3,
+     18.6
+    ],
+    "quer": [
+     -0.9,
+     0.9
+    ],
+    "raute": [
+     15.3,
+     19.2
+    ]
+   }
+  },
+  "ne": {
+   "ost_west": {
+    "x": [
+     10.6,
+     15.0
+    ],
+    "z": [
+     -16.0,
+     -12.0
+    ]
+   },
+   "nord_sued": {
+    "x": [
+     12.0,
+     16.0
+    ],
+    "z": [
+     -15.0,
+     -10.6
+    ]
+   },
+   "diagonal": {
+    "u": [
+     15.3,
+     18.6
+    ],
+    "quer": [
+     -0.9,
+     0.9
+    ],
+    "raute": [
+     15.3,
+     19.2
+    ]
+   }
+  },
+  "sw": {
+   "ost_west": {
+    "x": [
+     -15.0,
+     -10.6
+    ],
+    "z": [
+     12.0,
+     16.0
+    ]
+   },
+   "nord_sued": {
+    "x": [
+     -16.0,
+     -12.0
+    ],
+    "z": [
+     10.6,
+     15.0
+    ]
+   },
+   "diagonal": {
+    "u": [
+     15.3,
+     18.6
+    ],
+    "quer": [
+     -0.9,
+     0.9
+    ],
+    "raute": [
+     15.3,
+     19.2
+    ]
+   }
+  },
+  "se": {
+   "ost_west": {
+    "x": [
+     10.6,
+     15.0
+    ],
+    "z": [
+     12.0,
+     16.0
+    ]
+   },
+   "nord_sued": {
+    "x": [
+     12.0,
+     16.0
+    ],
+    "z": [
+     10.6,
+     15.0
+    ]
+   },
+   "diagonal": {
+    "u": [
+     15.3,
+     18.6
+    ],
+    "quer": [
+     -0.9,
+     0.9
+    ],
+    "raute": [
+     15.3,
+     19.2
+    ]
+   }
+  }
+ },
+ "warte_mindestabstand_m": 0.6,
+ "wartezonen_hinweis": "gerade: Rechteck (x/z in m) auf dem Gehweg vor dem Zebraband. diagonal: u = Abstand von der Mitte entlang der Diagonale, quer = seitlich, Raute u−|quer| ≥ 15,3 (hinter der Bordstein-Spitze 14,76) und u+|quer| ≤ 19,2",
+ "bummler": {
+  "x": [
+   -31.0,
+   -17.0
+  ],
+  "z": [
+   16.5,
+   25.5
+  ],
+  "sperr": [
+   {
+    "x": [
+     -31.0,
+     -29.0
+    ],
+    "z": [
+     23.3,
+     25.5
+    ]
+   },
+   {
+    "x": [
+     -18.7,
+     -17.0
+    ],
+    "z": [
+     23.3,
+     25.5
+    ]
+   }
+  ],
+  "hinweis": "nur Hachiko-Platz vor dem Bahnhof, ≥ 3,2 m (+0,2) von Hachiko, nicht an den Baumscheiben, ≥ 0,9 m von Ampelmasten"
+ },
+ "passanten": {
+  "anzahl": 16,
+  "versatz_m": [
+   -1.2,
+   1.2
+  ],
+  "pause_s": [
+   1.0,
+   4.0
+  ],
+  "linien": [
+   {
+    "name": "NW: Westarm Nordseite ↔ Nordarm Westseite",
+    "punkte": [
+     [
+      -36.4,
+      -12
+     ],
+     [
+      -12,
+      -12
+     ],
+     [
+      -12,
+      -46.4
+     ]
+    ],
+    "versatz": [
+     [
+      0,
+      1
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      0
+     ]
+    ]
+   },
+   {
+    "name": "NO: Nordarm Ostseite ↔ Ostarm-Ecke",
+    "punkte": [
+     [
+      12,
+      -46.4
+     ],
+     [
+      12,
+      -12
+     ],
+     [
+      17.5,
+      -12
+     ]
+    ],
+    "versatz": [
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      0,
+      1
+     ]
+    ]
+   },
+   {
+    "name": "SO: Ostarm Südseite ↔ Südarm Ostseite",
+    "punkte": [
+     [
+      56.4,
+      12
+     ],
+     [
+      12,
+      12
+     ],
+     [
+      12,
+      56.4
+     ]
+    ],
+    "versatz": [
+     [
+      0,
+      1
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      1,
+      0
+     ]
+    ]
+   },
+   {
+    "name": "SW: Südarm Westseite ↔ Westarm Südseite",
+    "punkte": [
+     [
+      -12,
+      56.4
+     ],
+     [
+      -12,
+      12
+     ],
+     [
+      -36.4,
+      12
+     ]
+    ],
+    "versatz": [
+     [
+      1,
+      0
+     ],
+     [
+      1,
+      1
+     ],
+     [
+      0,
+      1
+     ]
+    ]
+   }
+  ],
+  "hinweis": "gehen auf den Gehwegen der Arme hin und her (12 ± 1,2 m von der Achse, Ecke diagonal versetzt), drehen 3,6 m vor den Hauptstraßen um (dort Bordstein-Rundung)"
+ },
+ "ampeln": [
+  {
+   "x": -10.35,
+   "z": -17.0,
+   "querung": "ost_west",
+   "arm": "nord"
+  },
+  {
+   "x": -17.0,
+   "z": -10.35,
+   "querung": "nord_sued",
+   "arm": "west"
+  },
+  {
+   "x": 10.35,
+   "z": -17.0,
+   "querung": "ost_west",
+   "arm": "nord"
+  },
+  {
+   "x": -17.0,
+   "z": 10.35,
+   "querung": "nord_sued",
+   "arm": "west"
+  },
+  {
+   "x": -10.35,
+   "z": 17.0,
+   "querung": "ost_west",
+   "arm": "sued"
+  },
+  {
+   "x": 17.0,
+   "z": -10.35,
+   "querung": "nord_sued",
+   "arm": "ost"
+  },
+  {
+   "x": 10.35,
+   "z": 17.0,
+   "querung": "ost_west",
+   "arm": "sued"
+  },
+  {
+   "x": 17.0,
+   "z": 10.35,
+   "querung": "nord_sued",
+   "arm": "ost"
+  }
+ ],
+ "ampeln_hinweis": "optionale Ebene: rot in warten/nachzuegler, grün in alle_gehen; Masten am Bordstein außerhalb der Wartezonen",
+ "geometrie": {
+  "ARM": 10.0,
+  "RK": 1.5,
+  "MUND_R": 3.0,
+  "ZB0": 11.5,
+  "ZB1": 16.5,
+  "DIAG_W": 5.0,
+  "diag_clip": 11.5,
+  "arme_laenge_m": {
+   "nord": 50.0,
+   "sued": 60.0,
+   "west": 40.0,
+   "ost": 60.0
+  },
+  "querstrassen_u_m": {
+   "nord": [],
+   "sued": [],
+   "west": [],
+   "ost": []
+  },
+  "bezirk_m": {
+   "x": [
+    -40.0,
+    60.0
+   ],
+   "z": [
+    -50.0,
+    60.0
+   ]
+  },
+  "flaechen": "pruefung/flaechen_m.json (exakte Polygone: fahrbahn, gehweg, zebra)"
+ },
+ "hindernisse": [
+  {
+   "name": "NW Turm (Bildschirm-Turm)",
+   "x": [
+    -32,
+    -18
+   ],
+   "z": [
+    -48,
+    -18
+   ]
+  },
+  {
+   "name": "NW Bahnbau (Gleise führen hinein)",
+   "x": [
+    -40,
+    -32
+   ],
+   "z": [
+    -50,
+    -18
+   ]
+  },
+  {
+   "name": "Bahnhofshalle (Hochbahn, generisch)",
+   "x": [
+    -40,
+    -22
+   ],
+   "z": [
+    26,
+    60
+   ]
+  },
+  {
+   "name": "NO Turm (schmal)",
+   "x": [
+    14.5,
+    20
+   ],
+   "z": [
+    -48,
+    -18
+   ]
+  },
+  {
+   "name": "SO Kiosk",
+   "x": [
+    22,
+    29
+   ],
+   "z": [
+    15,
+    19.5
+   ]
+  },
+  {
+   "name": "pfeiler_0",
+   "x": [
+    -36.7,
+    -35.3
+   ],
+   "z": [
+    -16.2,
+    -14.8
+   ]
+  },
+  {
+   "name": "pfeiler_1",
+   "x": [
+    -36.7,
+    -35.3
+   ],
+   "z": [
+    14.8,
+    16.2
+   ]
+  },
+  {
+   "name": "Baum 17|24",
+   "x": [
+    16.3,
+    17.7
+   ],
+   "z": [
+    23.3,
+    24.7
+   ]
+  },
+  {
+   "name": "Baum 17|34",
+   "x": [
+    16.3,
+    17.7
+   ],
+   "z": [
+    33.3,
+    34.7
+   ]
+  },
+  {
+   "name": "Baum 17|44",
+   "x": [
+    16.3,
+    17.7
+   ],
+   "z": [
+    43.3,
+    44.7
+   ]
+  },
+  {
+   "name": "Baum 17|54",
+   "x": [
+    16.3,
+    17.7
+   ],
+   "z": [
+    53.3,
+    54.7
+   ]
+  },
+  {
+   "name": "Baum 34|17",
+   "x": [
+    33.3,
+    34.7
+   ],
+   "z": [
+    16.3,
+    17.7
+   ]
+  },
+  {
+   "name": "Baum 44|17",
+   "x": [
+    43.3,
+    44.7
+   ],
+   "z": [
+    16.3,
+    17.7
+   ]
+  },
+  {
+   "name": "Baum 54|17",
+   "x": [
+    53.3,
+    54.7
+   ],
+   "z": [
+    16.3,
+    17.7
+   ]
+  },
+  {
+   "name": "Baum -18|32",
+   "x": [
+    -18.7,
+    -17.3
+   ],
+   "z": [
+    31.3,
+    32.7
+   ]
+  },
+  {
+   "name": "Baum -18|42",
+   "x": [
+    -18.7,
+    -17.3
+   ],
+   "z": [
+    41.3,
+    42.7
+   ]
+  },
+  {
+   "name": "Baum -18|52",
+   "x": [
+    -18.7,
+    -17.3
+   ],
+   "z": [
+    51.3,
+    52.7
+   ]
+  },
+  {
+   "name": "Baum -30|24.5",
+   "x": [
+    -30.7,
+    -29.3
+   ],
+   "z": [
+    23.8,
+    25.2
+   ]
+  },
+  {
+   "name": "Baum -17.5|24.5",
+   "x": [
+    -18.2,
+    -16.8
+   ],
+   "z": [
+    23.8,
+    25.2
+   ]
+  },
+  {
+   "name": "Baum -16|-26",
+   "x": [
+    -16.7,
+    -15.3
+   ],
+   "z": [
+    -26.7,
+    -25.3
+   ]
+  },
+  {
+   "name": "Baum -16|-36",
+   "x": [
+    -16.7,
+    -15.3
+   ],
+   "z": [
+    -36.7,
+    -35.3
+   ]
+  },
+  {
+   "name": "Baum -16|-46",
+   "x": [
+    -16.7,
+    -15.3
+   ],
+   "z": [
+    -46.7,
+    -45.3
+   ]
+  }
+ ]
+}

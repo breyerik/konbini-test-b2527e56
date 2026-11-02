@@ -5,6 +5,13 @@ const _pq=Number(new URLSearchParams(globalThis.location?location.search:'').get
 import {loadCityPlan} from './cities.js';
 const _city=await loadCityPlan(import.meta.url,PLAN_VERSION);
 export const PLAN=_city.plan, CITY=_city.city;// Mehrstadt: cities.js (Tokio Standard, ?stadt=yokohama sobald Yukis Plan da ist)
+// V7 Shibuya-Kreuzung Lage A (Yuki R4b, Whitebeard-Freigabe R4b, Erik 01.11. 14:54 „Genau so machen“, R58): vier angeschlossene Arme.
+// Planänderung zur Laufzeit aus kreuzung/plan_a.json (88 Felder, 14 ladenlose Grundstücke weg, Wahrzeichenfläche neu) – nur Tokio V7.
+// Greift nur, wenn JEDES Feld noch den erwarteten alten Typ hat und alle 14 Grundstücke existieren (sonst alter Plan, Warnung).
+// ?kreuzung=alt zeigt zum Vergleich die alte Kreuzung.
+const _krQ=new URLSearchParams(globalThis.location?location.search:'').get('kreuzung');
+const _krA=PLAN_VERSION===7&&CITY.id==='tokio'&&_krQ!=='alt'?await fetch(new URL('../kreuzung/plan_a.json',import.meta.url)).then(r=>r.ok?r.json():null).catch(()=>null):null;
+export let KREUZUNG_A=null;// {mitte:[x,z] Welt, feld:[x,y]} wenn Lage A aktiv
 // v3.2: abschaltbare Kartenteile (true = wieder da). data.js reicht FEATURES weiter.
 export const FEATURES={rail:false,haneda:false,hq:false};
 export const PLAN_FIX={dropped:[],landfill:0,pruned:0,islands:0};
@@ -15,6 +22,13 @@ export const BRIDGES=PLAN.bruecken||await fetch(new URL('../grafik/stadtplan/sta
 export const LM_BLOCKS=[];
 (function fixPlan(){
  const n=PLAN.raster.n,Fd=PLAN.felder=PLAN.felder.map(r=>r.slice()),inb=(x,y)=>x>=0&&y>=0&&x<n&&y<n;
+ if(_krA){const ids=new Set(PLAN.grundstuecke.map(g=>g.id)),wi=PLAN.wahrzeichen.findIndex(w=>w.wahrzeichen==='shibuya-crossing');
+  const falsch=_krA.felder.filter(([x,y,alt])=>!inb(x,y)||Fd[y][x]!==alt),fehlt=_krA.grundstuecke_weg.filter(id=>!ids.has(id));
+  if(!falsch.length&&!fehlt.length&&wi>=0){for(const [x,y,,neu] of _krA.felder)Fd[y][x]=neu;const weg=new Set(_krA.grundstuecke_weg);
+   PLAN.grundstuecke=PLAN.grundstuecke.filter(g=>!weg.has(g.id));const w=_krA.wahrzeichen;
+   const {ring:_r,...alt}=PLAN.wahrzeichen[wi];PLAN.wahrzeichen[wi]={...alt,wahrzeichen:w.wahrzeichen,name:w.name,x:w.x,y:w.y,breite:w.breite,tiefe:w.tiefe,block:{...w.block},baeume:[],kreuzungA:true};
+   KREUZUNG_A={mitte:_krA.kreuzungsmitte.welt,feld:_krA.kreuzungsmitte.gitterpunkt};}
+  else console.warn('Kreuzung A nicht angewendet (Plan passt nicht):',falsch.length,'Felder',fehlt,'Grundstücke',wi);}
  if(!FEATURES.haneda){for(const w of PLAN.wahrzeichen.filter(w=>w.wahrzeichen==='haneda'))for(let y=w.y;y<w.y+w.tiefe;y++)for(let x=w.x;x<w.x+w.breite;x++)if(inb(x,y))Fd[y][x]='park';
   PLAN.wahrzeichen=PLAN.wahrzeichen.filter(w=>w.wahrzeichen!=='haneda');}
  // Neue Städte (?neuestaedte=1): Wahrzeichen aus Yukis Bauvorlagen ohne Platz im Plan an realer Lage ergänzen; Tsūtenkaku mit Straße durch die Bögen

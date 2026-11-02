@@ -8,7 +8,7 @@ import {logoCanvas,shade} from './logo.js';
 import * as LG from './logo.js';
 import {SKYSCRAPERS,TOWERS,SHOPS,LANDMARK_AREAS,lm as LM,F as FIELD,FEATURES,LM_BLOCKS,BRIDGES,wx,wz,CITY as PCITY} from './plan.js';
 import {buildYokohamaLM,bayBridgeParts,LT_HEIGHT} from './lm_yokohama.js';
-import {SHOP_FOOT,groundTexture as planGround,buildTowers,buildCity,buildShops,treeSpots,roadLanes,onRoad,loadImg} from './city.js';
+import {SHOP_FOOT,groundTexture as planGround,buildTowers,buildCity,buildShops,treeSpots,loadImg} from './city.js';
 import {PLAN_SLOTS,slotOpen} from './data.js';
 import {RAND_WASSER,STIL5,PIN_V2,skytree5,tokyoTower5,roppongi5,palace5,station5,shibuya5,gotoku5,akamon5,fujiTV5,bridgeRails,medianTrees,colMat as colMat5} from './stil5.js';
 function mergeLife(gs){const g=new THREE.BufferGeometry(),P=[],Nn=[];for(const x of gs){const y=x.index?x.toNonIndexed():x;P.push(...y.attributes.position.array);Nn.push(...y.attributes.normal.array);}g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(Nn,3));return g;}
@@ -24,7 +24,7 @@ const YM={cx:9,cz:-2.4,rx:51.6,rz:58.8};
 const R=130;
 const BG=PCITY&&PCITY.id==='yokohama'?'#2F7E8A':(RAND_WASSER?'#236E81':'#0B0D12');// Yokohama: offene Bucht – außerhalb der Karte Meer statt Schwarz// v3.2: Hintergrund außerhalb der Karte
 export const PIN_CAP_Z=1.2;
-export const CAM={elev:35*Math.PI/180,yaw:45*Math.PI/180,viewH:120,zoom0:.88,minZoom:.5,maxZoom:6,carZoom:1.5};
+export const CAM={elev:35*Math.PI/180,yaw:45*Math.PI/180,viewH:120,zoom0:.88,minZoom:.5,maxZoom:6};
 function seeded(seed){return()=>(seed=(seed*16807)%2147483647)/2147483647;}
 function inPoly(x,z,P){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const[xi,zi]=P[i],[xj,zj]=P[j];if(((zi>z)!==(zj>z))&&(x<(xj-xi)*(z-zi)/(zj-zi)+xi))c=!c;}return c;}
 function distSeg(px,pz,ax,az,bx,bz){const dx=bx-ax,dz=bz-az,t=Math.max(0,Math.min(1,((px-ax)*dx+(pz-az)*dz)/(dx*dx+dz*dz)));return Math.hypot(px-ax-t*dx,pz-az-t*dz);}
@@ -38,6 +38,8 @@ export function isWater(x,z,margin=0){
 }
 const isPark=(x,z,m=0)=>PARKS.some(p=>Math.hypot(x-p.x,z-p.z)<p.r+m);
 function distYM(x,z){const u=(x-YM.cx)/YM.rx,v=(z-YM.cz)/YM.rz;return Math.abs(Math.hypot(u,v)-1)*Math.min(YM.rx,YM.rz);}
+// B2 Option 2 (R57): nur die Viertel-Beschriftung hat einen eigenen Anker (lx/lz, sonst x/z) – lokal statt Import, damit kein Mischstand alter data.js/neuer world.js bricht
+const bezirkLabel=d=>({x:d.lx??d.x,z:d.lz??d.z});
 function nearestDistrict(x,z){let best=null,bd=1e9;for(const d of DISTRICTS){const dd=Math.hypot(x-d.x,z-d.z);if(dd<bd){bd=dd;best=d}}return [best,bd];}
 
 /* ---------- Materialien ---------- */
@@ -358,13 +360,25 @@ export function createWorld(container,cb){
  const outer=new THREE.Mesh(new THREE.PlaneGeometry(1400,1400),new THREE.MeshBasicMaterial({color:BG}));outer.rotation.x=-Math.PI/2;outer.position.y=-.05;scene.add(outer);
  // Wahrzeichen (12 Flächen aus dem Plan), je Wahrzeichen ein gebackenes Mesh
  const lmGroup=new THREE.Group();
+ // Shibuya-Kreuzung Lage A (R58, Yuki R4b): Plan liefert die Fläche mit kreuzungA – das alte Modell (shibuyaCrossing/shibuya5) wird dann gar nicht gebaut
+ const KR_A=LANDMARK_AREAS.find(w=>w.wahrzeichen==='shibuya-crossing'&&w.kreuzungA),KR={K:null,h:null,s1:null,look:null,lk:'',t:null,fertig:null};
  // V6 (Erik 25.10., Whitebeard 4816e73): das dunkle Hochhaus direkt hinter dem Tokyo Tower (Roppongi-Hills-Turm) entfällt; ?tuerme=alle zeigt es wieder (R39)
  const OHNE_LM=new URLSearchParams(location.search).get('tuerme')==='alle'?[]:['roppongi-hills'];
- for(const l of LANDMARKS){if(STIL5&&OHNE_LM.includes(l.id))continue;let o=l.make();const bb=new THREE.Box3().setFromObject(o),sz=bb.getSize(new THREE.Vector3());const k=Math.min(STIL5&&['akamon','sensoji'].includes(l.id)?1.6:1.25,l.w*.95/Math.max(.1,sz.x),l.d*.95/Math.max(.1,sz.z));if(/-castle$/.test(l.id)&&YSPEC[l.id]&&YSPEC[l.id].neu){o.scale.setScalar(.62*Math.min(l.w,l.d)/Math.max(.1,sz.x,sz.z));}// Burgen füllen ~60 % des Grundstücks (Erik 23:34)
+ for(const l of LANDMARKS){if(STIL5&&OHNE_LM.includes(l.id))continue;if(KR_A&&l.id==='shibuya-crossing')continue;let o=l.make();const bb=new THREE.Box3().setFromObject(o),sz=bb.getSize(new THREE.Vector3());const k=Math.min(STIL5&&['akamon','sensoji'].includes(l.id)?1.6:1.25,l.w*.95/Math.max(.1,sz.x),l.d*.95/Math.max(.1,sz.z));if(/-castle$/.test(l.id)&&YSPEC[l.id]&&YSPEC[l.id].neu){o.scale.setScalar(.62*Math.min(l.w,l.d)/Math.max(.1,sz.x,sz.z));}// Burgen füllen ~60 % des Grundstücks (Erik 23:34)
   else if(k<1&&!(YSPEC[l.id]&&YSPEC[l.id].neu)&&!(STIL5&&['skytree','tokyo-tower','roppongi-hills','kaiserpalast','gotokuji','akamon','odaiba'].includes(l.id)))o.scale.setScalar(k);
   if(l.id==='tokyo-station'||l.id==='haneda'){if(l.w>l.d&&l.id==='tokyo-station'&&!STIL5)o.rotation.y=Math.PI/2;}
   const b=bake(o);b.position.set(l.x,0,l.z);b.updateMatrixWorld(true);l.box=new THREE.Box3().setFromObject(b);if(l.id==='tokyo-station'&&l.w>l.d)b.rotation.y=0;lmGroup.add(shadowAll(b));}
  scene.add(lmGroup);
+ // Kreuzung A: Yukis Bausatz (kreuzung/einbau, 6 Meshes) direkt in der Szene, NICHT in lmGroup, ohne Skalierung (Ursprung = Kreuzungsmitte der Bauvorlage).
+ // Bildschirm 1 zeigt die Spielerkette live (chainLook + logoCanvas), Figuren erst ab Zoom 1,5, Zug bleibt (Erik). Fehler beim Laden lassen das Spiel unberührt.
+ if(KR_A){const basis=new URL('../kreuzung/',import.meta.url).href,j=u=>fetch(basis+u).then(r=>r.json()),bild=u=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=basis+u;});
+  const lc=(l,w)=>{if(l&&l.bg)return logoCanvas(l,w);const c=document.createElement('canvas');c.width=c.height=w||256;return c;};
+  KR.fertig=Promise.all([import('../kreuzung/einbau/kreuzung_bau.js'),import('../kreuzung/einbau/spieler_schirm.js'),j('bauvorlage_shibuya.json'),j('wege_phasen.json'),bild('screens/s1_spielerkette_f2.png'),bild('screens/s1_spielerkette_f3.png')])
+  .then(([B,S,vorlage,wege,f2,f3])=>{KR.h=S.spielerSchirmLive(KR.look||{name:'',main:'#8A8279',second:'#FFFFFF',logo:null},lc,f2,f3,()=>{if(KR.s1)KR.s1.needsUpdate=true;});
+   KR.s1=new THREE.CanvasTexture(KR.h.canvas);KR.s1.colorSpace=THREE.SRGBColorSpace;
+   const K=B.baueKreuzung(THREE,{basis,vorlage,wege,schirm1:KR.s1,kamera:camera});const [ox,oz]=vorlage.kreuzungsmitte.welt;
+   K.gruppe.position.set(ox,0,oz);K.gruppe.name='shibuya-kreuzung-a';scene.add(K.gruppe);KR.K=K;renderer.shadowMap.needsUpdate=true;return true;})
+  .catch(e=>{console.warn('Kreuzung A nicht geladen:',e);return false;});}
  const bridges=buildBridges();scene.add(bridges);if(STIL5){{const HB=BRIDGES.filter(b=>b.art==='haengebruecke');scene.add(bridgeRails(PN,pCellAt,wx,wz,FIELD,(x,y)=>HB.some(b=>x>=Math.min(b.von[0],b.bis[0])-1&&x<=Math.max(b.von[0],b.bis[0])+1&&y>=Math.min(b.von[1],b.bis[1])-1&&y<=Math.max(b.von[1],b.bis[1])+1)));}}
  // v3.2: jedes Wahrzeichen auf eigenem Rasenblock mit Bordstein
  {const kg=new THREE.Group();for(const b of LM_BLOCKS){const x0=wx(b.x),x1=wx(b.x+b.breite),z0=wz(b.y),z1=wz(b.y+b.tiefe),k=.35,h=.32,cx=(x0+x1)/2,cz=(z0+z1)/2;
@@ -424,22 +438,7 @@ export function createWorld(container,cb){
  const utility=[{id:'borse',name:'Börse',emoji:'📈',x:58,z:-6,bg:'#8EA6C4'},{id:'immo',name:'Immobilienbüro',emoji:'🏢',x:-4,z:12,bg:'#8EA6C4'},{id:'hq',name:'Hauptquartier',emoji:'🏠',x:-12,z:-30,bg:'#B8A6D9'},{id:'station',name:'Tokio Hbf (Fernreisen)',emoji:'🚄',x:HUBS[0].x,z:HUBS[0].z+3,bg:'#9AD8EE'},{id:'haneda',name:'Haneda (Flüge)',emoji:'✈️',x:HUBS[1].x,z:HUBS[1].z-4,bg:'#9AD8EE'}];
  const HIDE_UTIL={immo:true,hq:!FEATURES.hq,station:!FEATURES.rail,haneda:!FEATURES.haneda};// Tokio Hbf bleibt als Gebäude, ohne Funktion
  const utilSprites=utility.filter(u=>!HIDE_UTIL[u.id]).map(u=>{const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:emojiPin(u.emoji,u.name,u.bg),depthTest:false,transparent:true}));sp.position.set(u.x,u.id==='haneda'?21:u.id==='station'?18:6.5,u.z);sp.scale.set(4.2,5.2,1);sp.renderOrder=4;sp.center.set(.5,0);sp.userData.hub=u.id;scene.add(sp);return sp;});
- // Autos auf dem Straßenraster
- const CARN=46,carG=(()=>{const a=new THREE.BoxGeometry(1.0,.34,.52).translate(0,.27,0),b=new THREE.BoxGeometry(.52,.24,.46).translate(-.06,.56,0);return mergeLife([a,b]);})();
- const cars=new THREE.InstancedMesh(carG,new THREE.MeshLambertMaterial({color:'#fff'}),CARN);const cl=['#E94F4F','#3D7BD9','#FFC93C','#FFFFFF','#5DBB73','#F7A1B5','#2B2D42'];
- const lanes=roadLanes();const carD=[];for(let i=0;i<CARN;i++){const L=lanes[i%lanes.length]||{h:true,z:0},dir=rnd()<.5?1:-1;carD.push({horiz:L.h,lane:(L.h?L.z:L.xw)+dir*FIELD*.45,pos:(rnd()-.5)*2*R,v:(.4+rnd()*.5)*dir*.5});cars.setColorAt(i,col.set(cl[i%cl.length]));}
- scene.add(cars);cars.visible=false;
- // Autos auf Ringstraßen (Rundkurs um jedes Wahrzeichen) und über die Brücken (hin und her)
- const paths=[];for(const w of LANDMARK_AREAS){if(!w.ring)continue;const r=w.ring,x0=wx(r.x+.5),x1=wx(r.x+r.breite-.5),z0=wz(r.y+.5),z1=wz(r.y+r.tiefe-.5);paths.push({pts:[[x0,z0],[x1,z0],[x1,z1],[x0,z1],[x0,z0]],loop:true});}
- for(const b of BRIDGES.filter(b=>!b.felder||b.art==='haengebruecke')){paths.push({pts:[[wx(b.von[0]+.5),wz(b.von[1]+.5)],[wx(b.bis[0]+.5),wz(b.bis[1]+.5)]],loop:false,y:.6});}
- const PCN=Math.min(40,paths.length*2),pcars=new THREE.InstancedMesh(carG,new THREE.MeshLambertMaterial({color:'#fff'}),Math.max(1,PCN));const pcD=[];
- for(let i=0;i<PCN;i++){const P=paths[i%paths.length];let L=0;const seg=[];for(let k=1;k<P.pts.length;k++){const l=Math.hypot(P.pts[k][0]-P.pts[k-1][0],P.pts[k][1]-P.pts[k-1][1]);seg.push(l);L+=l;}pcD.push({P,seg,L,s:rnd()*L,v:(.15+rnd()*.15)*(i%2?1:-1)});pcars.setColorAt(i,col.set(cl[(i+3)%cl.length]));}
- pcars.count=PCN;pcars.visible=false;scene.add(pcars);
- function updatePathCars(){for(let i=0;i<PCN;i++){const c=pcD[i];c.s+=c.v;if(c.P.loop){c.s=(c.s%c.L+c.L)%c.L;}else if(c.s<0||c.s>c.L){c.v=-c.v;c.s=Math.max(0,Math.min(c.L,c.s));}
-  let d=c.s,k=0;while(k<c.seg.length-1&&d>c.seg[k]){d-=c.seg[k];k++;}const A=c.P.pts[k],B=c.P.pts[k+1],t=d/c.seg[k];const x=A[0]+(B[0]-A[0])*t,z=A[1]+(B[1]-A[1])*t;
-  let y=c.P.y||0;if(c.P.y){const e2=Math.min(c.s,c.L-c.s);y=Math.min(c.P.y,e2/FIELD*c.P.y);}
-  e.set(0,-Math.atan2(B[1]-A[1],B[0]-A[0]),0);q.setFromEuler(e);mtx.compose(new THREE.Vector3(x,y,z),q,new THREE.Vector3(1.3,1.3,1.3));pcars.setMatrixAt(i,mtx);}pcars.instanceMatrix.needsUpdate=true;}
- function updateCars(){for(let i=0;i<CARN;i++){const c=carD[i];c.pos+=c.v;if(c.pos>R-3)c.pos=-R+3;if(c.pos<-R+3)c.pos=R-3;const x=c.horiz?c.pos:c.lane,z=c.horiz?c.lane:c.pos;const ok=onRoad(x,z);e.set(0,c.horiz?0:Math.PI/2,0);q.setFromEuler(e);mtx.compose(new THREE.Vector3(x,ok?0:-5,z),q,new THREE.Vector3(1.3,1.3,1.3));cars.setMatrixAt(i,mtx);}cars.instanceMatrix.needsUpdate=true;}
+ // Erik 01.11. (R54): keine Autos – Gitter-, Ringstraßen- und Brückenautos samt Fahrspur-Logik entfernt
  let occupied=new Set();
  // V6 (Whitebeard-Vorabtest 22d0cd1, Vorlage m26): nur ~8 空き-Pins gleichzeitig – beste Lage zuerst, reihum über die Viertel verteilt.
  // Ebenen-Knopf (☰ links unten) schaltet „alle freien Grundstücke“ ein/aus.
@@ -521,6 +520,7 @@ export function createWorld(container,cb){
   const b=new THREE.Mesh(new THREE.PlaneGeometry(ft.z1-ft.z0-.1,H),mat);b.rotation.y=Math.PI/2;b.position.set(ft.x1+e-sl.x,H/2,cz-sl.z);o.add(b);
   return {cx:cx-sl.x,cz:cz-sl.z,top:roofY(cx,cz,o)};}
  function syncStores(stores,logo,week){if(week)curWeek=week;lifeFor(stores);
+  if(KR_A&&logo&&logo.bg){const k=JSON.stringify(logo);if(k!==KR.lk){KR.lk=k;KR.look=chainLook('player',logo,{facade:'brand'});if(KR.h)KR.h.neu(KR.look);}}
   occupied=new Set(stores.map(s=>s.d+':'+s.slot));const seen=new Set(),used=new Set();
   for(const s of stores){const sl=SLOTS[s.d]&&SLOTS[s.d][s.slot];if(!sl)continue;used.add(sl.k);paintShop(sl.k,s.chain,logo);
    const key=JSON.stringify([s.chain,s.build>0,s.chain==='player'?logo:0,s.chain==='player'?LG.logoVer:0]);seen.add(s.id);let o=storeObjs.get(s.id);
@@ -541,7 +541,7 @@ export function createWorld(container,cb){
  // Labels
  const SHOW_LABELS=new URLSearchParams(location.search).get('beschriftung')==='1';// Erik 21.10.: Stadtteil-/Wahrzeichen-Beschriftung standardmäßig aus
  const labelLayer=document.createElement('div');labelLayer.className='labels';if(!SHOW_LABELS)labelLayer.style.display='none';container.appendChild(labelLayer);
- const labels=DISTRICTS.map(d=>{const el=document.createElement('div');el.className='lbl3d';el.innerHTML=`<i style="background:${TYPES[d.type].color}">${TYPES[d.type].icon}</i><b>${d.name}</b><small>${d.jp}</small>`;labelLayer.appendChild(el);return {el,p:new THREE.Vector3(d.x,9,d.z)};});
+ const labels=DISTRICTS.map(d=>{const el=document.createElement('div');el.className='lbl3d';el.innerHTML=`<i style="background:${TYPES[d.type].color}">${TYPES[d.type].icon}</i><b>${d.name}</b><small>${d.jp}</small>`;labelLayer.appendChild(el);const A=bezirkLabel(d);return {el,p:new THREE.Vector3(A.x,9,A.z)};});
  const lmLabels=LANDMARKS.filter(l=>!['shibuya-crossing','tokyo-station','haneda'].includes(l.id)).concat(FEATURES.rail?[{name:'Yamanote-Linie',x:YM.cx-YM.rx,z:YM.cz+14,h:3}]:[]).map(l=>{const el=document.createElement('div');el.className='lmlbl';el.textContent=l.name;labelLayer.appendChild(el);return {el,p:new THREE.Vector3(l.x,STIL5?.3:(l.h||6)+2,l.z),below:STIL5};});
  const v=new THREE.Vector3();
  const placedLm=[];function placeLabels(){if(!SHOW_LABELS)return;const W=container.clientWidth,H=container.clientHeight,dist=120/camera.zoom;
@@ -591,6 +591,7 @@ export function createWorld(container,cb){
   const m=Math.max(0,R-Math.min(hw,hh)*.5);t.x=Math.max(-m,Math.min(m,t.x));t.z=Math.max(-m,Math.min(m,t.z));t.y=0;return t;}
  controls.addEventListener('change',()=>{const t=controls.target,ox=t.x,oz=t.z;clampT(t);if(ox!==t.x||oz!==t.z){camera.position.copy(t).add(camOff);}});
  function loop(){if(!running)return;const t=clock.getElapsedTime();frame++;
+  if(KR.K){KR.K.update(KR.t==null?0:Math.min(.1,t-KR.t));}KR.t=t;
   if(fly){const p=Math.min(1,(performance.now()-fly.t0)/750),k=1-Math.pow(1-p,3);controls.target.lerpVectors(fly.from,fly.to,k);camera.position.copy(controls.target).add(camOff);camera.zoom=fly.z0+(fly.z1-fly.z0)*k;camera.updateProjectionMatrix();if(p>=1)fly=null;}
   controls.update();
   const u=(t/80)%1;if(curve)train.forEach((c,i)=>{const a=(u+i*.0068)%1;const p=curve.getPointAt(a),p2=curve.getPointAt((a+.002)%1);c.position.set(p.x,.62,p.z);c.lookAt(p2.x,.62,p2.z);});
@@ -598,7 +599,7 @@ export function createWorld(container,cb){
   // eigener Pin: Bildschirmgröße gedeckelt (ab Zoom 1,2 nicht größer, ≈ 空き-Pin), damit die Ladenfront frei bleibt
  {const k=Math.min(1,PIN_CAP_Z/camera.zoom);for(const o of storeObjs.values())for(const c of o.children)if(c.userData.ownPin)c.scale.set(4.8*k,5.9*k,1);
   for(const sp of pinSprites)if(PIN_V2)sp.scale.set(5.9*k,7.6*k,1);else sp.scale.set(8*k,10.3*k,1);}// 空き-Pins gleich gedeckelt (Whitebeard)
- updatePads(t);cars.visible=pcars.visible=camera.zoom>=CAM.carZoom&&PCN>0;updateLife(t);if(cars.visible){updateCars();updatePathCars();}for(const o of storeObjs.values())for(const c of o.children)if(c.userData.balloons)c.position.y=(c.userData.by||9.6)+Math.sin(t*1.6)*.25;
+ updatePads(t);updateLife(t);for(const o of storeObjs.values())for(const c of o.children)if(c.userData.balloons)c.position.y=(c.userData.by||9.6)+Math.sin(t*1.6)*.25;
   if(selRing.visible){const s=1+Math.sin(t*4)*.06;selRing.scale.set(s,s,s);}
   for(let i=anims.length-1;i>=0;i--){const a=anims[i],p=Math.min(1,(performance.now()-a.t0)/700),k=p<1?1+2.7*Math.pow(p-1,3)+1.7*Math.pow(p-1,2):1;a.o.scale.set(1,Math.max(.01,k),1);if(p>=1){anims.splice(i,1);renderer.shadowMap.needsUpdate=true;}}
   renderer.render(scene,camera);placeLabels();
@@ -608,8 +609,8 @@ export function createWorld(container,cb){
  function resize(){const w=container.clientWidth,h=container.clientHeight;renderer.setSize(w,h);const a=w/h;camera.left=-VH*a/2;camera.right=VH*a/2;camera.top=VH/2;camera.bottom=-VH/2;camera.updateProjectionMatrix();}
  addEventListener('resize',resize);
  document.addEventListener('visibilitychange',()=>{running=!document.hidden;if(running)renderer.setAnimationLoop(loop);else renderer.setAnimationLoop(null);});
- return {pinLayer,pinsShown:()=>pinShow.size,storePins:()=>{let p=0,r=0;for(const o of storeObjs.values()){let own=false;o.traverse(c=>{if(c.userData.ownPin)own=true;});if(own)p++;else r++;}return {player:p,rival:r};},// V7: Test-Hook (sichtbare Laden-Pins)
- life:()=>({n:pBody.count,vis:pBody.visible||pSpr.some(s=>s.visible),yuki:YUKI_PPL,L:life.slice(0,2)}),pcars,bridges,CAM,clampT,cars,lmGroup,roadCoverage:()=>ground.material.map.userData.roadCoverage,scene,tierOfSlot:(d,i)=>tierOf(d,i),syncStores,flyTo,select,setSeason,slotPos:(d,i)=>SLOTS[d][i],renderer,camera,controls,towers,stats:()=>({roofs:city.mesh.userData.roofs,stil:STIL5?5:4,buildings:bl.length,towerLots:TOWERS.filter(t=>t.lot!=null).length,towers:towers.children.filter(o=>!o.userData.roof).length,shops:SHOPS.length,landmarks:LANDMARKS.length,trees:trees.length,calls:renderer.info.render.calls,tris:renderer.info.render.triangles})};
+ return {kreuzungA:()=>KR.fertig?KR.fertig.then(ok=>ok&&KR.K?{gruppe:KR.K.gruppe,info:KR.K.info(),zug:!!KR.K.zug}:null):Promise.resolve(null),pinLayer,pinsShown:()=>pinShow.size,storePins:()=>{let p=0,r=0;for(const o of storeObjs.values()){let own=false;o.traverse(c=>{if(c.userData.ownPin)own=true;});if(own)p++;else r++;}return {player:p,rival:r};},// V7: Test-Hook (sichtbare Laden-Pins)
+ life:()=>({n:pBody.count,vis:pBody.visible||pSpr.some(s=>s.visible),yuki:YUKI_PPL,L:life.slice(0,2)}),bridges,CAM,clampT,lmGroup,roadCoverage:()=>ground.material.map.userData.roadCoverage,scene,tierOfSlot:(d,i)=>tierOf(d,i),syncStores,flyTo,select,setSeason,slotPos:(d,i)=>SLOTS[d][i],renderer,camera,controls,towers,stats:()=>({roofs:city.mesh.userData.roofs,stil:STIL5?5:4,buildings:bl.length,towerLots:TOWERS.filter(t=>t.lot!=null).length,towers:towers.children.filter(o=>!o.userData.roof).length,shops:SHOPS.length,landmarks:LANDMARKS.length,trees:trees.length,calls:renderer.info.render.calls,tris:renderer.info.render.triangles})};
 }
 
 /* ---------- 3D-Vorschau eines Ladens ---------- */

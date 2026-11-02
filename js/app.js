@@ -141,17 +141,12 @@ function tabFin(){
  <div class="row" style="gap:8px"><button class="btn grow sm" data-act="loan" data-v="5">＋ ¥5 Mio</button><button class="btn grow sm" data-act="loan" data-v="10">＋ ¥10 Mio</button><button class="btn grow sm" data-act="loan" data-v="-5" ${s.loan<=0?'disabled':''}>Tilgen ¥5 Mio</button></div></div>`;
  return h;
 }
-// Whitebeard 8efc3e2: Marktanteil von Anfang an – ohne Umsatzwoche in dieser Stadt (KW 1, nach Stadtwechsel) oder wenn eine Kette mit offenen Läden
-// im letzten Bericht noch fehlt, zählen die offenen Läden; ganz ohne Läden: kein Markt (neutraler Ring statt bunter Platzhalter)
-function marktAnteile(s){const r=s.lastReport,ch=['player',...D.RIVALS],offen=c=>s.stores.filter(x=>x.chain===c&&!x.building&&!(x.build>0)).length,n=ch.reduce((a,c)=>a+offen(c),0);
- if(!n)return null;
- if(r&&r.share&&ch.every(c=>!offen(c)||(r.share[c]||0)>0))return {art:'umsatz',v:Object.fromEntries(ch.map(c=>[c,r.share[c]||0]))};
- return {art:'laeden',v:Object.fromEntries(ch.map(c=>[c,offen(c)/n]))};}
+const marktAnteile=s=>S.marktAnteile(s);// R52: eine Quelle (sim.js) für Markt-Tab, Donut und Zeitung
 function tabMarket(){
  const s=st(),M=marktAnteile(s),cnt=c=>s.stores.filter(x=>x.chain===c).length;
  let h=`<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn" data-act="savegame">💾 Speichern · Slot ${s.slot||1}</button><button class="btn" data-act="newgame" style="margin-left:8px">Hauptmenü</button></div>${BU.menuKnopf(s)}<div class="h1">Markt & Marke</div><div class="card" style="margin-top:10px"><div class="row" style="align-items:center"><canvas id="donut" style="width:138px;height:138px;flex:none"></canvas><div class="grow">`;
  for(const c of ['player',...D.RIVALS])h+=`<div class="row" style="padding:4px 0;gap:9px">${chainLogo(c,28)}<div class="grow" style="font-size:13px;font-weight:800">${esc(cname(c))}<div style="color:var(--mut);font-size:11px;font-weight:700">${filN(cnt(c))}</div></div><b>${M?pct(M.v[c]||0):'–'}</b></div>`;
- h+=M?(M.art==='laeden'?'<div class="mkhint" style="color:var(--mut);font-size:11px;font-weight:700;margin-top:4px">Anteil nach offenen Läden – nach der ersten Woche zählt der Umsatz</div>':''):'<div class="mkhint" style="color:var(--mut);font-size:11px;font-weight:700;margin-top:4px">Noch kein Markt – hier hat noch keine Kette einen Laden</div>';
+ h+=M?(M.art==='laeden'?`<div class="mkhint" style="color:var(--mut);font-size:11px;font-weight:700;margin-top:4px">${S.MARKT_HINWEIS}</div>`:''):'<div class="mkhint" style="color:var(--mut);font-size:11px;font-weight:700;margin-top:4px">Noch kein Markt – hier hat noch keine Kette einen Laden</div>';
  h+=`</div></div></div><div class="h">Deine Marke</div><div class="card"><div class="row">${chainLogo('player',64)}<div class="grow"><b style="font-size:17px">${esc(s.logo.name)}</b><div style="margin:8px 0 4px;font-size:12px;color:var(--mut);font-weight:700">Ruf ${Math.round(s.rep)}/100</div><div class="bar g"><i style="width:${s.rep}%"></i></div></div></div>
  <button class="btn full sm" style="margin-top:12px" data-act="editlogo">🎨 Logo & Namen bearbeiten</button></div>
  <div class="h">Konkurrenz-News</div><div class="card">${s.news.length?s.news.slice(0,6).map(n=>`<div class="news">${chainLogo(n.chain,28)}<div class="grow">${n.text}<div style="color:var(--mut);font-size:11px">KW ${S.kw(n.week)}</div></div></div>`).join(''):'<div style="color:var(--mut);font-weight:700;font-size:13px">Noch keine Meldungen.</div>'}</div>
@@ -505,7 +500,7 @@ function showIntro(view){
  const lt=latestSlot();
  const html=SC.screen({name:'start',cls:'start',mutate:root=>{if(!lt)for(const g of root.querySelectorAll('[data-nur-mit-spielstand="true"]'))g.remove();},
   buttons:[...(lt?[{x:170,y:1430,w:740,h:140,act:'loadslot',v:lt.slot,label:'▶ '+T.weiter}]:[]),{x:170,y:1610,w:740,h:120,act:'newgame',label:T.neues_spiel},{x:170,y:1780,w:740,h:110,act:'loadmenu',label:T.laden,disabled:!has,cls:has?'':'dim'}],
-  extra:`<div class="scrfoot">${has?'':esc(T.kein_spielstand)+'<br>'}Prototyp V6 · alle Marken sind fiktive Parodien</div>`});
+  extra:`<div class="scrfoot">${has?'':esc(T.kein_spielstand)+'<br>'}Prototyp V7 · alle Marken sind fiktive Parodien</div>`});
  introShow(html,'linear-gradient(180deg,#5B4B8A 50%,#6B6F80 50%)');
 }
 // Klickflächen der Slot-Karten
@@ -523,7 +518,7 @@ function showIntroPlain(view){
  <button class="btn full" data-act="loadmenu" ${has?'':'disabled'} aria-disabled="${!has}">${esc(T.laden)}</button>${has?'':`<small style="display:block;margin-top:6px;color:var(--mut)">${esc(T.kein_spielstand)}</small>`}`;}
  $('#intro').classList.remove('scrmode');
  $('#intro').innerHTML=`<div class="introcard"><div class="brandmark">コンビニ</div><div class="title">KONBINI EMPIRE</div>${body}
- <div style="color:var(--mut);font-size:11px;margin-top:14px;font-weight:700">Prototyp V6 · alle Marken sind fiktive Parodien</div></div>`;
+ <div style="color:var(--mut);font-size:11px;margin-top:14px;font-weight:700">Prototyp V7 · alle Marken sind fiktive Parodien</div></div>`;
  $('#intro').classList.add('show');
 }
 function logoEditor(mode){
@@ -658,5 +653,8 @@ document.addEventListener('click',e=>{
  FZ.init(S,{chainLogo,esc,toast,ladenN,CHAINS:D.CHAINS,RIVALS:D.RIVALS,dname:id=>(D.DMAP[id]||{name:id}).name,dtype:id=>(D.DMAP[id]||{}).type||'standard',CATS:D.CATS,texte:()=>GFX.texte,gameOver:()=>gameOver(),chainLogoFile:(f,sz)=>`<img class="fzlogo" src="grafik/logos/${f}.svg" width="${sz}" height="${sz}" alt="">`,cityName:CITY.name,rerender:()=>{if(ui.tab==='fin'&&FZ.ON)renderFZ();renderHUD();}});if(FZ.ON){S.preTaxHooks.push(FZ.preTax,BU.preTax,PV.preTax);S.weekHooks.push(FZ.weekHook);S.preWeekHooks.push(FZ.preWeek);S.rivalFinanz.on=true;if(BU.ON)S.weekHooks.push(BU.weekHook);S.weekHooks.push(PV.weekHook);}
  NK.init(S,{CHAINS:D.CHAINS,RIVALS:D.RIVALS,GFX,firmenwert:FZ.firmenwert,fY:fmtY,dname:id=>(D.DMAP[id]||{name:id}).name});S.weekHooks.unshift(NK.weekHook);S.weekHooks.push(MM.weekHook);
  window.__game={get state(){return S.state},S,D,W,ui,marktAnteile,FZ,NK,BF,BU,PV,endWeek:doEndWeek,openStoreSheet,propertySheet,builderSheet,GFX};
- if('serviceWorker' in navigator&&window.isSecureContext)navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW',e));
+ // Whitebeard 659f1e1 B1: neue Version übernommen → einmal neu laden (sessionStorage-Sperre 30 s gegen Schleifen; Erstbesuch ohne alten Worker lädt nicht neu)
+ if('serviceWorker' in navigator&&window.isSecureContext){const hatte=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!hatte)return;const k='konbini-sw-reload',t=+sessionStorage.getItem(k)||0;if(Date.now()-t<30000)return;sessionStorage.setItem(k,String(Date.now()));location.reload();});
+  navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW',e));}
 })();

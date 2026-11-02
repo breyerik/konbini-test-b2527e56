@@ -68,12 +68,12 @@ export const FIRMEN=[
 "kurs": 3009.0,
 "aktien": 5965000000.0,
 "logo": "grafik/logos/firmen/oto-oto-denki.svg",
-"desc": "Elektronikkonzern für Kopfhörer, Kameras und Konsolen. Liefert Prepaid-Karten und kleines Zubehör für die Kasse.",
+"desc": "Elektronikkonzern für Kopfhörer, Kameras und Konsolen. Liefert Kopfhörer und USB-Ladekabel als kleines Zubehör für die Kasse.",
 "vol": 0.25,
 "bank": false,
 "rival": null,
-"liefert": "Prepaid-Karten, Kopfhörer",
-"sonder": "5 %: Prepaid-Provision +1 Punkt"
+"liefert": "Kopfhörer, USB-Ladekabel",
+"sonder": ""
 },
 {
 "id": "inaho-motors",

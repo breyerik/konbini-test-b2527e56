@@ -93,7 +93,8 @@ export function groundTexture(YM){
    else{g.fillStyle='#B9B2A4';g.fillRect(X+(dx>0?PX-5:0),Y+(dy>0?PX-5:0),dx?5:PX,dy?5:PX);}}}
   // Wahrzeichen-Flächen
   for(const w of LANDMARK_AREAS){const X=w.x*PX,Y=w.y*PX,ww=w.breite*PX,hh=w.tiefe*PX;
-   if(w.wahrzeichen==='shibuya-crossing'&&T.kreuz){g.drawImage(T.kreuz,X,Y,ww,hh);}
+   if(w.kreuzungA){}// Kreuzung Lage A (R58): Yukis Bodenplatte liegt darüber, alte kreuzung.svg-Fläche entfällt
+   else if(w.wahrzeichen==='shibuya-crossing'&&T.kreuz){g.drawImage(T.kreuz,X,Y,ww,hh);}
    else if(w.wahrzeichen==='haneda'&&FEATURES.haneda){g.fillStyle='#C9CCD2';g.fillRect(X,Y,ww,hh);g.fillStyle='#7E838C';g.fillRect(X+8,Y+hh*.55,ww-16,hh*.22);g.fillStyle='#fff';for(let k=X+16;k<X+ww-24;k+=30)g.fillRect(k,Y+hh*.655,16,3);}
    else if(w.wahrzeichen==='kaiserpalast'){g.fillStyle='#9ED8F0';g.fillRect(X,Y,ww,hh);g.fillStyle='#A6D98A';g.fillRect(X+12,Y+12,ww-24,hh-24);if(T.baeume)g.drawImage(T.baeume,X+12,Y+12,ww-24,hh-24);}
    else if(!FEATURES.haneda&&w.wahrzeichen==='haneda'){}
@@ -225,14 +226,6 @@ export function treeSpots(){const r=seeded(99),out=[];
  const kp=LANDMARK_AREAS.find(w=>w.wahrzeichen==='kaiserpalast');if(kp)for(let i=0;i<26;i++){const x=kp.cx+(r()-.5)*(kp.w-7),z=kp.cz+(r()-.5)*(kp.d-7);if(Math.hypot(x-kp.cx,z-kp.cz)>5)out.push([x,z,.8+r()*.5]);}
  return out;}
 
-/* ---------- Fahrspuren der Hauptstraßen (für Autos) ---------- */
-export function roadLanes(){const lanes=[];
- for(let y=0;y<N-1;y++){let n=0;for(let x=0;x<N;x++)if(cellAt(x,y)==='hauptstrasse'&&cellAt(x,y+1)==='hauptstrasse')n++;if(n>N*.6&&!(lanes.some(l=>l.h&&l.y===y-1)))lanes.push({h:true,y,z:wz(y+1)});}
- for(let x=0;x<N-1;x++){let n=0;for(let y=0;y<N;y++)if(cellAt(x,y)==='hauptstrasse'&&cellAt(x+1,y)==='hauptstrasse')n++;if(n>N*.6&&!(lanes.some(l=>!l.h&&l.x===x-1)))lanes.push({h:false,x,xw:wx(x+1)});}
- return lanes;}
-// Erik: Autos nur auf Hauptstraßen, Ringstraßen und Brücken – nach Zelltyp, nicht nach Breite (keine Autos auf Gassen)
-export const isCarRoad=c=>c==='hauptstrasse'||c==='ringstrasse'||c==='bruecke';
-export const onRoad=(x,z)=>{const gx=Math.floor((x-W0)/F),gy=Math.floor((z-W0)/F);return isCarRoad(cellAt(gx,gy));};
 
 /* ---------- V5: Gebäude nach Yukis Vorlagen (Musterausschnitt Runde 10) ---------- */
 export const SHOP_FOOT=new Map();// V5: Ladengebäude kleiner als das Grundstück – Fassade bündig zur Ladenfront (buildShops nutzt diese Fläche)

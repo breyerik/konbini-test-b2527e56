@@ -68,6 +68,9 @@ export const ARTIKEL={
  'Unterwäsche':{label:'Unterwäsche',cat:'alltag',dev:[],typ:'mode',vk:1290,m:.34},
  'Hygiene':{label:'Hygiene-Set',cat:'alltag',dev:[],typ:'hygiene',vk:400,m:.33},
  'Masken':{label:'Masken 7er',cat:'alltag',dev:[],typ:'hygiene',vk:398,m:.35},
+ // Whitebeard 659f1e1 #9: passend zu Senaka (Waschmittel/Shampoo/Seife) und Tora (Zahnpasta/Seife) statt Masken – gleicher Platz in der Liste, damit Spielstand-IDs (#1) gültig bleiben
+ 'Waschmittel':{label:'Waschmittel Reisegröße',cat:'alltag',dev:[],typ:'hygiene',vk:298,m:.35},
+ 'Seife':{label:'Handseife 3er',cat:'alltag',dev:[],typ:'hygiene',vk:298,m:.35},
  'Kosmetik':{label:'Pflege-Reiseset',cat:'alltag',dev:[],typ:'kosmetik',vk:400,m:.33},
  'Ichiban-Kuji-Lotterie':{label:'Kuji-Los',cat:'saison',dev:[],typ:'kuji',vk:790,m:.24},
  'Spielzeug':{label:'Spielzeug',cat:'alltag',dev:[],typ:'kuji',vk:550,m:.3},
@@ -92,7 +95,9 @@ export const FIRMEN_ARTIKEL={
  'oto-oto-denki':['Kopfhörer','USB-Ladekabel'],'ocha-niwa':['Tee'],'mono-mono-wear':['Socken','Unterwäsche'],
  'taisho-kashi':['Schokolade','Pocky','Milch'],'banzai-kashi':['Schokolade','Bonbons','Pocky'],'kodama-seika':['Schokolade','Bonbons','Pocky'],'paripari-kobo':['Chips'],
  'umami-no-kami':['Würzsauce'],'shoyu-maru':['Sojasauce'],'mayo-kun':['Mayonnaise'],'ie-curry':['Curry-Retorte'],'buta-buta-ham':['Würstchen'],'kori-rei':['Tiefkühl','Eis'],
- 'nyusan-chan':['Probiotik','Joghurt'],'tomato-kago':['Tomatensaft','Säfte'],'kesho-do':['Kosmetik']};
+ 'nyusan-chan':['Probiotik','Joghurt'],'tomato-kago':['Tomatensaft','Säfte'],'kesho-do':['Kosmetik'],
+ // Whitebeard 659f1e1 #9: Hygiene-Firmen ohne Masken (Masken nur Fuwari); Liste wie „liefert“, Masken-Platz ersetzt
+ 'senaka-co':['Hygiene','Waschmittel','Kosmetik'],'tora-hygiene':['Hygiene','Seife','Kosmetik']};
 // Geräteware: kommt mit dem Gerät in den Laden (Fritteuse = Karaage & Korokke, Dampfgarer = Nikuman, Smoothie-Maschine = Frappé, braucht Tiefkühltruhe).
 // Preise preise.csv (Bob), Korokke + alle Kaufquoten Annahme (Bob prüft). sf = Saison wie CATS
 export const GERAET_PRODUKTE=[
@@ -115,9 +120,10 @@ export const FIRMEN_LABEL={
  'banzai-kashi':{'Schokolade':'Waffelriegel','Pocky':'Keksstäbchen'},
  'kodama-seika':{'Schokolade':'Nussriegel','Pocky':'Erdbeerstäbchen','Bonbons':'Kaubonbons'},
  'taisho-kashi':{'Milch':'Kakaomilch 500 ml'},
- 'tora-hygiene':{'Hygiene':'Zahnpflege-Set','Masken':'Masken Kids 7er','Kosmetik':'Handcreme'},
+ 'tora-hygiene':{'Hygiene':'Zahnpflege-Set','Seife':'Kernseife 3er','Kosmetik':'Handcreme'},
  'fuwari':{'Hygiene':'Taschentücher 3er','Masken':'Masken Plus 7er','Kosmetik':'Abschminktücher'},
- 'senaka-co':{'Kosmetik':'Lippenpflege'},
+ 'senaka-co':{'Hygiene':'Reise-Shampoo','Waschmittel':'Waschmittel Reisegröße','Kosmetik':'Lippenpflege'},
+ 'tomato-kago':{'Säfte':'Gemüsesaft 500 ml'},// #9: statt generisch „Saft 500 ml“
  'marukun-suisan':{'Instant-Nudeln':'Cup-Udon'},
  'ushi-ushi-milch':{'Joghurt':'Joghurt-Drink Erdbeere','Eis':'Milcheis-Becher'},
 };

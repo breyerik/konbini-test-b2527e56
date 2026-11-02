@@ -3,10 +3,11 @@ const QS=new URLSearchParams(globalThis.location?location.search:'');
 export const ON=QS.get('paket2')!=='0';// Erik bestätigt: Paket 2 an, ?paket2=0 aus
 export const AB_LAEDEN=5;// Erik: Büro ab 5 Läden
 // Erik 25.10. 17:20 (R36): es gibt nur EIN Büro insgesamt – Tokio, Shibuya, über ☰. Keine Büros in anderen Städten.
-// tag: neutrales Etikett ohne ✅ – „✅ dein Büro“ nur, wenn es wirklich gemietet/gekauft ist (Whitebeard 8efc3e2, B1)
+// tag: neutrales Etikett ohne ✅ – „✅ dein Büro“ nur, wenn es wirklich gemietet/gekauft ist (Whitebeard 8efc3e2, B1).
+// Whitebeard 7ed371e (Orange 5): das Etikett wiederholt nicht Stadt/Viertel – die stehen schon in der Unterzeile darüber.
 // R51 (Whitebeard b4dc47d, Check R): Mieten/Kaufen nur, solange man in der Stadt des Büros ist (stadtId) – in Yokohama & Co. kein Mietknopf.
 export const BUEROS=[
- {id:'shibuya',name:'Kleines Büro Shibuya',stadt:'Tokio',stadtId:'tokio',viertel:'Shibuya',m2:85,plaetze:5,miete:690000,kauf:76e6,tag:'📍 Tokio · Shibuya'}];
+ {id:'shibuya',name:'Kleines Büro Shibuya',stadt:'Tokio',stadtId:'tokio',viertel:'Shibuya',m2:85,plaetze:5,miete:690000,kauf:76e6,tag:'🔑 noch frei'}];
 // Frühere Angebote (nur für alte Spielstände): werden beim Laden kostenlos nach Shibuya verlegt
 export const ALT_BUEROS={shinjuku:'Etage Shinjuku West',noge:'Altbau Noge'};
 export const KAUF={unterhalt:50000,wiederverkauf:.9,anrechnung:.25,anrechnungAbWochen:104,kuendigungMonate:3};

@@ -48,16 +48,22 @@ export const DISTRICTS=[
  {id:'hongo',name:'Hongō',jp:'本郷',type:'uni',x:26,z:-46,mult:1.05,rentM:1200000,rentEst:true,slots:5,night:.24,ps:1.5,svc:.8},
  {id:'setagaya',name:'Setagaya',jp:'世田谷',type:'residential',x:-78,z:74,mult:1.0,rentM:1167440,slots:6,night:.14,ps:1.2,svc:1.6},
 ];
-import {SHOPS,SHOPS_BASE,SHOP_MOVES,ALL_MOVES,lm,PLAN as _PLAN,CITY as _CITY} from './plan.js';
+import {SHOPS,SHOPS_BASE,SHOP_MOVES,ALL_MOVES,lm,PLAN as _PLAN,CITY as _CITY,PLAN_VERSION as _PV} from './plan.js';
+import {festerBezirk} from './bezirk_zuordnung.js';
 // Mehrstadt: eine Stadt mit districts:'plan' bringt ihre Stadtteile im Plan mit (stadtteile:[{id,name,jp,type,x,z,mult,rentM,night,ps,svc}])
 {const L=_CITY.districts==='plan'?_PLAN.stadtteile:Array.isArray(_CITY.districts)?_CITY.districts:null;if(L&&L.length)DISTRICTS.splice(0,DISTRICTS.length,...L.map(d=>({slots:0,...d})));}
-export const INIT_RIVALS_V2={shinjuku:['eight','lawsun','familia'],shibuya:['eight','familia'],marunouchi:['lawsun','eight'],hongo:['minihalt'],asakusa:['eight','lawsun'],setagaya:['familia','minihalt'],roppongi:['lawsun']};
+// INIT_RIVALS_V2 entfernt (Whitebeard Abnahme 1e14974 O-C): war nirgends benutzt, die Rivalen starten ohne Läden.
 // v3: Läden kommen aus Yukis Stadtplan. Jeder Laden gehört zum nächstgelegenen Viertel (nur Label/Adresse).
 export const PLAN_SLOTS=Object.fromEntries(DISTRICTS.map(d=>[d.id,[]]));
-for(const sh of SHOPS){let best=DISTRICTS[0],bd=1e9;for(const d of DISTRICTS){const dd=Math.hypot(sh.x-d.x,sh.z-d.z);if(dd<bd){bd=dd;best=d}}sh.d=best.id;sh.i=PLAN_SLOTS[best.id].length;PLAN_SLOTS[best.id].push(sh);}
+// B2 (R57): Zuordnung zuerst aus der festen Tabelle (bezirk_zuordnung.js), nur sonst nächster Bezirksmittelpunkt (x/z).
+// Die Viertel-Beschriftung nutzt den Anker bezirkLabel(d) = (lx/lz, sonst x/z) – ein verschobenes Label ändert keine Zuordnung.
+const _naechster=sh=>{let best=DISTRICTS[0],bd=1e9;for(const d of DISTRICTS){const dd=Math.hypot(sh.x-d.x,sh.z-d.z);if(dd<bd){bd=dd;best=d}}return best;};
+const _bezirk=sh=>{const f=festerBezirk(_CITY.id,_PV,sh.id);return (f&&DISTRICTS.find(d=>d.id===f))||_naechster(sh);};
+export const bezirkLabel=d=>({x:d.lx??d.x,z:d.lz??d.z});
+for(const sh of SHOPS){const best=_bezirk(sh);sh.d=best.id;sh.i=PLAN_SLOTS[best.id].length;PLAN_SLOTS[best.id].push(sh);}
 for(const d of DISTRICTS)d.slots=PLAN_SLOTS[d.id].length;
 // V4: Spielstand-Migration nach Ladenumzügen (Wolkenkratzer). Alte Slot-Nummern (d:i) -> neue über die Grundstücks-ID.
-const _nearest=sh=>{let best=DISTRICTS[0],bd=1e9;for(const d of DISTRICTS){const dd=Math.hypot(sh.x-d.x,sh.z-d.z);if(dd<bd){bd=dd;best=d}}return best.id;};
+const _nearest=sh=>_bezirk(sh).id;
 export const SLOT_MIGRATION={};
 {const cnt={},byLot=new Map(SHOPS.map(s=>[s.id,s]));for(const sh of SHOPS_BASE){const d=_nearest(sh);cnt[d]=cnt[d]||0;const i=cnt[d]++;const n=byLot.get(SHOP_MOVES[sh.id]||sh.id);if(n&&(n.d!==d||n.i!==i))SLOT_MIGRATION[d+':'+i]={d:n.d,i:n.i};}}
 // Grundstück -> aktueller Slot; lotSlot() folgt notfalls einem Umzug (vor- oder rückwärts) beider Platzierungen
