@@ -316,3 +316,35 @@ html body:not(.sheet) #sheet,html body:not(.sheet) #sheet *{pointer-events:none!
 /* V6 (Whitebeard f0a9f12): Panel steht beim Öffnen sofort – ✕ trifft nie den darunter vorbeifahrenden Inhalt („Hauptmenü“); ausfahrendes Panel nimmt keine Taps an (R42) */
 html body.panel #panel{transition:none!important}
 html body:not(.panel) #panel,html body:not(.panel) #panel *{pointer-events:none!important}
+/* ===== Gganbu-Playtest Runde 1 (02.11.) ===== */
+/* #16 Startbild: auf breiten Bildschirmen (Bild füllt die Höhe) Himmel, Bordstein und Straße links/rechts nahtlos weiterführen */
+@media (min-aspect-ratio:1080/1920){
+ #intro .scrwrap.startbg{background:
+  repeating-linear-gradient(90deg,#FFC93C 0 5.2083vh,transparent 0 10.4167vh) calc(50vw - 26.0417vh) 72.917vh/100% .8334vh repeat-x,
+  linear-gradient(180deg,#5B4B8A 0,#F7A1B5 55%,#F9A9AE 63.33%,#ECE6DC 63.33%,#ECE6DC 65.42%,#6B6F80 65.42%)!important}
+}
+/* #14 Saison-Chip: zweizeilig mit Pille-Rundung schnitt den Text ab */
+html body .schip:not(.mini){border-radius:18px;max-width:min(calc(100vw - 24px),460px)}
+html body .schip:not(.mini) small{white-space:normal;overflow:visible}
+/* #8 Toasts nicht über Navigationsleiste / HUD */
+#toast{bottom:calc(env(safe-area-inset-bottom) + 96px);opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.2,.9,.2,1),opacity .25s}
+#toast.show{opacity:1}
+#mmban{top:calc(max(10px,env(safe-area-inset-top)) + 70px)!important}
+/* #10/#11 Nav-Leiste bleibt über offenen Fenstern bedienbar, Fenster enden über der Leiste */
+body.sheet #bar{z-index:45}
+#sheet{padding-bottom:calc(98px + env(safe-area-inset-bottom))}
+@media (min-width:860px){
+ #sheet{top:calc(50% - 38px);max-height:calc(100vh - 196px);max-height:calc(100dvh - 196px);padding-bottom:22px}
+}
+/* #13 Kobo-Hinweis: nur Einblenden, kein Springen */
+#tutor{transform:none!important;transition:opacity .25s}
+/* #3 Entscheidungsfenster */
+.evpflicht{margin-top:12px;text-align:center;font-size:12px;font-weight:800;color:var(--mut)}
+#endWeek.evoffen{background:var(--ke-warnung,#FFC93C);color:#2B2D42}
+/* #1 Geld-Hinweis im Bau-Fenster */
+.tip.geldfehlt{display:block;background:#FFF1E6;border-color:#F5C9A8}
+.tip.geldfehlt b{white-space:nowrap}
+.ergnote{color:var(--mut);font-size:11.5px;font-weight:700;margin:-4px 2px 10px;line-height:1.4}
+#endWeek.evoffen *{color:#2B2D42!important;opacity:1}
+.evpflicht.blink{animation:evblink .9s ease 2}
+@keyframes evblink{0%,100%{color:var(--mut);transform:none}40%{color:#C0392B;transform:scale(1.05)}}

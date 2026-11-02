@@ -411,7 +411,9 @@ export function endWeek(){
  for(const f of preWeekHooks)f(state,rep);// V7: z. B. Übernahme-Abschluss vor der Simulation
  // offene Entscheidung der Woche: wer nichts wählt, bekommt Option B (wirkt noch in dieser Woche)
  if(state.event&&!state.event.done&&state.event.w<=w)chooseEvent('b',rep.events);
- for(const e of state.evMods||[]){const t=eventText(e.id);if(t&&e.cust!=null)rep.events.push(`🗳️ Folge deiner Entscheidung („${t.text.replace(/\{\w+\}/g,'…').slice(0,48)}“): Kunden ${e.cust>=1?'+':'−'}${Math.round(Math.abs(e.cust-1)*100)} %${e.left>1?` (noch ${e.left-1} Wo.)`:''}`);}
+ // Gganbu R1 #6 (R62): Folgen früherer Entscheidungen als eigener Block, je Entscheidung eine Zeile mit „aus KW x“ – nicht unter fremden Ereignissen
+ {const G={};for(const e of state.evMods||[]){if(e.cust==null||e.left<=0)continue;const t=eventText(e.id);if(!t)continue;const k=e.id+'@'+(e.wk??'');const g=G[k]||(G[k]={id:e.id,wk:e.wk??null,text:t.text.replace(/\{\w+\}/g,'…').replace(/<[^>]+>/g,'').slice(0,60),cust:1,left:0,neu:e.wk===w});g.cust*=e.cust;g.left=Math.max(g.left,e.left);}
+  rep.evFolgen=Object.values(G).map(g=>({...g,pct:Math.round((g.cust-1)*100),noch:g.left-1}));}
  const T={rev:0,cogs:0,gross:0,wages:0,salary:0,rent:0,mkt:0,admin:0,svcFixed:0,power:0,fees:0,cust:0,dep:0,assetTax:0,heiss:0,kalt:0,essen:0,sonst:0};
  for(const s of mine()){
   const d=DMAP[s.d];
@@ -688,7 +690,7 @@ const evCost=v=>Math.round(Math.min(-v,EVENT_RULES.maxSchaden,Math.max(0,state.c
 export function chooseEvent(opt,log){const e=state.event;if(!e||e.done)return null;const E=EVENTS[e.id],x=E[opt]||{},s=state.stores.find(y=>y.id===e.sid),v=eventView(e);
  e.done=opt;state.lastEv=e.id;state.evSeen=state.evSeen||{};state.evSeen[e.id]=state.week;if(!s)return null;
  let cost=0;if(x.cash){cost=evCost(x.cash);state.cash-=cost;vorab('ereignis',cost);}
- const M=(state.evMods=state.evMods||[]),base={id:e.id,ziel:E.ziel,sid:s.id,d:s.d};let cust=null;
+ const M=(state.evMods=state.evMods||[]),base={id:e.id,ziel:E.ziel,sid:s.id,d:s.d,wk:state.week};let cust=null;
  for(const m of x.mods||[]){if(m.p&&Math.random()>m.p)continue;M.push({...base,cust:m.cust,left:m.wk});cust=(cust||1)*m.cust;}
  if(x.marge)M.push({...base,marge:x.marge.pp,left:x.marge.wk});if(x.cashWk)M.push({...base,cashWk:x.cashWk.v,left:x.cashWk.wk});if(x.feeMul)M.push({...base,fee:x.feeMul.m,left:x.feeMul.wk});
  if(x.rep)state.rep=clamp(state.rep+x.rep,0,100);

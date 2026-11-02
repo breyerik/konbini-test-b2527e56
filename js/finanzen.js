@@ -79,6 +79,8 @@ function gewinn4(s){const h=s.hist.slice(-WG.STARTKREDIT.gewinnWochen);return h.
 function startKredit(s,fz){const K=WG.STARTKREDIT,zins=Math.max(0,C.LEITZINS+K.zinsAufschlag-bankVorteil(fz,K.bank).zins),rate=annW(K.betrag,zins,K.jahre);
  if(fz.startKredit)return {fertig:true,zins,rate};const frueh=s.week<K.abWoche,g=gewinn4(s);return {ok:!frueh&&g>0,frueh,g,zins,rate};}
 // Hersteller-Stufe: ab wie vielen Läden verhandelt die Firma (0 = ab Start)
+// Gganbu R1 #1 (R59): Startkredit-Stand für Bau-Hinweis und Tutorial
+export function startKreditStatus(s){const K=WG.STARTKREDIT;return {...startKredit(s,ensure(s)),abWoche:K.abWoche,betrag:K.betrag,gewinnWochen:K.gewinnWochen};}
 export function abLaeden(f){const w=(f.kurs||0)*(f.aktien||0);for(const t of WG.HERSTELLER_STUFEN)if(w>=t.abWert)return t.laeden;return 0;}
 function cf13(s){const h=s.hist.slice(-13);return h.length?h.reduce((a,x)=>a+x.net,0)/h.length:0;}
 const annW=(P,zins,jahre)=>{const i=zins/100/52,n=jahre*52;return i?P*i/(1-Math.pow(1+i,-n)):P/n;};

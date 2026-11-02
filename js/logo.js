@@ -37,14 +37,26 @@ const v2Img=new Map(),v2Pending=new Map(),v2Txt=new Map();let nfP=null;
 const v2File=id=>'grafik/logos/editor-v2/logo-'+V2_LOGOS.find(f=>f.startsWith(id.slice(3)+'-'))+'.svg';
 function loadNF(){return nfP||(nfP=new Promise(r=>{if(window.fuelleLogo)return r();const sc=document.createElement('script');sc.src='grafik/logos/editor-v2/namensfeld.js';sc.onload=()=>r();sc.onerror=()=>r();document.head.appendChild(sc);}));}
 const v2Key=L=>[L.symbol,L.bg,L.fg,L.name].join('|');
-export function ensureV2(L){if(!L||!String(L.symbol).startsWith('v2-'))return Promise.resolve();const k=v2Key(L);if(v2Img.has(k))return Promise.resolve();if(v2Pending.has(k))return v2Pending.get(k);
- const f=v2File(L.symbol);const p=Promise.all([loadNF(),v2Txt.get(f)||fetch(f).then(r=>r.text()).then(t=>(v2Txt.set(f,t),t)),document.fonts?document.fonts.ready:0]).then(([,txt])=>{
-  txt=txt.replace(/var\(--ladenfarbe,[^)]*\)/g,L.bg).replace(/var\(--zweitfarbe,[^)]*\)/g,L.fg);
+// Gganbu R1 #2 (R63): Kacheln zeigen immer ihr eigenes Symbol in der gewählten Farbe.
+// Vorher: Ladefehler (404/HTML statt SVG, Bild-Fehler) blieben für immer „pending“ → Ersatzbild mit Initiale auf jeder Kachel.
+const ladeTxt=f=>v2Txt.has(f)?Promise.resolve(v2Txt.get(f)):fetch(f).then(r=>{if(!r.ok)throw new Error(f+' '+r.status);return r.text();}).then(t=>{if(!/<svg[\s>]/.test(t))throw new Error(f+' kein SVG');v2Txt.set(f,t);return t;});
+const faerbe=(t,L)=>t.replace(/var\(--ladenfarbe,[^)]*\)/g,L.bg).replace(/var\(--zweitfarbe,[^)]*\)/g,L.fg);
+const initiale=L=>((L.name||'K').trim().charAt(0)||'K').toUpperCase();
+let v2Pre=null;
+export function preloadV2(){return v2Pre||(v2Pre=Promise.allSettled(V2_LOGOS.map(id=>ladeTxt('grafik/logos/editor-v2/logo-'+id+'.svg'))).then(r=>{if(r.some(x=>x.status==='rejected'))setTimeout(()=>{v2Pre=null;},3000);cache.clear();logoVer++;window.dispatchEvent(new Event('logo-ready'));}));}
+// Sofort-Vorschau für Editor-Kacheln: gefärbtes SVG direkt als Bild (kein Warten auf Canvas/Namensfeld)
+export function v2TileURL(L){if(!L||!String(L.symbol).startsWith('v2-'))return null;const k=v2Key(L);if(v2Img.has(k))return null;const t=v2Txt.get(v2File(L.symbol));if(!t){preloadV2();return null;}
+ const out=faerbe(t,L).replace(/(<text[^>]*data-placeholder="initiale"[^>]*>)[^<]*(<\/text>)/g,(m,a,b)=>a+initiale(L).replace(/[<&]/g,'')+b);return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(out);}
+export function ensureV2(L,versuch=0){if(!L||!String(L.symbol).startsWith('v2-'))return Promise.resolve();const k=v2Key(L);if(v2Img.has(k))return Promise.resolve();if(v2Pending.has(k))return v2Pending.get(k);
+ const f=v2File(L.symbol);const p=Promise.all([loadNF(),ladeTxt(f),document.fonts?document.fonts.ready:0]).then(([,txt])=>{
+  txt=faerbe(txt,L);
   const host=document.createElement('div');host.style.cssText='position:absolute;left:-9999px;top:0;width:256px;height:256px';host.innerHTML=txt;document.body.appendChild(host);const svg=host.querySelector('svg');
+  if(!svg){host.remove();throw new Error('kein SVG');}
   try{if(window.fuelleLogo)window.fuelleLogo(svg,L.name||'');}catch(e){}
-  svg.querySelectorAll('text[data-placeholder="initiale"]').forEach(t=>t.textContent=((L.name||'K').trim().charAt(0)||'K').toUpperCase());
+  svg.querySelectorAll('text[data-placeholder="initiale"]').forEach(t=>t.textContent=initiale(L));
   const out=new XMLSerializer().serializeToString(svg);host.remove();
-  return new Promise(r=>{const im=new Image();im.onload=()=>{v2Img.set(k,im);logoVer++;cache.clear();window.dispatchEvent(new Event('logo-ready'));r();};im.onerror=()=>r();im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(out);});});
+  return new Promise((r,x)=>{const im=new Image();im.onload=()=>{v2Img.set(k,im);logoVer++;cache.clear();window.dispatchEvent(new Event('logo-ready'));r();};im.onerror=()=>x(new Error('Bild'));im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(out);});
+ }).catch(()=>{v2Pending.delete(k);if(versuch<3)setTimeout(()=>ensureV2(L,versuch+1),800*(versuch+1));});
  v2Pending.set(k,p);return p;}
 export function drawPlayerLogo(ctx,L,S){
  if(String(L.symbol).startsWith('v2-')){const im=v2Img.get(v2Key(L));if(im){ctx.drawImage(im,0,0,S,S);return;}ensureV2(L);

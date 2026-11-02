@@ -4,6 +4,7 @@ import {CITY} from './plan.js';
 import {NEUESTAEDTE} from './cities.js';
 import {NEUE_STAEDTE} from './staedte_neu.js';
 import * as S from './sim.js';
+import {RIVAL_RULES} from './events_data.js';
 import * as FZ from './finanzen.js';
 import * as BU from './buero.js';
 import * as PV from './privat.js';
@@ -11,7 +12,8 @@ import * as SO from './sortiment.js';
 import * as NK from './neueketten.js';
 import * as BF from './bahnhof.js';
 import {GFX,loadGfx,has,svgColored,svgURL} from './gfx.js';
-import {logoURL} from './logo.js';
+import {logoURL,v2TileURL,preloadV2} from './logo.js';
+const kachelURL=L=>v2TileURL(L)||logoURL(L,90);// Gganbu R1 #2
 import * as SC from './screens.js';
 import {ico,seasonIco,keepLast} from './washi.js';
 import * as MM from './mitemite.js';
@@ -42,7 +44,11 @@ function svcIcon(v,size=40){return `<img src="grafik/icons/services/${v.icon}.sv
 function stars(v){const f=Math.floor(v),h=v-f>=.5;return `<span class="stars">${'★'.repeat(f)}${h?'<b class="half">★</b>':''}<i>${'★'.repeat(5-f-(h?1:0))}</i></span>`;}
 function seg(act,id,k,arr,cur,fmt){return `<div class="seg">${arr.map((o,i)=>`<button class="${i===cur?'on':''}" data-act="${act}" data-id="${id}" data-k="${k}" data-v="${i}">${o.label}${fmt?`<small>${fmt(o,i)}</small>`:''}</button>`).join('')}</div>`}
 let toastT;function toast(m,cls){const t=$('#toast');t.className=cls||'';t.innerHTML=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),3000);}
-function showSheet(h){$('#sheet').innerHTML='<div class="grab"></div>'+h;$('#sheet').scrollTop=0;document.body.classList.add('sheet');}
+function showSheet(h,kind){const el=$('#sheet');el.innerHTML='<div class="grab"></div>'+h;el.scrollTop=0;el.dataset.kind=kind||'';if(!document.body.classList.contains('sheet'))ui.sheetT=performance.now();document.body.classList.add('sheet');}
+// Gganbu R1 #3 (R60): offene „Entscheidung der Woche“ – eigenes Fenster, kein Auto-B im Spiel
+const evOffen=()=>{const v=S.state&&S.eventView();return !!(v&&!v.done);};
+const sheetKind=()=>sheetOpen()?($('#sheet').dataset.kind||''):'';
+const frischOffen=()=>sheetOpen()&&performance.now()-(ui.sheetT||0)<700;// #7: zweiter Tipp eines Doppeltipps schließt das neue Fenster nicht
 // Städte: eine Firma, Wechsel = speichern + neu laden in die andere Stadt (Karte/Plan hängen am Seitenstart)
 const TRAVEL=[{id:'tokio',name:'Tokio',jp:'東京',emoji:'🗼'},{id:'yokohama',name:'Yokohama',jp:'横浜',emoji:'🎡'}].concat(NEUESTAEDTE?Object.values(NEUE_STAEDTE).map(c=>({id:c.id,name:c.name,jp:c.jp,emoji:c.emoji})):[]);
 const cityURL=(id,q)=>{const p=new URLSearchParams(location.search);p.delete('stadt');p.delete('weiter');const keep=p.toString();return location.pathname+'?'+[id==='tokio'?'':'stadt='+id,keep,q].filter(Boolean).join('&');};// Schalter (z. B. ?neuestaedte=1) bleiben beim Reisen erhalten
@@ -55,7 +61,7 @@ function bahnhofOpen(){closeSheet();let el=$('#bf');if(!el){el=document.createEl
 function abfahrt(id){S.save();document.body.classList.remove('bfopen');BF.ladescreen(id);setTimeout(()=>travel(id),BF.LADEZEIT);}
 function travelSheet(){showSheet(`<div class="h">✈️ Städte</div><div class="cities">${cityCards()}</div><div style="color:var(--mut);font-size:12px;font-weight:700;margin-top:8px">Eine Firma, eine Kasse. Filialen in anderen Städten laufen weiter und werden jede Woche voll mitgerechnet.</div>`);}
 const filN=n=>n===1?'1 Filiale':`${n} Filialen`,ladenN=n=>n===1?'1 Laden':`${n} Läden`;// Singular/Plural (Whitebeard)
-function closeSheet(){closePick();document.body.classList.remove('sheet');ui.storeId=null;W&&W.select(null);}
+function closeSheet(){closePick();document.body.classList.remove('sheet');$('#sheet').dataset.kind='';ui.storeId=null;W&&W.select(null);}
 const sheetOpen=()=>document.body.classList.contains('sheet');
 
 const GH=(g,size=22)=>{let h='';for(let i=1;i<=5;i++){const k=g>=i?'voll':g>=i-.5?'halb':'leer';h+=`<img src="grafik/bewertung/geist-${k}.svg" width="${size}" height="${size}" alt="">`;}return `<span class="gh">${h}</span>`;};
@@ -68,13 +74,15 @@ const designOf=b=>S.designOf({b});
 
 /* ---------- Tutorial (Kobo) ---------- */
 const TUT_NEXT={start:'sortiment',sortiment:'personal',personal:'services',zweiter_laden:'karte'};
-function tut(id,force,vars){
+const TUT_ZUSATZ={start:' 📍 Das ist Omas Laden – auf der Karte mit dem Ring markiert. Mit ihm verdienst du dein erstes Geld.',miete:''};
+['kobo','kobo-besorgt','kobo-jubelnd'].forEach(f=>{const i=new Image();i.src='grafik/maskottchen/'+f+'.svg';});// #13: Kobo vorladen, Blase erscheint ohne leeren Zwischenstand
+function tut(id,force,vars,extra){
  const s=st(),X=GFX.texte||{},T=(X.tutorial||[]).find(x=>x.id===id)||(X.hinweise||[]).find(x=>x.id===id)||rescueText(id);
  const always=['warnung_kasse','warnung_minus','rettung_gerettet'].includes(id);// Kassen-Warnung auch bei ausgeblendetem Tutorial
  if(!T||!s||(s.tutOff&&!always)||(s.tut[id]&&!force))return;s.tut[id]=1;ui.tutId=id;
  const fig=({'kobo':'kobo','kobo-besorgt':'kobo-besorgt','kobo-jubelnd':'kobo-jubelnd'})[T.figur]||'kobo';
- let txt=T.text.replace(/\d+ Millionen Yen/,(D.START_CASH/1e6)+' Millionen Yen');for(const k in vars||{})txt=txt.split('{'+k+'}').join(vars[k]);
- $('#tutor').innerHTML=`<div class="tbub"><div class="tx">${esc(txt)}<div class="tbtn"><button data-act="tutnext" class="ok">${TUT_NEXT[id]?'Weiter':'Verstanden'}</button><button data-act="tutoff">Tutorial ausblenden</button></div></div><img src="grafik/maskottchen/${fig}.svg" alt="Kobo"></div>`;
+ let txt=T.text.replace(/\d+ Millionen Yen/,(D.START_CASH/1e6)+' Millionen Yen');for(const k in vars||{})txt=txt.split('{'+k+'}').join(vars[k]);txt+=(TUT_ZUSATZ[id]||'')+(extra||'');if(id==='start')zeigeOma();
+ $('#tutor').innerHTML=`<div class="tbub"><div class="tx">${esc(txt)}<div class="tbtn"><button data-act="tutnext" class="ok">${TUT_NEXT[id]?'Weiter':'Verstanden'}</button><button data-act="tutoff">Tutorial ausblenden</button></div></div><img src="grafik/maskottchen/${fig}.svg" alt="Kobo" width="74" height="86"></div>`;
  $('#tutor').classList.add('show');
 }
 function tutHide(){const e=$('#tutor');e.classList.remove('show');setTimeout(()=>{if(!e.classList.contains('show'))e.innerHTML='';},300);}
@@ -82,7 +90,7 @@ function tutHide(){const e=$('#tutor');e.classList.remove('show');setTimeout(()=
 /* ---------- HUD & Leiste ---------- */
 function renderHUD(){
  const s=st(),last=s.hist[s.hist.length-1];
- $('#hud').innerHTML=`<div class="hudcard"><button class="pill cashpill2" data-act="tab" data-t="market" aria-label="Markt">${chainLogo('player',48)}<div class="hc"><b>${fmtY(s.cash)}</b><small>${esc(s.logo.name)} · Kasse</small></div><div class="hw ${last?(last.net>=0?'pos':'neg'):''}"><b>${last?sgn(last.net):'–'}</b><small>pro Woche</small></div></button><i class="hsep"></i>
+ $('#hud').innerHTML=`<div class="hudcard"><button class="pill cashpill2" data-act="tab" data-t="market" aria-label="Markt">${chainLogo('player',48)}<div class="hc"><b>${fmtY(s.cash)}</b><small>${esc(s.logo.name)} · Kasse</small></div><div class="hw ${last?(last.net>=0?'pos':'neg'):''}"><b>${last?sgn(last.net):'–'}</b><small>${last?`netto · KW ${S.kw(last.week??s.week-1)}`:'netto/Woche'}</small></div></button><i class="hsep"></i>
  <button class="pill datepill" data-act="tab" data-t="fin" aria-label="Finanzen"><div><b>KW ${S.kw(s.week)}</b><small>${S.dateLabel(S.weekDate(s.week))}</small></div></button></div>`;
  const ev=S.seasonInfo(s.week),sa=S.saisonFor(ev);
  {const key=ev.label+'|'+st().week;if(ui.chipKey!==key){ui.chipKey=key;ui.chipOpen=true;clearTimeout(ui.chipT);ui.chipT=setTimeout(()=>{ui.chipOpen=false;const c=document.querySelector('#seasonChip .schip');c&&c.classList.add('mini');},4000);}}
@@ -93,7 +101,7 @@ const TABS=[['map','map','Karte'],['stores','shop','Filialen'],null,['fin','char
 // V6 (Whitebeard-Vorabtest, Vorlage m26): Stadt-Knopf mit Flagge statt Zug/Flugzeug, Ebenen-Knopf links
 const FLAG_JP='<svg class="flag" viewBox="0 0 30 20" width="27" height="18" aria-hidden="true"><rect x=".5" y=".5" width="29" height="19" rx="3" fill="#fff" stroke="#D8D2C4"/><circle cx="15" cy="10" r="5.6" fill="#BC002D"/></svg>';
 function renderBar(){
- $('#bar').innerHTML=TABS.map(t=>t?`<button class="tb ${ui.tab===t[0]?'on':''}" data-act="${t[0]==='map'?'tab':'tab'}" data-t="${t[0]}"><span>${ico(t[1],24)}</span>${t[2]}</button>`:`<button id="endWeek" data-act="endweek"><span class="ew">Woche beenden <i>▸</i></span><small>weiter zu KW ${S.kw(st().week+1)}</small></button>`).join('');
+ $('#bar').innerHTML=TABS.map(t=>t?`<button class="tb ${ui.tab===t[0]?'on':''}" data-act="${t[0]==='map'?'tab':'tab'}" data-t="${t[0]}"><span>${ico(t[1],24)}</span>${t[2]}</button>`:(evOffen()?`<button id="endWeek" class="evoffen" data-act="endweek"><span class="ew">🗳️ Entscheidung offen</span><small>erst wählen, dann weiter</small></button>`:`<button id="endWeek" data-act="endweek"><span class="ew">Woche beenden <i>▸</i></span><small>weiter zu KW ${S.kw(st().week+1)}</small></button>`)).join('');
  $('#cityBar').innerHTML=`${MM.button()}<button class="cbtn" data-act="layers" title="Ebenen" aria-label="Kartenebenen">${ico('layers',22)}</button><div class="citypill"><button data-act="plane" data-ico="flag" title="Reisen" aria-label="Reisen">${FLAG_JP}</button><b>${CITY.name}</b></div><button class="cbtn" data-act="menu" title="Menü" aria-label="Menü">${ico('menu',22)}</button>`;
 }
 function renderAll(){NK.sync(st());renderHUD();renderBar();renderPanel();W&&W.syncStores(st().stores,st().logo,st().week);}
@@ -110,12 +118,12 @@ function renderPanel(){
  else if(ui.tab==='market'){b.innerHTML=tabMarket();requestAnimationFrame(drawDonut);}
 }
 function tabStores(){
- const ms=S.mine();let h=`<div class="h1">Deine Filialen</div><div style="color:var(--mut);font-weight:700;font-size:13px;margin:0 2px 8px">${ladenN(ms.length)} in ${CITY.name}</div>`;
+ const ms=S.mine();let h=`<div class="h1">Deine Filialen</div><div style="color:var(--mut);font-weight:700;font-size:13px;margin:0 2px 8px">${ladenN(ms.length)} in ${CITY.name}</div><div class="ergnote" id="ergNote">„Laden-Ergebnis“ = letzte Woche, je Laden vor Zentrale, Gehalt, Zinsen &amp; Steuer. Das Netto der ganzen Firma steht oben in der Leiste.</div>`;
  if(!ms.length)return h+`<div class="card empty"><div style="font-size:52px">🏪</div><h3 style="margin:8px 0 6px">Noch keine Konbini</h3><p style="color:var(--mut);margin:0 0 14px;line-height:1.5;font-weight:600">Tippe auf der Karte auf einen <b>空き</b>-Pin „Zu vermieten“.</p><button class="btn primary" data-act="tab" data-t="map">Zur Karte</button></div>`;
  for(const s of ms){const l=s.last,m=s.mgr,t=D.TIERS[s.tier];
   h+=`<button class="card storecard" data-act="store" data-id="${s.id}"><div class="row">${chainLogo('player',40)}<div class="grow"><b style="font-size:16px">${S.storeLabel(s)}</b><div class="chips" style="margin-top:4px"><span class="chip"><img src="grafik/karte/${t.badge}.svg" width="14" height="16" alt=""> ${t.label}</span>${s.build?'<span class="chip">🚧 Bald eröffnet</span>':GH(s.bh.overall,14)}${!s.mgr&&s.quit?'<span class="chip badge-fehlt">⚠️ Filialleitung fehlt</span>':''}${s.mgr&&s.mgr.kuendigt?`<span class="chip badge-fehlt">⚠️ Gekündigt · KW ${S.kw(s.mgr.kuendigt.zum-1)}</span>`:''}${l&&!l.building&&l.op<0?'<span class="chip badge-fehlt minuswarn" title="Umsatz ist da, aber die Kosten sind höher (R44)">🔻 Rote Zahlen</span>':''}${s.von?`<span class="chip">🤝 ex ${esc((D.CHAINS[s.von]||{name:s.von}).name)}</span>`:''}</div></div><span style="color:var(--mut);font-size:24px">›</span></div>
   <div class="row" style="margin-top:9px;font-size:12.5px;font-weight:700;color:var(--mut)"><span style="font-size:20px">${m?m.avatar:'🧑'}</span><span class="grow">${m?esc(m.name):'Kein Filialleiter'}</span></div>
-  <div class="stats3"><div>Kunden/Tag<b>${l&&!l.building?fmtN(l.cust/7):'–'}</b></div><div>Umsatz<b>${l&&!l.building?fmtY(l.rev):'–'}</b></div><div>Gewinn<b class="${l?(l.net>=0?'pos':'neg'):''}">${l?sgn(l.net):'neu'}</b></div></div></button>`;}
+  <div class="stats3"><div>Kunden/Tag<b>${l&&!l.building?fmtN(l.cust/7):'–'}</b></div><div>Umsatz<b>${l&&!l.building?fmtY(l.rev):'–'}</b></div><div title="Laden-Ergebnis letzte Woche, vor Zentrale, Zinsen und Steuer">Laden-Ergebnis<b class="${l?(l.net>=0?'pos':'neg'):''}">${l?sgn(l.net):'neu'}</b></div></div></button>`;}
  const aw=S.awayStores(st()).filter(a=>a.n>0);// V7 (R47): Läden in anderen Städten / übernommene ohne Kartenplatz sichtbar
  if(aw.length)h+=`<div class="lbl">Andere Städte</div><div class="card awaycard" style="padding:4px 14px">${aw.map(a=>{const nm=(TRAVEL.find(c=>c.id===a.city)||{name:a.city===S.WEITERE?'Weitere Städte (übernommen)':a.city}).name;return `<div class="srow"><div class="grow"><b>📍 ${esc(nm)}</b><div style="color:var(--mut);font-size:11px;font-weight:600">${ladenN(a.n)}</div></div><b class="${a.op>=0?'pos':'neg'}" style="font-size:13px">${sgn(a.op)}</b></div>`}).join('')}</div>`;
  return h+`<button class="btn full" data-act="tab" data-t="map">＋ Neuen Standort auf der Karte wählen</button>`;
@@ -132,7 +140,7 @@ function tabFin(){
  <tr class="sum"><td>Umsatz</td><td>${fmtY(T.rev+T.fees)}</td></tr>
  <tr class="sub"><td>Wareneinsatz</td><td>${fmtY(-T.cogs)}</td></tr>
  <tr class="sub"><td>Miete</td><td>${fmtY(-T.rent)}</td></tr><tr class="sub"><td>Ladenteam (plant die Filialleitung)</td><td>${fmtY(-T.wages)}</td></tr><tr class="sub"><td>Filialleiter</td><td>${fmtY(-T.salary)}</td></tr><tr class="sub"><td>Strom</td><td>${fmtY(-T.power)}</td></tr><tr class="sub"><td>Marketing</td><td>${fmtY(-T.mkt)}</td></tr><tr class="sub"><td>Verwaltung & Verträge</td><td>${fmtY(-T.admin-T.svcFixed)}</td></tr><tr class="sub"><td>Abschreibung Anlagen</td><td>${fmtY(-T.dep)}</td></tr><tr class="sub"><td>Anlagensteuer</td><td>${fmtY(-T.assetTax)}</td></tr>
- <tr><td>Betriebsergebnis</td><td>${sgn(T.ebit)}</td></tr><tr class="sub"><td>Zinsen (4,5 %)</td><td>${fmtY(-T.interest)}</td></tr><tr class="sub"><td>Körperschaftsteuer</td><td>${fmtY(-T.tax)}</td></tr>
+ <tr><td>Betriebsergebnis</td><td>${sgn(T.ebit)}</td></tr><tr class="sub"><td>Zinsen (4,5 %)</td><td>${fmtY(-T.interest)}</td></tr>${Object.entries(T.neben||{}).filter(([k,v])=>Math.round(v)).map(([k,v])=>`<tr class="sub"><td>${NEBEN_LBL[k]||k}</td><td>${fmtY(-v)}</td></tr>`).join('')}<tr class="sub"><td>Körperschaftsteuer</td><td>${fmtY(-T.tax)}</td></tr>
  <tr class="sum"><td>Nettoeinkommen</td><td class="${T.net>=0?'pos':'neg'}">${sgn(T.net)}</td></tr></table></div>
  <div class="h">Cashflow · KW ${S.kw(r.week)}</div><div class="card"><table class="fin"><tr><td>Aus Geschäftstätigkeit</td><td>${sgn(T.cf.op)}</td></tr><tr><td>Aus Investition</td><td>${sgn(T.cf.inv)}</td></tr><tr><td>Aus Finanzierung</td><td>${sgn(T.cf.fin)}</td></tr></table></div>`;
  h+=`<div class="h">Bilanz</div><div class="card"><table class="fin"><tr><td>Kasse</td><td>${fmtY(s.cash)}</td></tr><tr><td>Kautionen</td><td>${fmtY(dep)}</td></tr><tr><td>Anlagen (Buchwert)</td><td>${fmtY(book)}</td></tr><tr><td>Kredite</td><td>${fmtY(-S.loanSum())}</td></tr><tr class="sum"><td>Eigenkapital</td><td>${fmtY(S.equity())}</td></tr></table></div>
@@ -144,7 +152,7 @@ function tabFin(){
 const marktAnteile=s=>S.marktAnteile(s);// R52: eine Quelle (sim.js) für Markt-Tab, Donut und Zeitung
 function tabMarket(){
  const s=st(),M=marktAnteile(s),cnt=c=>s.stores.filter(x=>x.chain===c).length;
- let h=`<div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn" data-act="savegame">💾 Speichern · Slot ${s.slot||1}</button><button class="btn" data-act="newgame" style="margin-left:8px">Hauptmenü</button></div>${BU.menuKnopf(s)}<div class="h1">Markt & Marke</div><div class="card" style="margin-top:10px"><div class="row" style="align-items:center"><canvas id="donut" style="width:138px;height:138px;flex:none"></canvas><div class="grow">`;
+ let h=`<div class="h1">Markt & Marke</div>${BU.menuKnopf(s)}<div class="card" style="margin-top:10px"><div class="row" style="align-items:center"><canvas id="donut" style="width:138px;height:138px;flex:none"></canvas><div class="grow">`;
  for(const c of ['player',...D.RIVALS])h+=`<div class="row" style="padding:4px 0;gap:9px">${chainLogo(c,28)}<div class="grow" style="font-size:13px;font-weight:800">${esc(cname(c))}<div style="color:var(--mut);font-size:11px;font-weight:700">${filN(cnt(c))}</div></div><b>${M?pct(M.v[c]||0):'–'}</b></div>`;
  h+=M?(M.art==='laeden'?`<div class="mkhint" style="color:var(--mut);font-size:11px;font-weight:700;margin-top:4px">${S.MARKT_HINWEIS}</div>`:''):'<div class="mkhint" style="color:var(--mut);font-size:11px;font-weight:700;margin-top:4px">Noch kein Markt – hier hat noch keine Kette einen Laden</div>';
  h+=`</div></div></div><div class="h">Deine Marke</div><div class="card"><div class="row">${chainLogo('player',64)}<div class="grow"><b style="font-size:17px">${esc(s.logo.name)}</b><div style="margin:8px 0 4px;font-size:12px;color:var(--mut);font-weight:700">Ruf ${Math.round(s.rep)}/100</div><div class="bar g"><i style="width:${s.rep}%"></i></div></div></div>
@@ -154,7 +162,7 @@ function tabMarket(){
  <div class="h">Städte</div><div class="cities">${cityCards()}
  <div class="city"><span class="jp">大阪</span><b>🏯 Osaka</b><small>🚄 Hbf Tokio: kommt bald</small></div>
  <div class="city"><span class="jp">京都</span><b>⛩️ Kyōto</b><small>✈️ Haneda: kommt bald</small></div></div>
- <div style="text-align:center;margin:20px 0 0"><button class="btn ghost" data-act="newgame">Neues Spiel starten</button></div>`;
+ <div class="h">Spielstand</div><div class="card spielstand" id="spielstand"><div class="row" style="gap:10px;flex-wrap:wrap"><button class="btn grow" data-act="savegame">💾 Speichern · Slot ${s.slot||1}</button><button class="btn grow" data-act="newgame">🏠 Hauptmenü</button></div><div style="color:var(--mut);font-size:12px;font-weight:700;margin-top:8px">Im Hauptmenü kannst du einen Spielstand laden oder ein neues Spiel starten.</div></div>`;// Gganbu R1 #9: weg vom ✕ oben
  return h;
 }
 /* ---------- Immobilie & Shop bauen ---------- */
@@ -172,7 +180,7 @@ function propertySheet(did,slot){
  <div class="stats3"><div>Wöchentliche Miete<b>${fmtY(info.rentW)}</b><small>pro Woche</small></div><div>Kaution<b>${fmtY(info.deposit)}</b><small>im Voraus</small></div><div>Fußgänger<b>${fmtN(info.pass)}</b><small>pro Woche</small></div></div>
  <div class="lbl">Konkurrenz vor Ort</div><div class="chips">${Object.keys(riv).length?Object.entries(riv).map(([c,n])=>`<span class="chip" style="padding:3px 10px 3px 3px">${chainLogo(c,24)} ${D.CHAINS[c].name}${n>1?' ×'+n:''}</span>`).join(''):'<span style="color:var(--mut);font-size:13px;font-weight:700">Keine. Freie Bahn!</span>'}</div>
  <div style="margin-top:14px"><button class="btn primary full" data-act="tobuild">Shop bauen</button><div style="height:8px"></div><button class="btn full" data-act="region">Karte der Region</button></div>`);
- mountPreview(ui.draft.b);syncPv();tut('miete');
+ mountPreview(ui.draft.b);syncPv();{const pc=S.openCostParts(did,slot,minBuild(ui.draft.b)),mn=pc.bau+pc.deposit+pc.ware;tut('miete',false,null,s.cash<mn?geldTutor(mn-s.cash):'');}
 }
 function syncPv(){document.querySelectorAll('.pvt button').forEach(b=>b.classList.toggle('on',(b.classList.contains('PVI')?'inside':'outside')===pvMode));}
 function optImg(k,i,b,big){
@@ -197,8 +205,8 @@ function builderSheet(){
  <div class="lbl">Kostenzusammenfassung</div><div class="card"><table class="fin">${summaryRows(b).map(([a,v])=>`<tr class="sub"><td>${esc(a)}</td><td>${fmtY(v)}</td></tr>`).join('')}
  <tr><td>Kaution (${info.tier.depM} Monatsmieten, kommt zurück)</td><td>${fmtY(parts.deposit)}</td></tr><tr><td>Erstbestückung Ware</td><td>${fmtY(parts.ware)}</td></tr>
  <tr class="sum"><td>Gesamt</td><td>${fmtY(total)}</td></tr><tr class="sub"><td>Verfügbar</td><td class="${cash>=total?'pos':'neg'}">${fmtY(cash)}</td></tr></table></div>
- <div style="margin-top:12px"><button class="btn primary full" data-act="dobuild" ${cash<total?'disabled':''}>Bau beginnen</button>${cash<total?`<p style="color:var(--mut);font-size:12.5px;text-align:center;margin:8px 0 0;font-weight:700">Dir fehlen ${fmtY(total-cash)}. Wähle günstigere Modelle${S.loanAvailable()?' oder nimm einen Kredit (Finanzen).':'.'}</p>`:''}</div>`);
- mountPreview(b);syncPv();tut('bauen');
+ <div style="margin-top:12px"><button class="btn primary full" data-act="dobuild" ${cash<total?'disabled':''}>Bau beginnen</button>${cash<total?geldFehlt(dr,total,cash):''}</div>`);
+ mountPreview(b);syncPv();tut('bauen',false,null,cash<total?geldTutor(total-cash):'');
 }
 function pickSheet(k,target){
  ui.pickTarget=target;const B=D.BUILD[k],cur=target==='draft'?ui.draft.b[k]:st().stores.find(x=>x.id===target).b[k];
@@ -324,6 +332,16 @@ function storeFin(s){
 }
 /* ---------- Wochenergebnis & Zeitung ---------- */
 const fmtU=v=>v>=1e9?'¥'+(v/1e9).toLocaleString('de-DE',{maximumFractionDigits:1})+' Mrd':fmtY(v);
+// Gganbu R1 #4 (R61): Wochenergebnis rechnet nachvollziehbar vom Laden-Ergebnis zum Netto und zum Cashflow
+const NEBEN_LBL={gehalt:'Dein Gehalt (Privat)',privatZins:'Zinsen Privatdarlehen',buero:'Büro / Zentrale',ereignis:'Entscheidung der Woche',vertrag:'Verträge (einmalig)',strafe:'Vertragsstrafe',abfindung:'Abfindung Filialleitung',dividende:'Dividenden-Einnahmen (Aktien)'};
+function nettoRechnung(r){const T=r.T;if(!T||T.ebit==null)return null;const fzN=(r.fz&&r.fz.net)||0,L=[];
+ L.push({k:'ebit',t:'Filialen (Laden-Ergebnis)',v:T.ebit});if(T.interest)L.push({k:'zins',t:'Zinsen Kredite',v:-T.interest});
+ for(const [k,v] of Object.entries(T.neben||{}))if(Math.round(v))L.push({k,t:NEBEN_LBL[k]||k,v:-v});
+ L.push({k:'steuer',t:'Steuer (30,64 % nach Verlustvortrag)',v:-T.tax});
+ const nachSt=T.net-fzN,abschr=T.cf.op-nachSt;return {L,nachSt,fzN,abschr,net:T.net,cf:T.cf.op};}
+function nettoTabelle(r,cls){const n=nettoRechnung(r);if(!n)return '';const tr=(t,v,c='sub')=>`<tr class="${c}"><td>${t}</td><td class="${c==='sum'?(v>=0?'pos':'neg'):''}">${c==='sum'?sgn(v):fmtY(v)}</td></tr>`;
+ return `<table class="fin ${cls||''}">${n.L.map((x,i)=>tr(x.t,x.v,i?'sub':'')).join('')}${tr('= Gewinn nach Steuern',n.nachSt,'sum')}${n.fzN?tr('Dividende an Aktionäre',n.fzN)+tr('= Nettoeinkommen',n.net,'sum'):''}
+ <tr class="sub"><td>+ Abschreibungen (kein Geldabfluss)</td><td>${fmtY(n.abschr)}</td></tr>${tr('= Cashflow Geschäft',n.cf,'sum')}</table>`;}
 function reportSheet(r){
  const T=r.T;
  showSheet(`<button class="x" data-act="close" aria-label="Schließen">✕</button><div style="text-align:center;color:var(--mut);font-size:12px;font-weight:900;letter-spacing:1.4px">WOCHENERGEBNIS · KW ${S.kw(r.week)}</div>
@@ -332,18 +350,20 @@ function reportSheet(r){
  ${(r.quitWarn||[]).map(q=>`<div class="card quitcard warn"><b style="font-size:15px">⚠️ Kündigung eingegangen</b><div style="font-size:13px;font-weight:700;margin-top:3px"><b>${esc(q.name)}</b> (${esc(q.laden)}) hört nach KW ${S.kw(q.zum-1)} auf. Grund: ${esc(q.grund)}.<br>Mehr Gehalt oder bessere Zahlen können sie noch halten.</div><button class="btn sm full" style="margin-top:8px" data-act="store" data-id="${q.sid}">Zum Laden ›</button></div>`).join('')}
  <div class="hero"><small>${r.ev.emoji} ${r.ev.label} · ab ${r.date}</small><div class="num ${T.net>=0?'pos':'neg'}" id="countup">${sgn(0)}</div><small>Nettoeinkommen</small></div>
  <div class="stats3"><div>Umsatz<b>${fmtY(T.rev+T.fees)}</b></div><div>Kunden/Tag<b>${fmtN(T.cust/7)}</b></div><div>Kasse<b>${fmtY(st().cash)}</b></div></div>
+ <div class="lbl">So entsteht dein Netto</div><div class="card nettocard" id="nettoRechnung" style="padding:6px 14px">${nettoTabelle(r)}</div>
  <div class="lbl">Cashflow</div><div class="card" style="padding:6px 14px"><table class="fin"><tr><td>Geschäft</td><td class="${T.cf.op>=0?'pos':'neg'}">${sgn(T.cf.op)}</td></tr><tr><td>Investition</td><td class="${T.cf.inv>=0?'pos':'neg'}">${sgn(T.cf.inv)}</td></tr><tr><td>Finanzierung</td><td class="${T.cf.fin>=0?'pos':'neg'}">${sgn(T.cf.fin)}</td></tr></table></div>
  ${r.uebernahme?`<div class="tip ok uecard">🏆 <span><b>Übernahme ${esc(r.uebernahme.name||'')}</b>: ${r.uebernahme.n} Läden sind jetzt deine – ${r.uebernahme.aufKarte||0} auf der Karte (${r.uebernahme.karte.length} davon neu platziert), ${r.uebernahme.weitere} in weiteren Städten. Ihr Umsatz zählt schon in dieser Woche.</span></div>`:''}
  ${(()=>{const m=r.stores.filter(x=>!x.building&&x.op<0).length;return m?`<div class="tip bad minuswarn">🔻 ${m===1?'Ein Laden schreibt':m+' Läden schreiben'} diese Woche rote Zahlen (Umsatz da, Kosten höher).</div>`:''})()}
- ${r.stores.length?`<div class="lbl">Filialen</div><div class="card" style="padding:4px 14px">${r.stores.map(x=>{const s=st().stores.find(y=>y.id===x.id);return `<div class="srow">${chainLogo('player',28)}<div class="grow"><b>${s?S.storeLabel(s):''}</b><div style="color:var(--mut);font-size:11px;font-weight:600">${x.building?'🚧 im Bau':fmtN(x.cust/7)+' Kunden/Tag · '+GH(x.ghosts||3,12).replace(/<\/?span[^>]*>/g,'')+''}</div></div><div class="v"><b class="${x.net>=0?'pos':'neg'}">${!x.building&&x.op<0?'🔻 ':''}${sgn(x.net)}</b><small>${fmtY(x.rev)}</small></div></div>`}).join('')}</div>`:`<div class="tip">🏪 Noch keine Filiale. Tippe auf der Karte auf einen 空き-Pin.</div>`}
+ ${r.stores.length?`<div class="lbl">Filialen · Laden-Ergebnis vor Zentrale & Steuer</div><div class="card" style="padding:4px 14px">${r.stores.map(x=>{const s=st().stores.find(y=>y.id===x.id);return `<div class="srow">${chainLogo('player',28)}<div class="grow"><b>${s?S.storeLabel(s):''}</b><div style="color:var(--mut);font-size:11px;font-weight:600">${x.building?'🚧 im Bau':fmtN(x.cust/7)+' Kunden/Tag · '+GH(x.ghosts||3,12).replace(/<\/?span[^>]*>/g,'')+''}</div></div><div class="v"><b class="${x.net>=0?'pos':'neg'}">${!x.building&&x.op<0?'🔻 ':''}${sgn(x.net)}</b><small>${fmtY(x.rev)}</small></div></div>`}).join('')}</div>`:`<div class="tip">🏪 Noch keine Filiale. Tippe auf der Karte auf einen 空き-Pin.</div>`}
  ${(r.cities||[]).length>1?`<div class="lbl">Städte</div><div class="card cities" style="padding:4px 14px">${r.cities.map(c=>`<div class="srow"><div class="grow"><b>${esc(c.name)}</b>${c.aktuell?' <small style="color:var(--mut)">(hier)</small>':''}<div style="color:var(--mut);font-size:11px;font-weight:600">${c.n} ${c.n===1?'Laden':'Läden'} · Umsatz ${fmtY(c.rev||0)}${(c.opened||[]).length?` · 🎉 ${c.opened.length} neu eröffnet`:''}</div></div><b class="${(c.op||0)>=0?'pos':'neg'}" style="font-size:13px">${sgn(c.op||0)}</b></div>`).join('')}</div>`:''}
  ${(r.vertraege||[]).length?`<div class="lbl">Verträge laufen aus</div>${r.vertraege.map(v=>`<div class="tip bad vende"><span>📄 <b>${esc(v.name)}</b>: noch ${v.left} ${v.left===1?'Woche':'Wochen'}, danach nicht mehr im Regal.</span><button class="btn sm" data-act="fzverl" data-x="${esc(v.id)}">🔁 Verlängern</button></div>`).join('')}`:''}
  ${(()=>{const b=st().buero,v=b&&b.verlegt;if(v&&!v.imBericht){v.imBericht=true;const n=(st().news||[]).find(x=>x.chain==='player'&&/Zentrale ist umgezogen/.test(x.text||''));r.umzug=n?n.text:`🏢 Deine Zentrale ist nach Tokio (Shibuya) umgezogen.`;}return r.umzug?`<div class="lbl">Deine Firma</div><div class="tip umzug"><span>${r.umzug}</span></div>`:''})()}<!-- V6 (Whitebeard 4816e73): Büro-Umzug auch im Wochenbericht (R41) -->
  ${r.news.filter(n=>n.chain&&n.chain!=='player').length?`<div class="lbl">Konkurrenz</div><div class="card" style="padding:4px 14px">${r.news.filter(n=>n.chain&&n.chain!=='player').map(n=>`<div class="srow">${chainLogo(n.chain,28)}<div class="grow" style="font-size:13px;font-weight:700">${n.text}</div>${n.near?'<b class="neg" style="font-size:12px">nah!</b>':''}</div>`).join('')}</div>`:''}
  ${r.events.map(t=>`<div class="tip ${/^(😢|⚠️)/.test(t)?'bad':'ok'}">${t}</div>`).join('')}
+ ${(r.evFolgen||[]).length?`<div class="lbl">Laufende Folgen deiner Entscheidungen</div><div class="card evfolgen" style="padding:4px 14px">${r.evFolgen.map(f=>`<div class="srow evfolge"><div class="grow" style="font-size:12.5px;font-weight:700">🗳️ ${f.wk!=null?`<b>aus KW ${S.kw(f.wk)}</b>: `:''}„${esc(f.text)}“</div><b class="${f.pct>=0?'pos':'neg'}" style="font-size:12px;white-space:nowrap">Kunden ${f.pct>=0?'+':'−'}${Math.abs(f.pct)} %${f.noch>0?` · noch ${f.noch} Wo.`:' · letzte Wo.'}</b></div>`).join('')}</div>`:''}
  ${MM.weekPosts()?`<button class="mmlink" data-act="mm" data-v="week"><img src="grafik/social/washi/mitemite-logo.svg" alt="" width="30" height="30"><span><b>Diese Woche auf MiteMite!</b><small>${MM.weekPosts()} neue Posts</small></span><i>▸</i></button>`:''}
  ${r.tips.length?`<div class="lbl">Tipps</div>${r.tips.map(t=>`<div class="tip"><span>${t}</span></div>`).join('')}`:''}
- <button class="btn primary full" data-act="paper" style="margin-top:14px">📰 Konbini Shimbun lesen</button>`);
+ ${evOffen()?`<button class="btn primary full" data-act="evcard" id="reportOk" style="margin-top:14px">🗳️ Entscheidung der Woche ▶</button><button class="btn full" data-act="paper" style="margin-top:8px">📰 Konbini Shimbun lesen</button>`:`<button class="btn primary full" data-act="paper" style="margin-top:14px">📰 Konbini Shimbun lesen</button>`}`,'report');
  const el=$('#countup'),t0=performance.now();(function step(t){const p=Math.min(1,(t-t0)/900),e=1-Math.pow(1-p,3);if(el&&el.isConnected){el.textContent=sgn(T.net*e);if(p<1)requestAnimationFrame(step)}})(t0);
 }
 function paperSheet(tab){
@@ -352,13 +372,33 @@ function paperSheet(tab){
  const items=P.filter(p=>p.tab===tab);
  showSheet(`<button class="x" data-act="close" aria-label="Schließen" style="z-index:3">✕</button>${head}<div class="gtabs paper">${tabs.map(([k,l])=>`<button class="${tab===k?'on':''}" data-act="ptab" data-v="${k}">${l}</button>`).join('')}</div>
  <div class="card news2">${items.length?items.map((p,i)=>`<article class="${i===0?'lead':''}"><b>${esc(p.text)}</b></article>`).join(''):'<div style="color:var(--mut);font-weight:700">Heute keine Meldungen.</div>'}</div>
- ${S.eventView()&&!S.eventView().done?`<button class="btn primary full" data-act="evcard" id="reportOk" style="margin-top:14px">Entscheidung der Woche ▶</button>`:`<button class="btn primary full" data-act="close" id="reportOk" style="margin-top:14px">Weiter zu KW ${S.kw(st().week)} ▶</button>`}`);
+ ${S.eventView()&&!S.eventView().done?`<button class="btn primary full" data-act="evcard" id="reportOk" style="margin-top:14px">Entscheidung der Woche ▶</button>`:`<button class="btn primary full" data-act="close" id="reportOk" style="margin-top:14px">Weiter zu KW ${S.kw(st().week)} ▶</button>`}`,'paper');
 }
+// Gganbu R1 #12: Info zu einem Konkurrenzladen (Kette, Lage, seit wann, Abstand zu deinen Läden)
+function rivalSheet(x){const ch=D.CHAINS[x.chain]||{name:x.chain},si=S.siteInfo(x.d,x.slot),dn=(D.DMAP[x.d]||{name:x.d}).name;
+ const eig=S.mine().filter(m=>!m.build).map(m=>({m,f:S.storeDist(m,x)})).sort((a,b)=>a.f-b.f).slice(0,3),nah=RIVAL_RULES.nahFelder,n=st().stores.filter(y=>y.chain===x.chain).length;
+ showSheet(`<button class="x" data-act="close" aria-label="Schließen">✕</button><div class="row rivalhead" id="rivalSheet" style="gap:12px">${chainLogo(x.chain,52)}<div class="grow"><b style="font-size:18px">${esc(ch.name)}</b><div style="color:var(--mut);font-size:12.5px;font-weight:700">Konkurrenz · ${filN(n)} in ${CITY.name}</div></div></div>
+ <div class="card" style="padding:6px 14px;margin-top:12px"><table class="fin"><tr><td>Stadtteil</td><td>${esc(dn)}</td></tr><tr><td>Lage</td><td>${esc(si&&si.tier?si.tier.label:'–')}</td></tr><tr><td>Geöffnet</td><td>${x.opened>1?'seit KW '+S.kw(x.opened):'von Anfang an'}</td></tr></table></div>
+ ${eig.length?`<div class="lbl">Abstand zu deinen Läden</div><div class="card" style="padding:4px 14px">${eig.map(e=>`<div class="srow">${chainLogo('player',26)}<div class="grow"><b style="font-size:13px">${esc(S.storeLabel(e.m))}</b></div><b class="${e.f<=nah?'neg':''}" style="font-size:12.5px">${e.f.toFixed(1).replace('.',',')} Felder${e.f<=nah?' · nah!':''}</b></div>`).join('')}</div>
+ <div style="color:var(--mut);font-size:12px;font-weight:700;margin-top:8px">Bis ${nah} Felder Abstand kostet ein Konkurrent deinem Laden Kunden.</div>`:''}`,'rival');}
 function eventSheet(){const v=S.eventView();if(!v||v.done){closeSheet();return;}
  showSheet(`<div style="text-align:center;color:var(--mut);font-size:12px;font-weight:900;letter-spacing:1.4px">ENTSCHEIDUNG · KW ${S.kw(st().week)}</div>
  <div class="story evcard"><img src="grafik/maskottchen/${esc(v.figur)}.svg" alt="Kobo"><p>${esc(v.text)}</p><small style="color:var(--mut);font-weight:700">${v.ziel==='alle'?'Betrifft alle Filialen':v.ziel==='stadtteil'?'Betrifft Filialen im Stadtteil':'Betrifft '+esc(v.laden)}</small></div>
  <button class="btn primary full evopt" data-act="evpick" data-v="a" style="margin-top:12px"><b>${esc(v.a)}</b><small>${esc(v.effA)}</small></button>
- <button class="btn full evopt" data-act="evpick" data-v="b" style="margin-top:8px"><b>${esc(v.b)}</b><small>${esc(v.effB)}</small></button>${v.hint?`<div class="evhint">${esc(v.hint)}</div>`:''}`);}
+ <button class="btn full evopt" data-act="evpick" data-v="b" style="margin-top:8px"><b>${esc(v.b)}</b><small>${esc(v.effB)}</small></button>${v.hint?`<div class="evhint">${esc(v.hint)}</div>`:''}<div class="evpflicht" id="evPflicht">Bitte wähle eine Option. Ohne Entscheidung startet die nächste Woche nicht.</div>`,'event');}
+// Gganbu-Playtest R1 #1 (R59): Startgeld reicht bewusst nicht für Laden 2 – erst mit Omas Laden sparen, dann Bankkredit.
+// „Wähle günstigere Modelle“ nur, wenn es wirklich eine günstigere Ausstattung gibt (Pflichtgeräte billigstes Modell, Rest weg).
+function minBuild(b){const m={...b};for(const k of ['fac','inn',...D.EQUIP_KEYS]){const B=D.BUILD[k];if(k==='fac'||k==='inn'||B.must){let bi=0;B.opts.forEach((_,i)=>{if(D.optPrice(k,i)<D.optPrice(k,bi))bi=i;});m[k]=bi;}else m[k]=-1;}return m;}
+function kreditInfo(){const s=st();
+ if(FZ.ON){const k=FZ.startKreditStatus(s);if(k.fertig)return null;return k.ok?{jetzt:true,text:`Die Bank gibt dir jetzt einen Startkredit über ${fmtY(k.betrag)} (Finanzen › Börse › Kredite).`}:{jetzt:false,kw:S.kw(k.abWoche),text:`Ab KW ${S.kw(k.abWoche)} gibt dir die Bank einen Startkredit über ${fmtY(k.betrag)}, sobald Omas Laden im Schnitt der letzten ${k.gewinnWochen} Wochen Gewinn macht.`};}
+ if(S.loanAvailable()){const r=S.loanRoom();return r>0?{jetzt:true,text:`Die Bank leiht dir bis zu ${fmtY(r)} (Finanzen › Bankkredit).`}:null;}
+ return {jetzt:false,kw:S.kw(D.LOAN.fromWeek),text:`Ab KW ${S.kw(D.LOAN.fromWeek)} gibt dir die Bank einen Kredit (Finanzen › Bankkredit).`};}
+function geldFehlt(dr,total,cash){const mb=minBuild(dr.b),mp=S.openCostParts(dr.did,dr.slot,mb),min=mp.bau+mp.deposit+mp.ware,k=kreditInfo();
+ const billiger=min<total-1?`<br>Günstigste Ausstattung hier: ${fmtY(min)} – wähle günstigere Modelle oder lass Extras weg (spart ${fmtY(total-min)}).`:'<br>Das ist schon die günstigste Ausstattung für diesen Standort.';
+ return `<div class="tip geldfehlt" id="geldFehlt"><span>💴 <b>Dir fehlen ${fmtY(total-cash)}</b> (Gesamt ${fmtY(total)}, verfügbar ${fmtY(cash)}).${min<=cash?billiger:billiger+`<br>🏪 Spar zuerst mit <b>Omas Laden</b>. ${k?esc(k.text):''}`}</span></div>`;}
+function geldTutor(fehlt){const k=kreditInfo();return ` Dir fehlen gerade ${fmtY(fehlt)}. Das ist normal: Spar zuerst mit Omas Laden.${k?' '+k.text:''}`;}
+// #13: Omas Laden auf der Karte zeigen (Ring + Kamera)
+function zeigeOma(){const o=S.mine().find(x=>x.oma)||S.mine()[0];if(!o||!W||!W.slotPos)return;const p=W.slotPos(o.d,o.slot);if(!p)return;W.select(p.x,p.z);W.flyTo(p.x,p.z,72);ui.omaSel=true;}
 function cheapestStore(){let m=Infinity;for(const d of D.DISTRICTS)for(const i of S.freeSlots(d.id))m=Math.min(m,S.openCost(d.id,i,D.defaultBuild()));return m;}
 /* ---------- Story (Ito: texte.json → story) ---------- */
 function storyCard(i){
@@ -370,8 +410,13 @@ function storyCard(i){
  <button class="btn primary full" data-act="story" data-v="${i+1}" style="margin-top:14px">${i+1<C.length?'Weiter':'Los geht’s!'}</button>
  ${i+1<C.length?`<button class="btn full" data-act="story" data-v="${C.length}" style="margin-top:8px">Überspringen</button>`:''}</div>`);
 }
-function doEndWeek(){
- if(sheetOpen())return null;const c0=st().cash;const r=S.endWeek();renderAll();reportSheet(r);setTimeout(MM.banner,700);
+// #3: Hinweis im Entscheidungsfenster aufblinken lassen statt Toast (der Toast lag über Option B)
+function evHinweis(){const e=$('#evPflicht');if(!e)return;e.classList.remove('blink');void e.offsetWidth;e.classList.add('blink');e.scrollIntoView({block:'nearest',behavior:'smooth'});}
+function doEndWeek(o){
+ if(frischOffen())return null;// #7: Doppeltipp beendet nur eine Woche und lässt das Wochenergebnis stehen
+ if(evOffen()&&!(o&&o.test)){eventSheet();evHinweis();return null;}// #3
+ if(sheetOpen())closeSheet();
+ const c0=st().cash;const r=S.endWeek();renderAll();reportSheet(r);setTimeout(MM.banner,700);
  {const fz=st().fz;if(fz&&fz.insZeigen&&FZ.ON&&FZ.zeigeInsolvenz){fz.insZeigen=false;S.save();FZ.zeigeInsolvenz();ui.finK=false;ui.tab='fin';renderBar();renderPanel();}}
  {const nk=st().nk;if(nk&&nk.zeigen){const id=nk.zeigen;nk.zeigen=null;S.save();if(FZ.ON){FZ.zeigeNeueKette(id);ui.finK=false;ui.tab='fin';renderBar();renderPanel();}}}
  {const s=st();s.cashDown=s.cash<c0?(s.cashDown||0)+1:0;
@@ -488,7 +533,7 @@ function slotScreenFull(mode){const b=[];
   else if(mode==='load')b.push({...base,act:'loadslot',label:i?`Slot ${n} laden: `+slotLabel(i).replace(/<[^>]+>/g,' '):`Slot ${n}: ${SB().kein_spielstand}`,disabled:!i});
   else b.push({...base,act:'newslot',label:`Slot ${n}: neues Spiel`});});
  return b;}
-function introShow(html,bg){const el=$('#intro');el.innerHTML=`<div class="scrwrap" style="background:${bg}">${html}</div>`;el.classList.add('show','scrmode');}
+function introShow(html,bg,cls){const el=$('#intro');el.innerHTML=`<div class="scrwrap ${cls||''}" style="background:${bg}">${html}</div>`;el.classList.add('show','scrmode');}
 function showIntro(view){
  const has=S.anySave(),T=SB();
  if(!SC.SCREENS_OK)return showIntroPlain(view);
@@ -501,7 +546,7 @@ function showIntro(view){
  const html=SC.screen({name:'start',cls:'start',mutate:root=>{if(!lt)for(const g of root.querySelectorAll('[data-nur-mit-spielstand="true"]'))g.remove();},
   buttons:[...(lt?[{x:170,y:1430,w:740,h:140,act:'loadslot',v:lt.slot,label:'▶ '+T.weiter}]:[]),{x:170,y:1610,w:740,h:120,act:'newgame',label:T.neues_spiel},{x:170,y:1780,w:740,h:110,act:'loadmenu',label:T.laden,disabled:!has,cls:has?'':'dim'}],
   extra:`<div class="scrfoot">${has?'':esc(T.kein_spielstand)+'<br>'}Prototyp V7 · alle Marken sind fiktive Parodien</div>`});
- introShow(html,'linear-gradient(180deg,#5B4B8A 50%,#6B6F80 50%)');
+ introShow(html,'linear-gradient(180deg,#5B4B8A 50%,#6B6F80 50%)','startbg');// Gganbu R1 #16: auf Desktop läuft das Bild über die ganze Breite weiter (css .startbg)
 }
 // Klickflächen der Slot-Karten
 function fixSlotButtons(mode){const scr=document.querySelector('#intro .scr.slots');if(!scr)return;scr.querySelectorAll('.scrhot:not([data-act=title])').forEach(b=>b.remove());
@@ -522,6 +567,7 @@ function showIntroPlain(view){
  $('#intro').classList.add('show');
 }
 function logoEditor(mode){
+ preloadV2();
  ui.editMode=mode;ui.editLogo=ui.editLogo||{...(mode==='edit'?st().logo:D.defaultLogo())};
  const L=ui.editLogo;
  const sign=GFX.svg.sign0?svgURL(svgColored('sign0',{main:L.bg.toLowerCase()==='#ffffff'?L.fg:L.bg,second:L.bg.toLowerCase()==='#ffffff'?'#ffffff':L.fg,name:L.name||' '})):'';
@@ -529,7 +575,7 @@ function logoEditor(mode){
  <div class="pvbox"><img src="${logoURL(L,240)}" width="96" height="96" style="border-radius:24%;filter:drop-shadow(0 6px 14px rgba(43,45,66,.18))"><div class="grow">${sign?`<img src="${sign}" style="width:100%;display:block">`:''}<div style="font-size:11px;color:var(--mut);font-weight:700;margin-top:6px">So erscheint dein Logo auf Schildern, Läden und überall im Spiel.</div></div></div>
  <div class="lbl">Name der Kette</div><input id="lgName" maxlength="18" value="${esc(L.name)}" autocomplete="off">
  ${D.EDITOR_LOGOS_V2&&String(L.symbol).startsWith('v2-')?'':`<div class="lbl">Form</div><div class="symgrid">${D.LOGO_SHAPES.map(o=>`<button class="${L.shape===o.id?'on':''}" data-act="lg" data-k="shape" data-v="${o.id}" title="${o.label}"><img src="${logoURL({...L,shape:o.id},90)}"></button>`).join('')}</div>`}
- <div class="lbl">Symbol</div><div class="symgrid">${(D.EDITOR_LOGOS_V2?D.LOGO_SYMBOLS_V2:D.LOGO_SYMBOLS).map(o=>`<button class="${L.symbol===o.id?'on':''}" data-act="lg" data-k="symbol" data-v="${o.id}" title="${o.label}"><img src="${logoURL({...L,symbol:o.id},90)}"></button>`).join('')}</div>
+ <div class="lbl">Symbol</div><div class="symgrid">${(D.EDITOR_LOGOS_V2?D.LOGO_SYMBOLS_V2:D.LOGO_SYMBOLS).map(o=>`<button class="${L.symbol===o.id?'on':''}" data-act="lg" data-k="symbol" data-v="${o.id}" title="${o.label}"><img src="${kachelURL({...L,symbol:o.id})}"></button>`).join('')}</div>
  ${L.symbol==='kanji'?`<div class="lbl">Kanji</div><div class="symgrid">${D.KANJI.map(k=>`<button class="${L.kanji===k?'on':''}" data-act="lg" data-k="kanji" data-v="${k}"><img src="${logoURL({...L,kanji:k},90)}"></button>`).join('')}</div>`:''}
  <div class="lbl">Ladenfarbe · ${esc(D.colorName(L.bg))}</div><div class="swatches">${D.LOGO_BG.map(c=>`<button class="sw ${String(L.bg).toLowerCase()===c.toLowerCase()?'on':''}" style="background:${c}" title="${esc(D.colorName(c))}" aria-label="${esc(D.colorName(c))}" data-act="lg" data-k="bg" data-v="${c}"></button>`).join('')}</div>
  <div class="lbl">Zweitfarbe · ${esc(D.colorName(L.fg))}</div><div class="swatches">${D.LOGO_FG.map(c=>`<button class="sw ${String(L.fg).toLowerCase()===c.toLowerCase()?'on':''}" style="background:${c}" title="${esc(D.colorName(c))}" aria-label="${esc(D.colorName(c))}" data-act="lg" data-k="fg" data-v="${c}"></button>`).join('')}</div>
@@ -570,14 +616,15 @@ document.addEventListener('click',e=>{
   case 'lostslot':ui.slot=+b.dataset.v;ui.editLogo=null;logoEditor('new');break;// V4: verlorener Slot startet direkt ein neues Spiel
   case 'newslot':{if(CITY.id!=='tokio'){location.href=cityURL('tokio','neu=1');break;}const n=+b.dataset.v;if(S.slotInfo(n))showIntro({confirm:n});else{ui.slot=n;ui.editLogo=null;nameScreen('neu');}break;}
   case 'newslotok':ui.slot=+b.dataset.v;ui.editLogo=null;nameScreen('neu');break;
-  case 'nameok':{const n=($('#pvn')?.value||'').trim()||PV.CFG.NAME_STANDARD,f=($('#pvf')?.value||'').trim();$('#pvname')?.remove();if(ui.nameMode==='neu'){ui.pname=n;ui.editLogo={...D.defaultLogo(),...(f?{name:f}:{})};logoEditor('new');}else{PV.ensure(st()).name=n;S.save();renderAll();}break;}
+  case 'nameok':{const leer=!($('#pvn')?.value||'').trim();if(leer)toast(`Kein Name eingegeben – du spielst als „${esc(PV.CFG.NAME_STANDARD)}“. Ändern kannst du das später unter Finanzen › Privat.`,'namehinweis');// Gganbu R1 #15
+   const n=($('#pvn')?.value||'').trim()||PV.CFG.NAME_STANDARD,f=($('#pvf')?.value||'').trim();$('#pvname')?.remove();if(ui.nameMode==='neu'){ui.pname=n;ui.editLogo={...D.defaultLogo(),...(f?{name:f}:{})};logoEditor('new');}else{PV.ensure(st()).name=n;S.save();renderAll();}break;}
   case 'savegame':S.save();toastSaved();break;
   case 'editlogo':ui.editLogo=null;logoEditor('edit');break;
   case 'savelogo':{const L={...ui.editLogo,name:(ui.editLogo.name||'').trim()||st().logo.name};if(st().week>1){if(st().cash<1e6){toast('Nicht genug Geld');break}st().cash-=1e6;}st().logo=L;S.save();closeSheet();renderAll();toast('🎨 Neues Logo ist auf allen Läden');break}
   case 'closeeditor':closeSheet();break;
   case 'tab':{const t=b.dataset.t;ui.finK=false;ui.tab=(ui.tab===t&&t!=='map')?'map':t;closeSheet();renderBar();renderPanel();$('#panelBody').scrollTop=0;break}
   case 'closepanel':ui.tab='map';renderBar();renderPanel();break;
-  case 'tutnext':{const n=TUT_NEXT[ui.tutId];tutHide();if(n)setTimeout(()=>tut(n),250);break}
+  case 'tutnext':{const n=TUT_NEXT[ui.tutId];tutHide();if(ui.omaSel&&!sheetOpen()){W.select(null);ui.omaSel=false;}if(n)setTimeout(()=>tut(n),250);break}
   case 'tutoff':tutHide();st().tutOff=true;S.save();break;
   case 'plane':if(BF.ON)bahnhofOpen();else travelSheet();break;
   case 'bfzu':document.body.classList.remove('bfopen');break;
@@ -610,7 +657,10 @@ document.addEventListener('click',e=>{
   case 'store':ui.storeTab='service';ui.confirmClose=null;openStoreSheet(id);break;
   case 'stab':ui.storeTab=b.dataset.v;openStoreSheet(ui.storeId);$('#sheet').scrollTop=0;break;
   case 'pgroup':ui.pgroup=b.dataset.v;openStoreSheet(ui.storeId);break;
-  case 'close':closeSheet();break;
+  case 'close':{const k=sheetKind();if(b.id==='scrim'&&frischOffen())break;// #7
+   if(k==='event'&&evOffen()){evHinweis();break;}// #3: Danebentippen schließt nicht
+   if((k==='report'||k==='paper')&&evOffen()){eventSheet();break;}// #3: nach dem Wochenergebnis kommt die Entscheidung als eigenes Fenster
+   closeSheet();break;}
   case 'evcard':eventSheet();break;
   case 'evpick':{const r=S.chooseEvent(b.dataset.v);closeSheet();renderAll();if(r)toast(r.cost?`Entschieden · ${S.fmtY(-r.cost)}`:'Entschieden – die Folgen siehst du nächste Woche');break;}
   case 'cat':{const k=b.dataset.k;s.cfg.cats[k]=!s.cfg.cats[k];S.save();openStoreSheet(id);break}
@@ -640,7 +690,7 @@ document.addEventListener('click',e=>{
  await loadGfx();S.setTexte(GFX.texte);
  try{W=createWorld($('#world'),{
   onSlot:(d,i)=>{if(!st()||sheetOpen())return;ui.tab='map';renderPanel();propertySheet(d,i);},
-  onStore:id=>{if(!st()||sheetOpen())return;const s=st().stores.find(x=>x.id===id);if(!s)return;if(s.chain==='player'){ui.storeTab='service';openStoreSheet(id);}else toast(`${D.CHAINS[s.chain].name} · ${S.siteInfo(s.d,s.slot).tier.label}`);},
+  onStore:id=>{if(!st()||sheetOpen())return;const s=st().stores.find(x=>x.id===id);if(!s)return;if(s.chain==='player'){ui.storeTab='service';openStoreSheet(id);}else rivalSheet(s);},// Gganbu R1 #12: Rivalen-Pin öffnet ein Info-Fenster
   onHub:id=>{const h=D.HUBS.find(x=>x.id===id||(id==='station'&&x.id==='tokyo-st'));if(h&&st()){if(BF.ON)bahnhofOpen();else travelSheet();return;}toast(h?`${h.icon} ${h.name}`:({borse:'📈 Börse: kommt bald',immo:'🏢 Immobilienbüro: kommt bald',hq:'🏠 Hauptquartier: kommt bald'})[id]||'kommt bald');},
   onEmpty:()=>{}});}
  catch(err){console.error(err);$('#world').innerHTML='<div style="padding:120px 30px;text-align:center;font-weight:800">3D-Karte konnte nicht starten (WebGL fehlt?).</div>';}
@@ -652,7 +702,7 @@ document.addEventListener('click',e=>{
  BF.load();
  FZ.init(S,{chainLogo,esc,toast,ladenN,CHAINS:D.CHAINS,RIVALS:D.RIVALS,dname:id=>(D.DMAP[id]||{name:id}).name,dtype:id=>(D.DMAP[id]||{}).type||'standard',CATS:D.CATS,texte:()=>GFX.texte,gameOver:()=>gameOver(),chainLogoFile:(f,sz)=>`<img class="fzlogo" src="grafik/logos/${f}.svg" width="${sz}" height="${sz}" alt="">`,cityName:CITY.name,rerender:()=>{if(ui.tab==='fin'&&FZ.ON)renderFZ();renderHUD();}});if(FZ.ON){S.preTaxHooks.push(FZ.preTax,BU.preTax,PV.preTax);S.weekHooks.push(FZ.weekHook);S.preWeekHooks.push(FZ.preWeek);S.rivalFinanz.on=true;if(BU.ON)S.weekHooks.push(BU.weekHook);S.weekHooks.push(PV.weekHook);}
  NK.init(S,{CHAINS:D.CHAINS,RIVALS:D.RIVALS,GFX,firmenwert:FZ.firmenwert,fY:fmtY,dname:id=>(D.DMAP[id]||{name:id}).name});S.weekHooks.unshift(NK.weekHook);S.weekHooks.push(MM.weekHook);
- window.__game={get state(){return S.state},S,D,W,ui,marktAnteile,FZ,NK,BF,BU,PV,endWeek:doEndWeek,openStoreSheet,propertySheet,builderSheet,GFX};
+ window.__game={get state(){return S.state},S,D,W,ui,marktAnteile,FZ,NK,BF,BU,PV,nettoRechnung,endWeek:()=>doEndWeek({test:true}),endWeekUI:doEndWeek,/* Test-Hilfe: offene Entscheidung → Option B wie bisher (nur Tests; im Spiel blockiert sie, R60) */openStoreSheet,propertySheet,builderSheet,GFX};
  // Whitebeard 659f1e1 B1: neue Version übernommen → einmal neu laden (sessionStorage-Sperre 30 s gegen Schleifen; Erstbesuch ohne alten Worker lädt nicht neu)
  if('serviceWorker' in navigator&&window.isSecureContext){const hatte=!!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!hatte)return;const k='konbini-sw-reload',t=+sessionStorage.getItem(k)||0;if(Date.now()-t<30000)return;sessionStorage.setItem(k,String(Date.now()));location.reload();});
