@@ -15,6 +15,11 @@ const _krA=PLAN_VERSION===7&&CITY.id==='tokio'&&_krQ!=='alt'?await fetch(new URL
 // (138 Felder, 10 ladenlose Grundstücke weg, 5 Wahrzeichen-Ringe null, Laden 94 → 106). Greift nur, wenn jedes Feld den alten Typ hat und alle Grundstücke da sind. ?yokohama=alt zeigt den alten Plan.
 const _yoQ=new URLSearchParams(globalThis.location?location.search:'').get('yokohama');
 const _yoA=PLAN_VERSION===7&&CITY.id==='yokohama'&&_yoQ!=='alt'?await fetch(new URL('../yokohama/plan_yokohama_a.json',import.meta.url)).then(r=>r.ok?r.json():null).catch(()=>null):null;
+// V7 Osaka A (Yuki Runde 3, Erik 04.11. „Ja, Osaka an Franky geben“, R107): Laufzeit-Diff osaka/plan_osaka_a.json (113 Felder, 5 ladenlose Grundstücke weg,
+// 6 Wahrzeichen-Ringe null, 2 Blöcke + Bäume neu, 164/188 je 11 Stockwerke, keine Ladenumzüge). Greift nur, wenn jedes Feld den alten Typ hat. ?osaka=alt zeigt den alten Plan.
+const _osQ=new URLSearchParams(globalThis.location?location.search:'').get('osaka');
+const _osA=PLAN_VERSION===7&&CITY.id==='osaka'&&_osQ!=='alt'?await fetch(new URL('../osaka/plan_osaka_a.json',import.meta.url)).then(r=>r.ok?r.json():null).catch(()=>null):null;
+export let OSAKA_A=false;// true, wenn der Diff angewendet ist (world.js baut dann Yukis Osaka-Bausatz und nimmt die Wahrzeichen aus osaka/bauvorlagen_osaka.json)
 export let YOKOHAMA_A=false;// true, wenn der Diff angewendet ist (dann baut world.js Yukis Bausatz mit Bahnhofsplatz, Promenade und Hochbahn)
 export let KREUZUNG_A=null;// {mitte:[x,z] Welt, feld:[x,y]} wenn Lage A aktiv
 // v3.2: abschaltbare Kartenteile (true = wieder da). data.js reicht FEATURES weiter.
@@ -43,6 +48,13 @@ export const LM_BLOCKS=[];
    PLAN.grundstuecke=PLAN.grundstuecke.filter(g=>!weg.has(g.id)).map(g=>gi.get(g.id));const rn=new Set(_yoA.ringe_null);
    PLAN.wahrzeichen=PLAN.wahrzeichen.map(w=>rn.has(w.wahrzeichen)?{...w,ring:null}:w);YOKOHAMA_A=true;}
   else console.warn('Yokohama A nicht angewendet (Plan passt nicht):',falsch.length,'Felder',fehlt,'Grundstücke',umzugOk,wegOk);}
+ if(_osA){const gi=new Map(PLAN.grundstuecke.map(g=>[g.id,g]));
+  const falsch=_osA.felder.filter(([x,y,alt])=>!inb(x,y)||Fd[y][x]!==alt),fehlt=[..._osA.grundstuecke_weg,..._osA.grundstuecke_geaendert.map(g=>g.id)].filter(id=>!gi.has(id)),wegOk=_osA.grundstuecke_weg.every(id=>!gi.get(id)?.laden);
+  if(!falsch.length&&!fehlt.length&&wegOk&&!(_osA.laden_umzuege||[]).length){for(const [x,y,,neu] of _osA.felder)Fd[y][x]=neu;const weg=new Set(_osA.grundstuecke_weg);
+   for(const g of _osA.grundstuecke_geaendert)gi.set(g.id,{...gi.get(g.id),...g.nachher});
+   PLAN.grundstuecke=PLAN.grundstuecke.filter(g=>!weg.has(g.id)).map(g=>gi.get(g.id));const rn=new Set(_osA.ringe_null);
+   PLAN.wahrzeichen=PLAN.wahrzeichen.map(w=>{const id=w.wahrzeichen,o={...w};if(rn.has(id))o.ring=null;if(_osA.bloecke[id])o.block={..._osA.bloecke[id].nachher};if(_osA.baeume[id])o.baeume=_osA.baeume[id][0].map(p=>p.slice());return o;});OSAKA_A=true;}
+  else console.warn('Osaka A nicht angewendet (Plan passt nicht):',falsch.length,'Felder',fehlt,'Grundstücke',wegOk);}
  if(!FEATURES.haneda){for(const w of PLAN.wahrzeichen.filter(w=>w.wahrzeichen==='haneda'))for(let y=w.y;y<w.y+w.tiefe;y++)for(let x=w.x;x<w.x+w.breite;x++)if(inb(x,y))Fd[y][x]='park';
   PLAN.wahrzeichen=PLAN.wahrzeichen.filter(w=>w.wahrzeichen!=='haneda');}
  // Neue Städte (?neuestaedte=1): Wahrzeichen aus Yukis Bauvorlagen ohne Platz im Plan an realer Lage ergänzen; Tsūtenkaku mit Straße durch die Bögen
@@ -54,7 +66,9 @@ export const LM_BLOCKS=[];
   PLAN.grundstuecke=PLAN.grundstuecke.filter(g=>g.x+g.breite<=b.x||g.x>=b.x+b.breite||g.y+g.tiefe<=b.y||g.y>=b.y+b.tiefe);}
  if(CITY.id==='osaka'){const w=PLAN.wahrzeichen.find(w=>w.wahrzeichen==='tsutenkaku');if(w){// Straße N–S unter den Bögen, an die Ringstraße angeschlossen
   const r=w.ring||{y:w.y-2,tiefe:w.tiefe+4};for(let y=r.y+1;y<r.y+r.tiefe-1;y++)for(const x of [w.x,w.x+1])if(inb(x,y))Fd[y][x]='hauptstrasse';
-  w.block={x:w.x-1,y:w.y-1,breite:1,tiefe:w.tiefe+2,typ:'park'};w.durchfahrt=true;}}
+  w.block={x:w.x-1,y:w.y-1,breite:1,tiefe:w.tiefe+2,typ:'park'};w.durchfahrt=true;
+  // R108 (Franky 04.11., Gganbu Pt 2): Osaka A – keine Bäume auf den Durchfahrt-Feldern unter den Bögen
+  if(OSAKA_A&&w.baeume)w.baeume=w.baeume.filter(([bx,by])=>{const c=inb(Math.floor(bx),Math.floor(by))?Fd[Math.floor(by)][Math.floor(bx)]:'';return !['hauptstrasse','gasse','ringstrasse','bruecke'].includes(c);});}}
  // Wahrzeichen-Blöcke: nie auf Wasser (Yuki 21.10.: im_wasser-Schiffe ohne Block; Blöcke/Ringe am Ufer auf Landfelder gekürzt)
  const _wet=(x,y)=>{const c=PLAN.felder[y]&&PLAN.felder[y][x];return c==='wasser'||c==='aussen'||c==null;};
  for(const w of PLAN.wahrzeichen){if(w.im_wasser)continue;let b=w.block||{x:w.x-1,y:w.y-1,breite:w.breite+2,tiefe:w.tiefe+2};
@@ -126,5 +140,9 @@ if(SKY){const byId=new Map(PLAN.grundstuecke.map(l=>[l.id,l]));
   const l=lmId?null:byId.get(t.id);if(!lmId&&!l)continue;if(l){if(l.laden)continue;/* nie auf einem Laden */l.turm=t.turm;}
   TOWERS.push({turm:t.turm,name:t.name,x:t.x,y:t.y,breite:t.breite,tiefe:t.tiefe,lot:l?l.id:null,landmark:lmId});}}
 export const SHOPS=PLAN.grundstuecke.filter(l=>l.laden).map((l,k)=>mkShop(l,k));
+// R109 (Franky 04.11., Gganbu a): Osaka A dreht bei 67/280 die Ladenfront (s→o). Die Freischalt-Reihenfolge (data.js spreadOrder) rechnet
+// deshalb mit der Lage vor dem Diff (ox/oz), sonst wären die Ränge ab 33 anders. Lage im Spiel bleibt die neue (x/z).
+if(OSAKA_A){const neuF=PLAN.felder,altF=neuF.map(r=>r.slice());for(const [x,y,alt,neu] of _osA.felder)if(altF[y][x]===neu)altF[y][x]=alt;
+ PLAN.felder=altF;try{for(const s of SHOPS){const a=mkShop(s.lot,s.k);s.ox=a.x;s.oz=a.z;}}finally{PLAN.felder=neuF;}}
 export const LANDMARK_AREAS=PLAN.wahrzeichen.map(w=>({...w,cx:wx(w.x+w.breite/2),cz:wz(w.y+w.tiefe/2),w:w.breite*F,d:w.tiefe*F}));
 export const lm=id=>LANDMARK_AREAS.find(w=>w.wahrzeichen===id);

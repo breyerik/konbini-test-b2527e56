@@ -74,8 +74,9 @@ export const LOT_SLOT=new Map(SHOPS.map(s=>[s.id,{d:s.d,i:s.i}]));
 export function lotSlot(id){if(LOT_SLOT.has(id))return LOT_SLOT.get(id);for(const [a,b] of ALL_MOVES){if(a===id&&LOT_SLOT.has(b))return LOT_SLOT.get(b);if(b===id&&LOT_SLOT.has(a))return LOT_SLOT.get(a);}return null;}
 export const PLAN_REV=Object.keys(SHOP_MOVES).length?2:1;
 // v3.1: Freischaltung der Standorte. Start 20 (Lagen gemischt, über die Stadt verteilt), dann pro Spieljahr +5, +5, +4, danach +2.
+// R109: ox/oz = Lage vor einem Stadt-Diff (nur Osaka A), damit die Reihenfolge gleich bleibt
 function spreadOrder(list,seedPick){const out=[...seedPick],rest=list.filter(s=>!out.includes(s));
- while(rest.length){let bi=0,bd=-1;rest.forEach((s,i)=>{const d=out.length?Math.min(...out.map(o=>Math.hypot(o.x-s.x,o.z-s.z))):0;if(d>bd){bd=d;bi=i}});out.push(rest.splice(bi,1)[0]);}return out;}
+ while(rest.length){let bi=0,bd=-1;rest.forEach((s,i)=>{const d=out.length?Math.min(...out.map(o=>Math.hypot((o.ox??o.x)-(s.ox??s.x),(o.oz??o.z)-(s.oz??s.z)))):0;if(d>bd){bd=d;bi=i}});out.push(rest.splice(bi,1)[0]);}return out;}
 const START_MIX={top:3,city:6,wohn:7,rand:4};
 // Omas Laden: fester Startladen (City-Lage, nächster Plan-Laden am Rathaus Shinjuku), nicht Teil der freien Standorte
 const _rh=lm(_CITY.start)||lm('shinjuku-rathaus')||{cx:0,cz:0};

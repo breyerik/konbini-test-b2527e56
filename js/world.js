@@ -6,7 +6,7 @@ import {designOf} from './sim.js';
 import {GFX,svgColored,svgImage} from './gfx.js';
 import {logoCanvas,shade} from './logo.js';
 import * as LG from './logo.js';
-import {SKYSCRAPERS,TOWERS,SHOPS,LANDMARK_AREAS,lm as LM,F as FIELD,FEATURES,LM_BLOCKS,BRIDGES,wx,wz,CITY as PCITY,YOKOHAMA_A} from './plan.js';
+import {SKYSCRAPERS,TOWERS,SHOPS,LANDMARK_AREAS,lm as LM,F as FIELD,FEATURES,LM_BLOCKS,BRIDGES,wx,wz,CITY as PCITY,YOKOHAMA_A,OSAKA_A} from './plan.js';
 import {buildYokohamaLM,bayBridgeParts,LT_HEIGHT} from './lm_yokohama.js';
 import {SHOP_FOOT,groundTexture as planGround,buildTowers,buildCity,buildShops,treeSpots,loadImg} from './city.js';
 import {PLAN_SLOTS,slotOpen} from './data.js';
@@ -166,7 +166,7 @@ function tochoPlaza(){const g=new THREE.Group();g.add(box(8,.3,8,'#D9D4C7',0,0,0
 if(SKYSCRAPERS&&TOWERS.some(t=>t.landmark==='shinjuku-rathaus'))LM_MAKE['shinjuku-rathaus']=[tochoPlaza,1];
 if(STIL5){LM_MAKE['skytree']=[()=>skytree5(FIELD),60];LM_MAKE['tokyo-tower']=[()=>tokyoTower5(FIELD),33];LM_MAKE['roppongi-hills']=[()=>roppongi5(FIELD),30];LM_MAKE['kaiserpalast']=[()=>palace5(FIELD),6];LM_MAKE['tokyo-station']=[()=>station5(FIELD),7];LM_MAKE['shibuya-crossing']=[()=>shibuya5(FIELD),10];LM_MAKE['gotokuji']=[()=>gotoku5(FIELD),6];LM_MAKE['akamon']=[()=>akamon5(FIELD),7];LM_MAKE['odaiba']=[()=>fujiTV5(FIELD),17];}// V5: Skytree aus dem freigegebenen Musterausschnitt (Runde 10)
 // Yokohama: Wahrzeichen aus Yukis Bauvorlagen (nur ?stadt=yokohama), ersetzen die Torii-Platzhalter
-const YLM=PCITY&&['yokohama','osaka','kyoto','nagoya'].includes(PCITY.id)?await fetch(`grafik/landmarks/${PCITY.id}/bauvorlagen/bauvorlagen.json`,{cache:'no-cache'}).then(r=>r.ok?r.json():null).catch(()=>null):null;// neue Städte gibt es nur mit ?neuestaedte=1 (cities.js)
+const YLM=PCITY&&['yokohama','osaka','kyoto','nagoya'].includes(PCITY.id)?await fetch(OSAKA_A?'osaka/bauvorlagen_osaka.json':`grafik/landmarks/${PCITY.id}/bauvorlagen/bauvorlagen.json`,{cache:'no-cache'}).then(r=>r.ok?r.json():null).catch(()=>null):null;// neue Städte gibt es nur mit ?neuestaedte=1 (cities.js)
 const YSPEC=Object.fromEntries(((YLM&&YLM.wahrzeichen)||[]).map(w=>[w.id,w]));
 for(const w of Object.values(YSPEC)){if(PCITY&&PCITY.id!=='yokohama')w.neu=true;w.teile=w.teile.filter(t=>!/Referenz-Auto/.test(t.name||''));}// rotes Maßstabs-Auto nicht bauen
 for(const w of Object.values(YSPEC))if(w.id!=='bay-bridge')LM_MAKE[w.id]=[()=>buildYokohamaLM(w,FIELD),(w.id==='landmark-tower'?LT_HEIGHT:w.id==='cosmo-clock'?2.7:w.hoehe)*FIELD];
@@ -381,18 +381,19 @@ export function createWorld(container,cb){
   .catch(e=>{console.warn('Kreuzung A nicht geladen:',e);return false;});}
  // Yokohama A (R82–R86, Yuki Runde 3): Bahnhofsplatz, Promenade, Stege, Kap und optische Hochbahn (FEATURES.hochbahn) als eigene Gruppe direkt in der Szene
  // (Welt-Koordinaten, nicht in lmGroup, ohne Versatz). Bildschirm 1 zeigt die Spielerkette live wie bei der Kreuzung. Abbau beim Stadtwechsel (entfernen).
- const YO={Y:null,h:null,s1:null,look:null,t:null,fertig:null};
- if(YOKOHAMA_A){const basis=new URL('../yokohama/',import.meta.url).href,kb=new URL('../kreuzung/',import.meta.url).href,bild=u=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=kb+u;});
+ // Osaka A (R107, Yuki Runde 3) nutzt denselben Weg: osaka/einbau/osaka_bau.js mit osaka/bauvorlage_osaka.json (Dateien nur über assets.json, wie R99).
+ const YO={Y:null,h:null,s1:null,look:null,t:null,fertig:null},STADT_A=YOKOHAMA_A?'yokohama':OSAKA_A?'osaka':null;
+ if(STADT_A){const basis=new URL(`../${STADT_A}/`,import.meta.url).href,kb=new URL('../kreuzung/',import.meta.url).href,bild=u=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=kb+u;});
   const lc=(l,w)=>{if(l&&l.bg)return logoCanvas(l,w);const c=document.createElement('canvas');c.width=c.height=w||256;return c;};
-  YO.fertig=Promise.all([import('../yokohama/einbau/yokohama_bau.js'),import('../kreuzung/einbau/spieler_schirm.js'),fetch(basis+'bauvorlage_yokohama.json').then(r=>r.json()),bild('screens/s1_spielerkette_f2.png'),bild('screens/s1_spielerkette_f3.png')])
+  YO.fertig=Promise.all([STADT_A==='osaka'?import('../osaka/einbau/osaka_bau.js'):import('../yokohama/einbau/yokohama_bau.js'),import('../kreuzung/einbau/spieler_schirm.js'),fetch(basis+`bauvorlage_${STADT_A}.json`).then(r=>r.json()),bild('screens/s1_spielerkette_f2.png'),bild('screens/s1_spielerkette_f3.png')])
   .then(([B,S,vorlage,f2,f3])=>{YO.h=S.spielerSchirmLive(YO.look||KR.look||{name:'',main:'#8A8279',second:'#FFFFFF',logo:null},lc,f2,f3,()=>{if(YO.s1)YO.s1.needsUpdate=true;});
    YO.s1=new THREE.CanvasTexture(YO.h.canvas);YO.s1.colorSpace=THREE.SRGBColorSpace;
    // basis nur für Bilder der Bildschirme (screens/… liegen bei der Kreuzung)
-   const Y=B.baueYokohama(THREE,{basis:kb,vorlage,kamera:camera,schirm1:YO.s1,schatten:true,zeigeAbZoom:1.5,features:FEATURES});
-   Y.gruppe.name='yokohama-a';scene.add(Y.gruppe);YO.Y=Y;renderer.shadowMap.needsUpdate=true;return true;})
-  .catch(e=>{console.warn('Yokohama A nicht geladen:',e);return false;});}
+   const Y=(STADT_A==='osaka'?B.baueOsaka:B.baueYokohama)(THREE,{basis:kb,vorlage,kamera:camera,schirm1:YO.s1,schatten:true,zeigeAbZoom:1.5,features:FEATURES});
+   Y.gruppe.name=STADT_A+'-a';scene.add(Y.gruppe);YO.Y=Y;renderer.shadowMap.needsUpdate=true;return true;})
+  .catch(e=>{console.warn(STADT_A+' A nicht geladen:',e);return false;});}
  function yokohamaEntfernen(){if(!YO.Y)return false;const Y=YO.Y;YO.Y=null;scene.remove(Y.gruppe);Y.entfernen();if(YO.s1)YO.s1.dispose();return true;}
- if(YOKOHAMA_A)addEventListener('pagehide',yokohamaEntfernen);
+ if(STADT_A)addEventListener('pagehide',yokohamaEntfernen);
  const bridges=buildBridges();scene.add(bridges);if(STIL5){{const HB=BRIDGES.filter(b=>b.art==='haengebruecke');scene.add(bridgeRails(PN,pCellAt,wx,wz,FIELD,(x,y)=>HB.some(b=>x>=Math.min(b.von[0],b.bis[0])-1&&x<=Math.max(b.von[0],b.bis[0])+1&&y>=Math.min(b.von[1],b.bis[1])-1&&y<=Math.max(b.von[1],b.bis[1])+1)));}}
  // v3.2: jedes Wahrzeichen auf eigenem Rasenblock mit Bordstein
  {const kg=new THREE.Group();for(const b of LM_BLOCKS){const x0=wx(b.x),x1=wx(b.x+b.breite),z0=wz(b.y),z1=wz(b.y+b.tiefe),k=.35,h=.32,cx=(x0+x1)/2,cz=(z0+z1)/2;
@@ -535,7 +536,7 @@ export function createWorld(container,cb){
   const b=new THREE.Mesh(new THREE.PlaneGeometry(ft.z1-ft.z0-.1,H),mat);b.rotation.y=Math.PI/2;b.position.set(ft.x1+e-sl.x,H/2,cz-sl.z);o.add(b);
   return {cx:cx-sl.x,cz:cz-sl.z,top:roofY(cx,cz,o)};}
  function syncStores(stores,logo,week){if(week)curWeek=week;lifeFor(stores);
-  if((KR_A||YOKOHAMA_A)&&logo&&logo.bg){const k=JSON.stringify(logo);if(k!==KR.lk){KR.lk=k;KR.look=YO.look=chainLook('player',logo,{facade:'brand'});if(KR.h)KR.h.neu(KR.look);if(YO.h)YO.h.neu(YO.look);}}
+  if((KR_A||STADT_A)&&logo&&logo.bg){const k=JSON.stringify(logo);if(k!==KR.lk){KR.lk=k;KR.look=YO.look=chainLook('player',logo,{facade:'brand'});if(KR.h)KR.h.neu(KR.look);if(YO.h)YO.h.neu(YO.look);}}
   occupied=new Set(stores.map(s=>s.d+':'+s.slot));const seen=new Set(),used=new Set();
   for(const s of stores){const sl=SLOTS[s.d]&&SLOTS[s.d][s.slot];if(!sl)continue;used.add(sl.k);paintShop(sl.k,s.chain,logo);
    const key=JSON.stringify([s.chain,s.build>0,s.chain==='player'?logo:0,s.chain==='player'?LG.logoVer:0]);seen.add(s.id);let o=storeObjs.get(s.id);
@@ -625,7 +626,7 @@ export function createWorld(container,cb){
  function resize(){const w=container.clientWidth,h=container.clientHeight;renderer.setSize(w,h);const a=w/h;camera.left=-VH*a/2;camera.right=VH*a/2;camera.top=VH/2;camera.bottom=-VH/2;camera.updateProjectionMatrix();}
  addEventListener('resize',resize);
  document.addEventListener('visibilitychange',()=>{running=!document.hidden;if(running)renderer.setAnimationLoop(loop);else renderer.setAnimationLoop(null);});
- return {yokohama:()=>YO.fertig?YO.fertig.then(ok=>ok&&YO.Y?{gruppe:YO.Y.gruppe,info:YO.Y.info(),zug:!!YO.Y.zug,features:{...FEATURES}}:null):Promise.resolve(null),yokohamaEntfernen,kreuzungA:()=>KR.fertig?KR.fertig.then(ok=>ok&&KR.K?{gruppe:KR.K.gruppe,info:KR.K.info(),zug:!!KR.K.zug}:null):Promise.resolve(null),pinLayer,pinsShown:()=>pinShow.size,storePins:()=>{let p=0,r=0;for(const o of storeObjs.values()){let own=false;o.traverse(c=>{if(c.userData.ownPin)own=true;});if(own)p++;else r++;}return {player:p,rival:r};},// V7: Test-Hook (sichtbare Laden-Pins)
+ return {osaka:()=>YO.fertig?YO.fertig.then(ok=>ok&&YO.Y&&STADT_A==='osaka'?{gruppe:YO.Y.gruppe,info:YO.Y.info(),zug:!!YO.Y.zug,features:{...FEATURES}}:null):Promise.resolve(null),yokohama:()=>YO.fertig?YO.fertig.then(ok=>ok&&YO.Y?{gruppe:YO.Y.gruppe,info:YO.Y.info(),zug:!!YO.Y.zug,features:{...FEATURES}}:null):Promise.resolve(null),yokohamaEntfernen,kreuzungA:()=>KR.fertig?KR.fertig.then(ok=>ok&&KR.K?{gruppe:KR.K.gruppe,info:KR.K.info(),zug:!!KR.K.zug}:null):Promise.resolve(null),pinLayer,pinsShown:()=>pinShow.size,storePins:()=>{let p=0,r=0;for(const o of storeObjs.values()){let own=false;o.traverse(c=>{if(c.userData.ownPin)own=true;});if(own)p++;else r++;}return {player:p,rival:r};},// V7: Test-Hook (sichtbare Laden-Pins)
  life:()=>({n:pBody.count,vis:pBody.visible||pSpr.some(s=>s.visible),yuki:YUKI_PPL,L:life.slice(0,2)}),bridges,CAM,clampT,lmGroup,roadCoverage:()=>ground.material.map.userData.roadCoverage,scene,tierOfSlot:(d,i)=>tierOf(d,i),syncStores,flyTo,select,setSeason,slotPos:(d,i)=>SLOTS[d][i],renderer,camera,controls,towers,stats:()=>({roofs:city.mesh.userData.roofs,stil:STIL5?5:4,buildings:bl.length,towerLots:TOWERS.filter(t=>t.lot!=null).length,towers:towers.children.filter(o=>!o.userData.roof).length,shops:SHOPS.length,landmarks:LANDMARKS.length,trees:trees.length,calls:renderer.info.render.calls,tris:renderer.info.render.triangles})};
 }
 
