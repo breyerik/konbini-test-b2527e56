@@ -109,7 +109,9 @@ const _sky=SKYSCRAPERS&&PLAN_VERSION>=6?Object.fromEntries(await Promise.all(Obj
 export const SKY_LAYOUT=DOKOMO_ALT&&_sky.alt?'alt':'standard';
 export const SKY=CITY.id==='tokio'?(_sky[SKY_LAYOUT]||null):null;// Tokios Wolkenkratzer-Liste gilt nur für Tokio (andere Städte: Türme aus dem eigenen Plan, später)
 // alle bekannten Umzüge beider Platzierungen (für Spielstände, die mit der anderen Platzierung gespeichert wurden)
-export const ALL_MOVES=Object.values(_sky).filter(Boolean).flatMap(j=>(j.laden_umzuege||[]).map(u=>[u.von,u.nach]));
+// Whitebeard Nachprüfung Yokohama R3, H1 (R98): auch Yokohamas Ladenumzug aus Lage A ({94:106}) – ein alter Spielstand mit Laden auf Grundstück 94
+// landet so über die Grundstücks-ID auf 106 und hängt nicht mehr an der Slot-Reihenfolge im Viertel (nur wenn der Diff angewendet ist, nur in Yokohama).
+export const ALL_MOVES=[...Object.values(_sky).filter(Boolean).flatMap(j=>(j.laden_umzuege||[]).map(u=>[u.von,u.nach])),...(YOKOHAMA_A?_yoA.laden_umzuege.map(u=>[u.von,u.nach]):[])];
 // Läden vor dem Umzug (für die Spielstand-Migration alter Slots)
 export const SHOPS_BASE=PLAN.grundstuecke.filter(l=>l.laden).map((l,k)=>mkShop({...l},k));
 export const SHOP_MOVES={};// alte Grundstücks-ID -> neue

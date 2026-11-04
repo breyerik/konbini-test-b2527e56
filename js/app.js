@@ -109,7 +109,7 @@ function tut(id,force,vars,extra){
  const fig=({'kobo':'kobo','kobo-besorgt':'kobo-besorgt','kobo-jubelnd':'kobo-jubelnd'})[T.figur]||'kobo';
  let txt=T.text.replace(/\d+ Millionen Yen/,(D.START_CASH/1e6)+' Millionen Yen');for(const k in vars||{})txt=txt.split('{'+k+'}').join(vars[k]);txt+=(TUT_ZUSATZ[id]||'')+(extra||'');if(id==='start')zeigeOma();
  $('#tutor').innerHTML=`<div class="tbub"><div class="tx">${esc(txt)}<div class="tbtn"><button data-act="tutnext" class="ok">${TUT_NEXT[id]?'Weiter':'Verstanden'}</button><button data-act="tutoff">Tutorial ausblenden</button></div></div><img src="grafik/maskottchen/${fig}.svg" alt="Kobo" width="74" height="86"></div>`;
- $('#tutor').classList.add('show');
+ $('#tutor').classList.toggle('unten',id==='start'&&!!ui.tutUnten);$('#tutor').classList.add('show');
 }
 function tutHide(){const e=$('#tutor');e.classList.remove('show');setTimeout(()=>{if(!e.classList.contains('show'))e.innerHTML='';},300);}
 
@@ -442,7 +442,19 @@ function kreditKnopf(){if(!FZ.ON)return '';const k=FZ.startKreditStatus(st());if
  return `<button class="btn primary full" data-act="fz" data-v="startkredit" data-nach="bau" id="startKreditBau" style="margin-top:10px">🏦 Startkredit aufnehmen (${kreditBetrag(k.betrag)})</button>`;}
 function geldTutor(fehlt){const k=kreditInfo();return ` Dir fehlen gerade ${fmtY(fehlt)}. Das ist normal: Spar zuerst mit Omas Laden.${k?' '+k.text:''}`;}
 // #13: Omas Laden auf der Karte zeigen (Ring + Kamera)
-function zeigeOma(){const o=S.mine().find(x=>x.oma)||S.mine()[0];if(!o||!W||!W.slotPos)return;const p=W.slotPos(o.d,o.slot);if(!p)return;W.select(p.x,p.z);W.flyTo(p.x,p.z,72);ui.omaSel=true;}
+// R39/R100 (A7): Ursache des roten R39 seit 9b372e6 (Gganbu R1 #13) – zeigeOma flog beim Start mit Zoom 120/72 ≈ 1,67 (statt Eriks Vorlagen-Zoom
+// CAM.zoom0 0,88) mitten auf Omas Laden; damit lag der Blick im Landesinneren, im Bild waren kein Wasser und kaum Ufergrün mehr (#647E93 = Glastürme).
+// Jetzt: Ring auf Omas Laden, Vorlagen-Zoom bleibt, und die Kamera rückt von der Vorlagen-Ansicht nur so weit Richtung Laden, bis er sicher
+// sichtbar ist (nicht unter HUD/Leiste). Orthografische Kamera → Bildposition ändert sich linear mit dem Ziel, daher reicht ein Anteil k.
+const BLICK={x:.75,yo:.74,yu:-.5};// Bildkoordinaten (−1…1), in denen Omas Laden liegen soll: yo knapp unter HUD und Jahreszeit-Chip, yu über der Leiste// yo: unter HUD (Unterkante ≈ 0,83) mit Platz für den Pin über dem Laden
+const proj=(x,y,z)=>W.camera.position.clone().set(x,y,z).project(W.camera);
+function zeigeOma(){const o=S.mine().find(x=>x.oma)||S.mine()[0];if(!o||!W||!W.slotPos)return;const p=W.slotPos(o.d,o.slot);if(!p)return;W.select(p.x,p.z);
+ const t=W.controls.target,v=proj(p.x,4,p.z),g=proj(p.x,0,p.z),m=proj(t.x,0,t.z),z={x:v.x-g.x+m.x,y:v.y-g.y+m.y};// z: Bildposition, wenn die Kamera ganz auf dem Laden stünde
+ const anteil=(a,b,lo,hi)=>a>hi?(a-hi)/(a-b):a<lo?(lo-a)/(b-a):0;
+ const k=Math.max(anteil(v.x,z.x,-BLICK.x,BLICK.x),anteil(v.y,z.y,BLICK.yu,BLICK.yo));
+ const kk=k>0?Math.min(1,k+.05):0;if(kk)W.flyTo(t.x+(p.x-t.x)*kk,t.z+(p.z-t.z)*kk,120/W.CAM.zoom0);
+ ui.tutUnten=(1-(v.y+(z.y-v.y)*kk))/2<.5;// R100: liegt Omas Laden danach in der oberen Bildhälfte, steht Kobos Start-Hinweis unten (sonst verdeckt die Blase den Laden)
+ ui.omaSel=true;}
 function cheapestStore(){let m=Infinity;for(const d of D.DISTRICTS)for(const i of S.freeSlots(d.id))m=Math.min(m,S.openCost(d.id,i,D.defaultBuild()));return m;}
 /* ---------- Story (Ito: texte.json → story) ---------- */
 function storyCard(i){
