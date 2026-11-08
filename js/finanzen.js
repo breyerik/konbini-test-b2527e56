@@ -1,3 +1,4 @@
+import {locale,language,protectNames} from './i18n.js';
 // Finanzmenü V7 (Franky nach Yukis Mockups screens/finanzmenue/a–j und Bobs Konzept V2): Filialen · Börse (+Kredite) · Produkte (+Messe) · Konkurrenz (+IPO)
 // Standard an (Erik 21.10. 18:53), ?finanzen=0 schaltet es ab (dann altes Finanzen-Panel).
 import {FIRMEN} from './finanzen_data.js';
@@ -15,12 +16,14 @@ import {NEUESTAEDTE} from './cities.js';
 const V={praemie:UE.PRAEMIE.standard,wochen:UE.LAUFZEIT.standard,div:PV.CFG.DIVIDENDE.standard,ein:PV.CFG.EINLAGE.start,einArt:PV.CFG.EINLAGE.standard,tab:'filialen',view:null,id:null,laufzeit:12,exkl:false,jahre:2,gebot:0,streu:25,kaufen:null};
 let DIV={};// daten/DIVIDENDEN.json (Bob): Rendite %, Stichtag-Monate
 const MON={Jan:0,Feb:1,'Mär':2,Apr:3,Mai:4,Jun:5,Jul:6,Aug:7,Sep:8,Okt:9,Nov:10,Dez:11};
+protectNames(FIRMEN.map(f=>f.name));
+protectNames(C.MESSE.marken.map(m=>m.name));
 const FM=Object.fromEntries(FIRMEN.map(f=>[f.id,f]));
 const MM=Object.fromEntries(C.MESSE.marken.map(m=>[m.id,m]));
 /* ---------- Format ---------- */
-const de=(n,d)=>n.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
-export function fY(n,plus){const s=n<0?'−':plus?'+':'';n=Math.abs(n);if(n>=1e12)return s+'¥'+de(n/1e12,n>=1e13?1:2).replace(/,?0+$/,'')+' Bio';if(n>=1e9)return s+'¥'+de(n/1e9,n>=1e10?1:2)+' Mrd';if(n>=1e6)return s+'¥'+de(n/1e6,n>=1e7?1:2)+' Mio';return s+'¥'+de(Math.round(n),0);}
-const fK=k=>'¥'+de(k,1),pc=x=>(x>0&&x<.001?de(x*100,4):de(x*100,x<.1?1:0).replace(/,0$/,''))+' %';
+const de=(n,d)=>n.toLocaleString(locale(),{minimumFractionDigits:d,maximumFractionDigits:d});
+export function fY(n,plus){const s=n<0?'−':plus?'+':'';n=Math.abs(n);if(n>=1e12)return s+'¥'+de(n/1e12,n>=1e13?1:2).replace(/[.,]?0+$/,'')+(language==='en'?'T':' Bio');if(n>=1e9)return s+'¥'+de(n/1e9,n>=1e10?1:2)+(language==='en'?'bn':' Mrd');if(n>=1e6)return s+'¥'+de(n/1e6,n>=1e7?1:2)+(language==='en'?'M':' Mio');return s+'¥'+de(Math.round(n),0);}
+const fK=k=>'¥'+de(k,1),pc=x=>(x>0&&x<.001?de(x*100,4):de(x*100,x<.1?1:0).replace(/[.,]0$/,''))+' %';
 const cls=n=>n>=0?'p':'n';
 /* ---------- Zustand ---------- */
 function rnd(seed){let x=seed>>>0||1;return()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return((x>>>0)%1e6)/1e6};}

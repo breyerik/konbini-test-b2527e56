@@ -1,0 +1,501 @@
+{
+  "_info": "English game copy. Companion to texte.json; runtime only, never commit to the source repository.",
+  "tutorial": [
+    {
+      "id": "start",
+      "figur": "kobo",
+      "text": "This is your store now. Before we expand, let’s spruce up Grandma’s konbini: products, a manager and services."
+    },
+    {
+      "id": "sortiment",
+      "figur": "kobo",
+      "text": "Onigiri, Bentō and drinks are our bread and butter. Watch your margins, but don’t push prices too high or customers will head to our rivals."
+    },
+    {
+      "id": "personal",
+      "figur": "kobo",
+      "text": "Every store needs a manager to look after the team and daily business. Good people skills keep customers happy; marketing skills bring more shoppers in."
+    },
+    {
+      "id": "services",
+      "figur": "kobo",
+      "text": "Shironeko Express parcel services, an ATM or ticket sales earn commission and bring in people who often grab a coffee too."
+    },
+    {
+      "id": "marketing",
+      "figur": "kobo",
+      "text": "Book campaigns in the marketing tab, from neighbourhood flyers to city billboards. Start small and see what works."
+    },
+    {
+      "id": "buuhuu",
+      "figur": "kobo",
+      "text": "These are your BuuHuu ratings. More ghosts mean more customers. Cleanliness, choice, wait times and prices all count."
+    },
+    {
+      "id": "eroeffnung",
+      "figur": "kobo-jubelnd",
+      "text": "The first customers are coming back to Grandma's Store! From now on, you’ll get weekly results and the latest Konbini Shimbun."
+    },
+    {
+      "id": "verlust",
+      "figur": "kobo-besorgt",
+      "text": "Oh dear, we lost money this week. That’s normal at first. Check your manager, prices and products — we’ll get there!"
+    },
+    {
+      "id": "zweiter_laden",
+      "figur": "kobo-jubelnd",
+      "text": "We have enough cash for a second store! Grandma’s little konbini is becoming a real chain."
+    },
+    {
+      "id": "karte",
+      "figur": "kobo",
+      "text": "Grandma's Store is up and running! Time for a second branch. See those “To let” pins on the map? Tap one to take a look. Hurry, though — our rivals won’t wait!"
+    },
+    {
+      "id": "miete",
+      "figur": "kobo",
+      "text": "Here’s the weekly rent, deposit and foot traffic for your second store. More passers-by mean more customers, but higher rent too."
+    },
+    {
+      "id": "bauen",
+      "figur": "kobo",
+      "text": "Let’s fit out the second store: facade, interior and equipment. A chilled display and coffee machine are required. An oden pot shines in winter. You’ll see the full cost at the end."
+    },
+    {
+      "id": "bauphase",
+      "figur": "kobo",
+      "text": "The builders are getting started! Your second store opens in a few weeks. Meanwhile, Grandma's Store keeps earning cash."
+    },
+    {
+      "id": "ende",
+      "figur": "kobo",
+      "text": "That’s all from me for now. I’m always here if you need me. Gambatte!"
+    }
+  ],
+  "buuhuu_stimmen": {
+    "5": [
+      "Onigiri still on the shelf at 3 a.m. — 5 ghosts!",
+      "Faster than any other konbini, and so friendly!",
+      "The best oden on the whole street.",
+      "Clean, bright and always stocked. My go-to konbini!"
+    ],
+    "4": [
+      "Great store, though the coffee could be cheaper.",
+      "Good choice, a bit busy in the evenings.",
+      "Picked up a parcel and grabbed a Bentō. Handy!"
+    ],
+    "3": [
+      "Pretty okay, nothing special.",
+      "The range is fine, but where are the seasonal goods?",
+      "Friendly staff, but a long checkout queue."
+    ],
+    "2": [
+      "The checkout took forever. Only 2 ghosts.",
+      "The sandwiches were nearly past their date.",
+      "Too expensive for what you get."
+    ],
+    "1": [
+      "Empty shelves and nobody at the checkout. Booo!",
+      "The floor was sticky. Not coming back.",
+      "My favourite onigiri was sold out. Spooky, and not in a good way."
+    ]
+  },
+  "shimbun": {
+    "titel": "Konbini Shimbun",
+    "eigene": [
+      "{kette} opens its first store in {stadtteil}",
+      "{kette} keeps growing: store no. {anzahl} opens",
+      "BuuHuu ranking: {kette} in {stadtteil} earns {geister} ghosts",
+      "Record week for {kette}: revenue at an all-time high",
+      "Customers love {kette}’s seasonal promotion"
+    ],
+    "konkurrenz": [
+      "{rivale} opens a new store in {stadtteil}",
+      "{rivale} launches a discount week on all Bentō",
+      "{rivale} wins customers with fried chicken",
+      "{rivale} faces night-shift staff shortages",
+      "Price war: {rivale} cuts coffee prices",
+      "New chain from Poland: Żabu opens its first staff-free store",
+      "Żabu Nano: no checkout, no staff — {stadt} is amazed"
+    ],
+    "saison": {
+      "fruehling": [
+        "Hanami season: Bentō sales double near parks",
+        "Sakura lemonade is the hit of spring"
+      ],
+      "golden_week": [
+        "Golden Week: {stadt} takes time off and tourist-district stores boom"
+      ],
+      "sommer": [
+        "Heatwave: ice cream and cold drinks sell out",
+        "Obon: city dwellers head to the countryside"
+      ],
+      "herbst": [
+        "Autumn is oden time: the pots are heating up again",
+        "Chestnut desserts take over chilled shelves"
+      ],
+      "winter": [
+        "Christmas cake pre-orders: konbini report record demand",
+        "New Year: lucky bags draw long queues"
+      ]
+    },
+    "wirtschaft": [
+      "Minimum wage rises in {stadt}",
+      "Shironeko Express reports record parcel volumes",
+      "Asakusa tourist numbers hit a new high",
+      "Electricity prices rise, making chilled displays costlier to run"
+    ]
+  },
+  "buuhuu_stimmen_services": {
+    "_info": "Stimmen, die nur erscheinen, wenn der Laden den Service hat (positiv) oder er fehlt bzw. schlecht läuft (negativ).",
+    "paket": {
+      "positiv": [
+        "Dropped off a Shironeko Express parcel and grabbed an onigiri. Brilliant!",
+        "Pickup took 30 seconds. So convenient."
+      ],
+      "negativ": [
+        "No parcel service? I’ll go somewhere else, then.",
+        "They couldn’t find my parcel. Booo!"
+      ]
+    },
+    "geldautomat": {
+      "positiv": [
+        "Finally, an ATM that works at night too.",
+        "Cash and coffee in one stop. Perfect."
+      ],
+      "negativ": [
+        "No ATM, and I didn’t have any cash.",
+        "The ATM was empty again."
+      ]
+    },
+    "kaffeemaschine": {
+      "positiv": [
+        "Freshly ground coffee for pocket change. Better than a café!",
+        "The iced latte is my morning ritual."
+      ],
+      "negativ": [
+        "The coffee machine was broken. Not a good start to the day.",
+        "Long queue at the coffee machine."
+      ]
+    },
+    "smoothie": {
+      "positiv": [
+        "The machine smoothie is really fresh. My new favourite breakfast.",
+        "Mango smoothie at a konbini? Genius!"
+      ],
+      "negativ": [
+        "The smoothie machine was out of order again.",
+        "No cups left for smoothies."
+      ]
+    },
+    "warme_getraenke": {
+      "positiv": [
+        "Warm bottled green tea in winter. Wonderful!",
+        "The hot tea and canned coffee warmer saves my commute."
+      ],
+      "negativ": [
+        "No hot drinks in winter? Seriously?",
+        "The bottled tea was barely warm."
+      ]
+    },
+    "selbstkasse": {
+      "positiv": [
+        "Self-checkout: in, out, done!",
+        "No queue, thanks to self-checkout."
+      ],
+      "negativ": [
+        "The self-checkout failed to recognise my Bentō three times.",
+        "Only one checkout open, no self-checkout. Waited far too long."
+      ]
+    },
+    "oden_nikuman": {
+      "positiv": [
+        "A nikuman from the steamer on a cold evening. What more could you want?"
+      ],
+      "negativ": [
+        "The oden pot was empty. Such a shame."
+      ]
+    }
+  },
+  "story": [
+    {
+      "id": "story1",
+      "figur": "kobo",
+      "text": "Irasshaimase! I’m Kobo. This little store in {startviertel} belonged to your grandma. For decades, she served onigiri, warm tea and a kind word for everyone."
+    },
+    {
+      "id": "story2",
+      "figur": "kobo",
+      "text": "Now it’s yours. Grandma also left you 5 million yen. It’s not much, but it’s enough for a good start."
+    },
+    {
+      "id": "story3",
+      "figur": "kobo-besorgt",
+      "text": "Watch out: other young companies are opening their first stores in {stadt} too. Every free spot they take is one you can’t have."
+    },
+    {
+      "id": "story4",
+      "figur": "kobo",
+      "text": "There are currently 20 free stores in the city. A few more appear each year, but fewer over time. First come, first served!"
+    },
+    {
+      "id": "story5",
+      "figur": "kobo-jubelnd",
+      "text": "Let’s turn Grandma's Store into the biggest konbini chain in {stadt}! I’m by your side. Gambatte!"
+    }
+  ],
+  "hinweise": [
+    {
+      "id": "warnung_kasse",
+      "figur": "kobo-besorgt",
+      "text": "Oh no, your cash has been shrinking for 4 weeks! Check your products, prices and manager. A promotion might help too."
+    },
+    {
+      "id": "warnung_minus",
+      "figur": "kobo-besorgt",
+      "text": "Careful, your balance is negative! Stay in the red for 4 weeks and it’s game over. Cut costs or lower prices to attract shoppers. {wochen} weeks left!"
+    },
+    {
+      "id": "spiel_verloren",
+      "figur": "kobo-besorgt",
+      "text": "Your balance stayed negative for 4 weeks, so the chain has to close. Chin up: Grandma started small too. Give it another go!"
+    },
+    {
+      "id": "rettung_preise",
+      "figur": "kobo-besorgt",
+      "text": "Your prices are too high and customers are staying away. Lower them a little and people will come back!"
+    },
+    {
+      "id": "rettung_sortiment",
+      "figur": "kobo-besorgt",
+      "text": "Oden, Bentō and seasonal goods have good margins. Add them to your range!"
+    },
+    {
+      "id": "rettung_lager",
+      "figur": "kobo-besorgt",
+      "text": "Cash is tight. Cancel services and contracts that aren’t worth it. There’s a one-off ¥50,000 fee, but you’ll save every week. A bank loan can help if things stay tight."
+    },
+    {
+      "id": "rettung_kampagnen",
+      "figur": "kobo-besorgt",
+      "text": "Stop expensive campaigns until your balance is positive again."
+    },
+    {
+      "id": "rettung_reserve",
+      "figur": "kobo-besorgt",
+      "text": "Wait until you have a cash buffer before building again. One store too many can cost you the whole chain."
+    },
+    {
+      "id": "rettung_gerettet",
+      "figur": "kobo-jubelnd",
+      "text": "Phew, we made it! Cash is positive again. Grandma would be proud!"
+    }
+  ],
+  "startbildschirm": {
+    "titel": "Tanuki Tycoon",
+    "untertitel": "From Grandma's Store to a mighty chain",
+    "neues_spiel": "Start new game",
+    "laden": "Load game",
+    "weiter": "Continue",
+    "kein_spielstand": "No saved game yet.",
+    "spielstand_karte": "{datum} · Cash {kasse} ¥ · {laeden} stores",
+    "ueberschreiben": "A new game replaces this save. Really start again?",
+    "gespeichert": "Game saved ✓",
+    "slot_verloren": "💀 Lost · {datum} · Start a new game?",
+    "name_eingabe": "What’s your name? You’ll run Grandma's Store under this name."
+  },
+  "events": [
+    {
+      "id": "ev_taifun",
+      "figur": "kobo-besorgt",
+      "text": "A typhoon is approaching! What will you do?",
+      "option_a": "Stock up on water and instant ramen",
+      "option_b": "Close early and keep staff safe"
+    },
+    {
+      "id": "ev_influencer",
+      "figur": "kobo",
+      "text": "A popular influencer wants to film in your store.",
+      "option_a": "Welcome her with a discount for fans",
+      "option_b": "No thanks, too much fuss"
+    },
+    {
+      "id": "ev_konkurrenz_nebenan",
+      "figur": "kobo-besorgt",
+      "text": "{rivale} is opening right across from {laden}!",
+      "option_a": "Cut prices briefly and fight back",
+      "option_b": "Stay calm and focus on regulars"
+    },
+    {
+      "id": "ev_lieferant_preis",
+      "figur": "kobo-besorgt",
+      "text": "Your onigiri supplier wants more money.",
+      "option_a": "Find a cheaper supplier",
+      "option_b": "Pay up and keep the quality"
+    },
+    {
+      "id": "ev_hitzewelle",
+      "figur": "kobo",
+      "text": "Heatwave in {stadt}! Everyone wants something cold.",
+      "option_a": "Order extra ice cream and cold drinks",
+      "option_b": "Carry on as usual"
+    },
+    {
+      "id": "ev_matsuri",
+      "figur": "kobo-jubelnd",
+      "text": "A matsuri is taking place in {stadtteil}!",
+      "option_a": "Set up a stall outside",
+      "option_b": "Just boost the product range"
+    },
+    {
+      "id": "ev_filialleitung_urlaub",
+      "figur": "kobo",
+      "text": "The manager of {laden} wants a week off.",
+      "option_a": "Give them a break — happy staff matter",
+      "option_b": "Ask them to go later"
+    },
+    {
+      "id": "ev_kunde_beschwerde",
+      "figur": "kobo-besorgt",
+      "text": "A customer loudly complains about old Bentō.",
+      "option_a": "Apologise and offer a voucher",
+      "option_b": "Check the stock and leave it there"
+    },
+    {
+      "id": "ev_tv_bericht",
+      "figur": "kobo-jubelnd",
+      "text": "A TV station wants to cover konbini stores.",
+      "option_a": "Join in and spruce up the store",
+      "option_b": "Decline and work in peace"
+    },
+    {
+      "id": "ev_anime_kollab",
+      "figur": "kobo",
+      "text": "An anime studio offers a collectible sticker campaign.",
+      "option_a": "Say yes — the fans will come",
+      "option_b": "Too expensive, decline"
+    },
+    {
+      "id": "ev_kasse_defekt",
+      "figur": "kobo-besorgt",
+      "text": "The self-checkout at {laden} is broken.",
+      "option_a": "Have it repaired right away",
+      "option_b": "Use the spare till until the technician comes"
+    },
+    {
+      "id": "ev_schulausflug",
+      "figur": "kobo",
+      "text": "A school class stops by after a trip.",
+      "option_a": "Move sweets to the front",
+      "option_b": "Change nothing"
+    },
+    {
+      "id": "ev_regen",
+      "figur": "kobo",
+      "text": "A full week of rain is forecast.",
+      "option_a": "Add umbrellas to the range",
+      "option_b": "No need"
+    },
+    {
+      "id": "ev_nachbar_laerm",
+      "figur": "kobo-besorgt",
+      "text": "Neighbours complain about delivery van noise.",
+      "option_a": "Change delivery times",
+      "option_b": "Apologise with a box of mochi"
+    },
+    {
+      "id": "ev_bauarbeiten",
+      "figur": "kobo-besorgt",
+      "text": "The road outside {laden} is being dug up.",
+      "option_a": "Put up signs pointing to the store",
+      "option_b": "Wait for it to finish"
+    },
+    {
+      "id": "ev_paket_ansturm",
+      "figur": "kobo",
+      "text": "Everyone is bringing parcels to Shironeko Express before the holidays.",
+      "option_a": "Extra help at the parcel counter",
+      "option_b": "Carry on and accept longer waits"
+    },
+    {
+      "id": "ev_buuhuu_kritik",
+      "figur": "kobo-besorgt",
+      "text": "A ghost gave {laden} a bad BuuHuu review.",
+      "option_a": "Reply kindly and improve",
+      "option_b": "Ignore it"
+    },
+    {
+      "id": "ev_neues_produkt",
+      "figur": "kobo",
+      "text": "A manufacturer offers an exclusive new melon bread.",
+      "option_a": "Try it — it could be a hit",
+      "option_b": "Stick with what works"
+    },
+    {
+      "id": "ev_filialleitung_abwerbung",
+      "figur": "kobo-besorgt",
+      "text": "{rivale} wants to poach your manager from {laden}.",
+      "option_a": "Offer a higher salary",
+      "option_b": "Let them go and hire a replacement"
+    },
+    {
+      "id": "ev_jubilaeum",
+      "figur": "kobo-jubelnd",
+      "text": "Grandma's Store turns one under your leadership!",
+      "option_a": "Run an anniversary discount",
+      "option_b": "Celebrate quietly and bring Grandma flowers"
+    }
+  ],
+  "uebernahme": {
+    "warnung_fremdbesitz": "Kobo: Watch out! {rivale} already owns {anteil}% of our shares. Keep an eye on it.",
+    "eilmeldung_uebernahme_droht": "🚨 Breaking news: takeover threat! {rivale} already holds {anteil}% of {kette}.",
+    "angebot_eingang": "{rivale} offers {betrag} for all shares — {aufschlag}% above the market price.",
+    "angebot_abgelehnt": "Kobo: Phew! We hold the majority and rejected {rivale}’s offer.",
+    "uebernahme_erfolgt": "💀 {rivale} has taken over your empire. The shareholders sold out.",
+    "ipo_warnung": "Careful: selling 50% or more lets rivals take you over. Selling your own shares later can also take you below 51%.",
+    "ipo_streubesitz_rot": "More cash, but vulnerable to takeover",
+    "ipo_dividende": "After going public, you choose how much dividend to pay shareholders. Your share goes into your personal wealth."
+  },
+  "vermoegen": {
+    "titel": "My wealth",
+    "dividende_erhalten": "💴 {betrag} in dividends added to your personal wealth.",
+    "einlage_frage": "Company cash is tight. Would you like to invest {betrag} from your personal wealth?",
+    "einlage_erfolgt": "Kobo: Thanks, {name}! {betrag} from your personal wealth is now in the company’s cash.",
+    "einlage_darlehen": "As a loan: the company pays you 2% annual interest and repays you before any dividends.",
+    "einlage_eigenkapital": "As equity: the money stays in the company. After the IPO, you receive new shares at the current price.",
+    "gehalt_erhalten": "💼 {betrag} in management salary added to your personal account.",
+    "dividende_steuer_hinweis": "20% tax is deducted from your dividend."
+  },
+  "mitemite": {
+    "post_neuer_laden": "New in {stadtteil}: {laden} is open! Come say hello!",
+    "post_aktion": "This week at {laden}: our latest promotion. Don’t miss it!",
+    "post_neues_produkt": "New on the shelf: {produkt}. Tried it yet?",
+    "post_award": "{laden} earned {geister} BuuHuu ghosts. Thank you all!",
+    "post_messe_deal": "Fair deal: {produkt} is exclusive to {laden} until 30 April.",
+    "rivale_eroeffnung": "{rivale} opens in {stadtteil}. The competition is getting closer!",
+    "rivale_boersengang": "{rivale} is now on the stock exchange.",
+    "rivale_uebernahme": "{rivale} has taken over another chain.",
+    "kommentare_positiv": [
+      "Finally, a konbini around the corner!",
+      "The best onigiri in {stadtteil}.",
+      "Super friendly people at the checkout.",
+      "Hot food at 3 a.m. Thanks!",
+      "My new favourite store"
+    ],
+    "kommentare_neutral": [
+      "Pretty okay, but a bit pricey.",
+      "Let’s see if they can keep it up.",
+      "Is there parking here too?"
+    ],
+    "kommentare_negativ": [
+      "Sold out again…",
+      "The checkout queue was far too long.",
+      "It’s cheaper at {rivale}."
+    ],
+    "kommentare_rivale": [
+      "Another konbini? Let’s see who wins.",
+      "I’m sticking with {laden}!",
+      "Oh, {rivale} is here now too."
+    ]
+  }
+}

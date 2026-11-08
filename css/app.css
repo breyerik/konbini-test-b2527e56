@@ -364,3 +364,11 @@ body.sheet #tutor *,body.panel #tutor *,body.fzopen #tutor *,body.bfopen #tutor 
 .achip li span{display:block;font-size:12.5px}.achip li small{display:block;color:var(--mut);font-weight:600;font-size:11px}
 .auftrrow.nein .grow{opacity:.8}.gkline{margin:6px 0}
 #gewinnkurve .kannibin{border-top:1px solid rgba(0,0,0,.06);margin-top:4px}
+
+/* R117: start-screen picker, plus an inline picker in the main menu. */
+#languagePicker{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);right:8px;z-index:150}
+#intro:not(.show) ~ #languagePicker{display:none}
+.languagePicker{display:inline-flex;gap:3px;padding:3px;border:1px solid #D8D2C4;border-radius:18px;background:#FFF8EE;box-shadow:0 2px 8px #2B2D4226;font:800 12px Nunito,system-ui}
+.languagePicker button{border:0;border-radius:14px;padding:5px 10px;min-height:44px;background:transparent;color:#5B4B8A;font:inherit;cursor:pointer}
+.languagePicker button[aria-pressed="true"]{background:#5B4B8A;color:#fff}
+.languagePicker button:focus-visible{outline:3px solid #F28C38;outline-offset:2px}

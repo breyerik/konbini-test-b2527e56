@@ -1,3 +1,4 @@
+import {html as i18nHTML,t as i18nText} from './i18n.js';
 // Konbini Empire V4 – Yukis Bildschirme (grafik/screens/*.svg, von Erik freigegeben) als Inline-SVG
 // Platzhalter (data-placeholder) werden per DOM gefüllt; foreignObject-Fließtext wird durch eigene HTML-Overlays ersetzt
 // (auch für Renderer ohne foreignObject). Klickflächen sind transparente HTML-Knöpfe über den gezeichneten Knöpfen.
@@ -15,7 +16,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 let uid=0;
 export function doc(name){const d=new DOMParser().parseFromString(RAW[name],'image/svg+xml');return d.documentElement;}
 export function vb(root){const v=(root.getAttribute('viewBox')||'0 0 100 100').split(/\s+/).map(Number);return {w:v[2],h:v[3]};}
-export function fill(root,vals){for(const el of root.querySelectorAll('[data-placeholder]')){const k=el.getAttribute('data-placeholder');if(vals[k]==null||el.closest('foreignObject'))continue;el.textContent=String(vals[k]);}return root;}
+export function fill(root,vals){for(const el of root.querySelectorAll('[data-placeholder]')){const k=el.getAttribute('data-placeholder');if(vals[k]==null||el.closest('foreignObject'))continue;el.textContent=i18nText(String(vals[k]));}return root;}
 // foreignObject entfernen, Position + Platzhalter + Stil für HTML-Overlay merken
 export function takeFO(root){const out=[];for(const fo of [...root.querySelectorAll('foreignObject')]){const div=fo.firstElementChild;
  out.push({x:+fo.getAttribute('x'),y:+fo.getAttribute('y'),w:+fo.getAttribute('width'),h:+fo.getAttribute('height'),ph:div&&div.getAttribute('data-placeholder'),style:div?div.getAttribute('style')||'':''});fo.remove();}return out;}
@@ -35,17 +36,17 @@ export function screen({name,vals={},texts={},mutate,buttons=[],cls='',extra=''}
 export function cardSvg(kind,x,y,{slot,name,datum,spielwoche,kasse,laeden,neg,verlorenText,verlorenAlt,lostText}={}){
  const root=doc(kind==='leer'?'spielstand-karte-leer':kind==='verloren'?'spielstand-karte-verloren':'spielstand-karte');
  fill(root,{datum,spielwoche,kasse,laeden});
- const first=root.querySelector('text');if(first)first.textContent='Slot '+slot+(name?' · '+name:'');
- if(kind==='leer'){const t=root.querySelectorAll('text')[1];if(t&&verlorenAlt)t.textContent=verlorenAlt;}
+ const first=root.querySelector('text');if(first)first.textContent=i18nText('Slot '+slot+(name?' · '+name:''));
+ if(kind==='leer'){const t=root.querySelectorAll('text')[1];if(t&&verlorenAlt)t.textContent=i18nText(verlorenAlt);}
  if(kind==='normal'&&lostText){// verlorener Slot auf der normalen Karte: ausgegraut + Itos Text
   const r=root.querySelector('rect');if(r){r.setAttribute('fill','#E9E7E3');r.setAttribute('stroke','#9A9DAA');}
   for(const tx of root.querySelectorAll('text'))tx.setAttribute('fill','#9A9DAA');
   for(const k of ['spielwoche','kasse','laeden']){const e=root.querySelector(`[data-placeholder="${k}"]`);if(e)e.setAttribute('font-size','36');}
   for(const e of root.querySelectorAll('text'))if(+e.getAttribute('y')===186)e.setAttribute('y','176');else if(+e.getAttribute('y')===140)e.setAttribute('y','128');
-  const ns='http://www.w3.org/2000/svg',l=root.ownerDocument.createElementNS(ns,'text');l.setAttribute('x','40');l.setAttribute('y','234');l.setAttribute('font-size','30');l.setAttribute('font-weight','700');l.setAttribute('fill','#2B2D42');l.setAttribute('font-family','Fredoka, Nunito, sans-serif');l.textContent=lostText;root.appendChild(l);}
+  const ns='http://www.w3.org/2000/svg',l=root.ownerDocument.createElementNS(ns,'text');l.setAttribute('x','40');l.setAttribute('y','234');l.setAttribute('font-size','30');l.setAttribute('font-weight','700');l.setAttribute('fill','#2B2D42');l.setAttribute('font-family','Fredoka, Nunito, sans-serif');l.textContent=i18nText(lostText);root.appendChild(l);}
  else if(kind==='normal'&&neg){const k=root.querySelector('[data-placeholder="kasse"]');if(k)k.setAttribute('fill','#E94F4F');}
- if(kind==='verloren'){const ts=[...root.querySelectorAll('text')];const strike=ts.find(t=>t.getAttribute('text-decoration'));if(strike&&verlorenAlt)strike.textContent=verlorenAlt;
-  const line=ts.find(t=>/Neues Spiel/.test(t.textContent));if(line&&verlorenText){line.textContent=verlorenText;line.setAttribute('font-size','30');line.setAttribute('y','218');line.setAttribute('x','40');}
+ if(kind==='verloren'){const ts=[...root.querySelectorAll('text')];const strike=ts.find(t=>t.getAttribute('text-decoration'));if(strike&&verlorenAlt)strike.textContent=i18nText(verlorenAlt);
+  const line=ts.find(t=>/Neues Spiel/.test(t.textContent));if(line&&verlorenText){line.textContent=i18nText(verlorenText);line.setAttribute('font-size','30');line.setAttribute('y','218');line.setAttribute('x','40');}
   // Stempel etwas kleiner nach rechts oben, damit Itos Zeile ganz Platz hat
   const st=[...root.querySelectorAll('g')].find(g=>/rotate/.test(g.getAttribute('transform')||''));if(st)st.setAttribute('transform','translate(800 120) rotate(-8) scale(.72)');}
  root.setAttribute('x',x);root.setAttribute('y',y);root.setAttribute('width',960);root.setAttribute('height',260);

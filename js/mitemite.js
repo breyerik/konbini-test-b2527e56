@@ -1,3 +1,5 @@
+import {locale,decimal} from './i18n.js';
+import {html as i18nHTML,t as i18nText} from './i18n.js';
 // MiteMite! (見て見て) – In-Game-Social-Feed im Washi-Stil (Yuki: screens/social/washi, Spec screens/social/spec.md)
 // Rein kosmetisch: liest nur den Spielstand, Posts kommen aus echten Ereignissen (state.news, Läden, Kampagnen, Sortiment, Börse, Awards).
 // Jedes Ereignis postet genau einmal (state.mm.seen), höchstens 30 Posts. Likes deterministisch: Basis je Typ × Bekanntheit × 0,8–1,2.
@@ -74,7 +76,7 @@ export function collect(s){s=s||S.state;if(!s||!s.stores)return 0;const m=mm(s),
  for(const x of me){if(x.build>0||(x.opened||0)>s.week)continue;
   P({id:'o:'+city+':'+x.id,k:'laden',who:'player',city,d:x.d,sid:x.id,t:fillB(TX('post_neuer_laden'),{stadtteil:CITY.name+' · '+dn(x.d),laden:ladenN(x)})});
   // Award: BuuHuu 4,5 bzw. 5 Geister erstmals erreicht
-  const g=x.bh&&x.bh.overall||0;for(const lv of [4.5,5])if(g>=lv)P({id:'a:'+city+':'+x.id+':'+lv,k:'award',who:'player',city,d:x.d,sid:x.id,t:fillB(TX('post_award'),{laden:ladenN(x),geister:String(lv).replace('.',',')})});
+  const g=x.bh&&x.bh.overall||0;for(const lv of [4.5,5])if(g>=lv)P({id:'a:'+city+':'+x.id+':'+lv,k:'award',who:'player',city,d:x.d,sid:x.id,t:fillB(TX('post_award'),{laden:ladenN(x),geister:decimal(String(lv))})});
   // Kampagnen: je Start ein Post
   for(const cid of Object.keys((x.cfg&&x.cfg.camps)||{})){const ck=x.id+':'+cid;m.camp[ck]=m.camp[ck]||s.week;const cp=(D.CAMPAIGNS||[]).find(c=>c.id===cid);
    P({id:'c:'+city+':'+ck+':'+m.camp[ck],k:'aktion',who:'player',city,d:x.d,sid:x.id,t:fillB(TX('post_aktion'),{laden:ladenN(x)})+(cp?` <b>${esc(cp.name)}</b>`:'')});}}
@@ -86,7 +88,7 @@ export function collect(s){s=s||S.state;if(!s||!s.stores)return 0;const m=mm(s),
  for(const x of s.stores){if(x.chain==='player'||!D.CHAINS[x.chain])continue;P({id:'r:'+city+':'+x.chain+':'+x.d,k:'r_eroeffnung',who:x.chain,city,d:x.d,t:fillB(TX('rivale_eroeffnung'),{rivale:chainN(x.chain),stadtteil:CITY.name+' · '+dn(x.d)})});}
  // Börse (Spieler + Rivalen) aus dem Finanzmenü
  const fz=s.fz;if(fz){if(fz.ipo)P({id:'ipo:player',k:'boerse',who:'player',city,t:`<b>${esc(chainN('player'))}</b> ist jetzt an der Börse! ${fz.ipo.streu} % Streubesitz – danke für euer Vertrauen.`});
-  for(const [c,r] of Object.entries(fz.rv||{}))if(r&&r.boerse&&D.CHAINS[c])P({id:'ipo:'+c,k:'r_boerse',who:c,city,w:r.boerse.woche,t:fillB(TX('rivale_boersengang'),{rivale:chainN(c)})+` Erster Kurs <b>¥${Math.round(r.boerse.k).toLocaleString('de-DE')}</b>.`});}
+  for(const [c,r] of Object.entries(fz.rv||{}))if(r&&r.boerse&&D.CHAINS[c])P({id:'ipo:'+c,k:'r_boerse',who:c,city,w:r.boerse.woche,t:fillB(TX('rivale_boersengang'),{rivale:chainN(c)})+` Erster Kurs <b>¥${Math.round(r.boerse.k).toLocaleString(locale())}</b>.`});}
  // Nachrichten (Übernahmen, Insolvenzen, Rabattaktionen, neue Ketten)
  for(const ns of (s.news||[]).slice().reverse()){const k=newsType(ns);if(!k)continue;const who=ns.chain==='player'?'player':ns.chain;if(who!=='player'&&!D.CHAINS[who])continue;
   P({id:'n:'+(ns.id||((ns.week||s.week)+':'+hsh(ns.text))),k,who,city,w:ns.week||s.week,t:clean(k==='buero'?String(ns.text).replace(/<[^>]+>/g,''):ns.text)});}
@@ -105,7 +107,7 @@ export function button(){try{collect();}catch(e){console.warn('MiteMite',e);}con
 export function weekPosts(s){s=s||S.state;return s&&s.mm?s.mm.posts.filter(p=>p.w===s.week-1||p.w===s.week).length:0;}
 // ---------- Darstellung ----------
 function ago(p,s){const w=Math.min(p.w,s.week),a=Math.max(0,s.week-w-1);if(a<=0)return `vor ${1+p.h%22} Std.`;if(a===1)return 'vor 1 Woche';if(a<5)return `vor ${a} Wochen`;const d=S.weekDate(w);return `KW ${S.kw(w)}/${String(d.getFullYear()).slice(2)}`;}// V6: Spiel-KW, ältere Posts mit Jahr (KW 45/26), nie Zukunft
-const fmt=n=>Math.round(n).toLocaleString('de-DE');
+const fmt=n=>Math.round(n).toLocaleString(locale());
 const own=p=>p.who==='player';
 function card(p,s,det){const T=TY[p.k]||TY.r_markt;
  return `<article class="mmpost${own(p)?' own':''}" data-k="${p.k}"${det?'':` data-act="mm" data-v="post" data-x="${esc(p.id)}"`}>
@@ -163,9 +165,9 @@ export function render(){const s=S.state;if(!s)return '';collect(s);const p=V.po
  const body=p?detail(s,p):V.nav==='such'?such(s):V.nav==='meld'?meld(s):V.nav==='profil'?profil(s):feed(s);
  return `<div class="mmscroll">${body}</div>
  <nav class="mmnav">${NAV.map(([k,l,i])=>`<button class="${(V.nav===k&&!p)||(p&&k==='feed')?'on':''}" data-act="mm" data-v="nav" data-x="${k}">${ico(i,22)}<span>${l}</span></button>`).join('')}</nav>`;}
-function el(){let e=document.getElementById('mm');if(!e){e=document.createElement('div');e.id='mm';e.setAttribute('role','dialog');e.setAttribute('aria-label','MiteMite!');document.body.appendChild(e);
+function el(){let e=document.getElementById('mm');if(!e){e=document.createElement('div');e.id='mm';e.setAttribute('role','dialog');e.setAttribute('aria-label',i18nText('MiteMite!'));document.body.appendChild(e);
  e.addEventListener('input',ev=>{if(ev.target&&ev.target.dataset.mmq){V.q=ev.target.value;const pos=ev.target.selectionStart;draw(false);const i=document.getElementById('mmq');if(i){i.focus();try{i.setSelectionRange(pos,pos);}catch(_){}}}});}return e;}
-function draw(top=true){const e=el(),sc=e.querySelector('.mmscroll'),y=sc?sc.scrollTop:0;e.innerHTML=render();const n=e.querySelector('.mmscroll');if(n)n.scrollTop=top?0:y;}
+function draw(top=true){const e=el(),sc=e.querySelector('.mmscroll'),y=sc?sc.scrollTop:0;e.innerHTML=i18nHTML(render());const n=e.querySelector('.mmscroll');if(n)n.scrollTop=top?0:y;}
 export function open(o={}){close0ban();if(!V.open){const a=document.activeElement;V.fokus=a&&a!==document.body?a:null;}Object.assign(V,{open:true,post:null},o);const s=S.state;if(s){collect(s);const m=mm(s);m.read=m.seq;S.save();}document.body.classList.add('mmopen');draw();H.rerender();}
 // Gganbu R4 B2 (R91): Schließen räumt alles auf (Vollbild, Klasse, Banner) und gibt den Fokus zurück; Escape schließt ebenfalls
 export function close(){V.open=false;V.post=null;close0ban();const e=document.getElementById('mm');if(e)e.remove();document.body.classList.remove('mmopen');H.rerender();
@@ -193,7 +195,7 @@ export function bannerStoert(b){const r0=b.getBoundingClientRect();if(!r0.width)
 export function banner(){const s=S.state;if(!s||!s.mm||!s.mm.ban)return;const id=s.mm.ban;s.mm.ban=null;const p=s.mm.posts.find(q=>q.id===id);if(!p||V.open)return;close0ban();zeigeBan(p,id,0);}
 function zeigeBan(p,id,n){if(V.open)return;
  const b=document.createElement('button');b.id='mmban';b.dataset.act='mm';b.dataset.v='ban';b.dataset.x=id;b.style.visibility='hidden';b.style.animation='none';// messen in Ruhelage (ohne Einflug-Animation)
- b.innerHTML=`<img src="${G}mitemite-logo.svg" alt="" width="36" height="36"><span><b>MiteMite! · ${esc(chainN(p.who))}</b><small>${p.t.replace(/<[^>]+>/g,'').slice(0,90)}</small></span>`;
+ b.innerHTML=i18nHTML(`<img src="${G}mitemite-logo.svg" alt="" width="36" height="36"><span><b>MiteMite! · ${esc(chainN(p.who))}</b><small>${p.t.replace(/<[^>]+>/g,'').slice(0,90)}</small></span>`);
  document.body.appendChild(b);
  if(bannerStoert(b)){b.remove();if(n<130)banW=setTimeout(()=>zeigeBan(p,id,n+1),700);return;}
  b.style.animation='';b.style.visibility='';banT=setTimeout(close0ban,4000);

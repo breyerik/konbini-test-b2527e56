@@ -1,3 +1,4 @@
+import {language,html as i18nHTML,registerRuntimeTexts} from './i18n.js';
 // Lädt Yukis SVG-Grafiken (grafik/) und Bobs Preisdaten (daten/), mit Fallback auf eigene Zeichnungen
 import {fillCity} from './cities.js';
 import {CATS,SERVICES,SVC_FIX,BUILD,BUILD_CSV,CAMPAIGNS,CAMP_CSV,MGR_TIERS,TIERS,rebuildTierMap} from './data.js';
@@ -38,7 +39,7 @@ export function svgColored(key,{main='#E94F4F',second='#FFFFFF',logoBg,name,name
  if(name&&name.length>11)s=s.replace(/(<text[^>]*data-placeholder="name"[^>]*font-size=")(\d+)/g,(m,a,n)=>a+Math.round(+n*11/name.length));
  return s;
 }
-export const svgURL=s=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s);
+export const svgURL=s=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(i18nHTML(s));
 export function svgImage(s){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=svgURL(s);});}
 
 /* ---- Bobs Daten: daten/preise.csv & daten/services.csv (optional) ---- */
@@ -55,6 +56,7 @@ async function loadData(){
  const [ab,mk,pe,so]=await Promise.all(['ausbau.csv','marketing.csv','personal.csv','standorte.csv'].map(getCSV));
  if(ab)applyAusbau(ab);if(mk)applyMarketing(mk);if(pe)applyPersonal(pe);if(so&&so.length){GFX.standorte=so;applyStandorte(so);}
  try{const r=await fetch('marketing/texte.json',{cache:'no-cache'});if(r.ok)GFX.texte=fillCity(await r.json());}catch(e){}
+ if(language==='en')try{const r=await fetch('marketing/texte.en.json',{cache:'no-cache'});if(r.ok)registerRuntimeTexts(GFX.texte,fillCity(await r.json()));}catch{}
  try{const r=await fetch('daten/preise.csv',{cache:'no-cache'});if(r.ok){const rows=parseCSV(await r.text());applyPrices(rows);}}catch(e){}
  try{const r=await fetch('daten/services.csv',{cache:'no-cache'});if(r.ok){const rows=parseCSV(await r.text());applyServices(rows);}}catch(e){}
 }

@@ -1,3 +1,4 @@
+import {decimal} from './i18n.js';
 // Paket 2 – Zentrale (Büro, Team, Entwicklung, Preise). Läuft im Finanzmenü-Overlay (#fz), eigene Tabs wie Yukis b1–b8.
 import * as B from './buero_cfg.js';
 import * as SO from './sortiment.js';
@@ -50,7 +51,7 @@ export function erinnerungen(s){const fz=s.fz||{},out=[],d=S.weekDate(s.week),wk
  if(mw<=B.CFO.messeVorlauf)out.push({id:'m_'+y,icon:'🌸',farbe:'#F7A1B5',titel:'Marken-Messe Tokio',text:`${M.von}.–${M.bis}. April: Gebote vorbereiten.`,wann:`noch ${mw} Wo.`,btn:'Zur Messe',go:'messe'});
  const kr=(fz.kredite||[]).filter(k=>k.rest>0);if(kr.length){const rate=kr.reduce((a,k)=>a+k.rate,0),h=(s.hist||[]).slice(-13),cf=h.length?h.reduce((a,x)=>a+(x.net||0),0)/h.length:0;
   out.push({id:'k_'+s.week,icon:'🏦',farbe:'#3D7BD9',titel:'Kredite laufen',text:`Raten ${H.fY(rate)} / Woche · Rest ${H.fY(kr.reduce((a,k)=>a+k.rest,0))}`,wann:'jede Woche',btn:'Kredite ansehen',go:'boerse'});
-  if(h.length&&cf<B.CFO.cashflowRegel*rate)out.push({id:'c',icon:'⚠️',farbe:'#FF6B6B',titel:'Cashflow-Regel knapp',text:`Ø Cashflow 13 Wo. = ${(cf/rate).toFixed(1).replace('.',',')} × Wochenrate (Minimum ${String(B.CFO.cashflowRegel).replace('.',',')})`,wann:'jetzt',btn:'Details',go:'boerse'});}
+  if(h.length&&cf<B.CFO.cashflowRegel*rate)out.push({id:'c',icon:'⚠️',farbe:'#FF6B6B',titel:'Cashflow-Regel knapp',text:`Ø Cashflow 13 Wo. = ${decimal((cf/rate).toFixed(1))} × Wochenrate (Minimum ${decimal(String(B.CFO.cashflowRegel))})`,wann:'jetzt',btn:'Details',go:'boerse'});}
  const e=ensure(s).erl;return out.filter(x=>!(e[x.id]>s.week));}
 /* ---------- Ansichten ---------- */
 const sel=(k,i,t)=>`<button class="${V.tab===k?'on':''}" data-act="fz" data-v="bu" data-x="tab:${k}">${i} ${t}</button>`;
@@ -66,7 +67,7 @@ function pListe(s){const b=ensure(s);let h=`<div class="fzc bul">🏢 <b>Zentral
  return h+kobo(hierMietbar(s,o0)?'Erst mieten, später kaufen geht auch!':`Mieten kannst du das Büro in ${o0.stadt} – hier kümmern wir uns erst mal um die Läden!`);}
 function chart(o){const J=20,mx=Math.max(o.miete*12*J,o.kauf+B.KAUF.unterhalt*12*J),X=j=>20+j/J*300,Y=v=>170-v/mx*150;let m='',k='';for(let j=0;j<=J;j++){m+=`${j?'L':'M'}${X(j).toFixed(0)} ${Y(o.miete*12*j).toFixed(0)}`;k+=`${j?'L':'M'}${X(j).toFixed(0)} ${Y(o.kauf+B.KAUF.unterhalt*12*j).toFixed(0)}`;}
  const be=o.kauf/((o.miete-B.KAUF.unterhalt)*12);const bx=X(Math.min(J,be));
- return `<svg viewBox="0 0 330 200" class="buchart"><path d="M20 20V170H320" stroke="#4A4F7A" fill="none"/>${[0,5,10,15,20].map(j=>`<text x="${X(j)}" y="186" font-size="10" fill="#9C98C8" text-anchor="middle">${j} J.</text>`).join('')}<line x1="${bx}" y1="20" x2="${bx}" y2="170" stroke="#fff" stroke-dasharray="3 3" opacity=".6"/><text x="${bx+4}" y="30" font-size="10" fill="#fff">Kauf lohnt ab ≈ ${be.toFixed(1).replace('.',',')} J.</text><path d="${m}" stroke="#FFC93C" stroke-width="3" fill="none"/><path d="${k}" stroke="#5DBB73" stroke-width="3" fill="none"/></svg><small><span class="y">━ Miete</span> · <span class="p">━ Kauf + Unterhalt</span></small>`;}
+ return `<svg viewBox="0 0 330 200" class="buchart"><path d="M20 20V170H320" stroke="#4A4F7A" fill="none"/>${[0,5,10,15,20].map(j=>`<text x="${X(j)}" y="186" font-size="10" fill="#9C98C8" text-anchor="middle">${j} J.</text>`).join('')}<line x1="${bx}" y1="20" x2="${bx}" y2="170" stroke="#fff" stroke-dasharray="3 3" opacity=".6"/><text x="${bx+4}" y="30" font-size="10" fill="#fff">Kauf lohnt ab ≈ ${decimal(be.toFixed(1))} J.</text><path d="${m}" stroke="#FFC93C" stroke-width="3" fill="none"/><path d="${k}" stroke="#5DBB73" stroke-width="3" fill="none"/></svg><small><span class="y">━ Miete</span> · <span class="p">━ Kauf + Unterhalt</span></small>`;}
 function pDetail(s){const o=OF(V.id),b=ensure(s),kp=kaufPreis(s,o),anr=b.office===o.id&&!b.kauf?b.mieteBezahlt*B.KAUF.anrechnung:0;
  return `<div class="fzc fzdet"><span class="buimg big">🏢</span><div class="grow"><button class="fzlink" data-act="fz" data-v="bu" data-x="liste">◀ Büros</button><small>${o.stadt} · ${o.viertel} · ${o.m2} m² · ${o.plaetze} Plätze</small><b class="big">${o.name}</b></div></div>
  <div class="fzg2"><div class="fzc buy"><small>🔑 Mieten</small><b class="y">${H.fY(o.miete)}</b><small>pro Monat · ≈ ${H.fY(o.miete*12)} / Jahr · sofort einziehen · kündbar ${B.KAUF.kuendigungMonate} Mon.</small></div><div class="fzc bug"><small>🏠 Kaufen</small><b class="p">${H.fY(kp)}</b><small>einmalig + ${H.fY(B.KAUF.unterhalt)}/Monat Unterhalt · Wert bleibt (Wiederverkauf ≈ ${Math.round(B.KAUF.wiederverkauf*100)} %)</small></div></div>

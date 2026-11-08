@@ -1,3 +1,5 @@
+import {decimal} from './i18n.js';
+import {locale,language} from './i18n.js';
 // Konbini Empire v2 – Wirtschaftssimulation
 import {SLOT_MIGRATION,PLAN_REV,lotSlot,OMA_SHOP,starterBuild,slotOpen,unlockedCount,PLAN_SLOTS,SAVE_KEY,START,MONTHS,CATS,DISTRICTS,DMAP,INIT_RIVALS,BASE_CUST,COST,PRICE,SERVICES,SVC_KEYS,SVC_TYPE_MUL,CHAINS,RIVALS,TRAITS,FAMILY,GIVEN_F,GIVEN_M,defaultLogo,START_CASH,BUILD_WEEKS,BUILD,EQUIP_KEYS,defaultBuild,buildCost,optPrice,MGR_TIERS,CAMPAIGNS,TIERS,tierOf,TAX,LOAN,CONV,STOCK_INIT,WARDS,AREAS,RIVAL_START,MGR_STD_SALARY} from './data.js';
 import {GFX} from './gfx.js';
@@ -17,10 +19,10 @@ function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();r
 // Erik 25.10.: echte ISO-Kalenderwoche zur Anzeige (Start Mo 19.10.2026 = KW 43); s.week bleibt der interne Zähler
 export function kw(w){const d=weekDate(w),t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const dn=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-dn);const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y0)/864e5+1)/7);}
 export function weekDate(w){const d=new Date(START);d.setDate(d.getDate()+(w-1)*7);return d;}
-export function dateLabel(d){return d.getDate()+'. '+MONTHS[d.getMonth()]+' '+d.getFullYear();}
-export const fmtY=n=>{const s=n<0?'−':'';n=Math.abs(n);if(n>=1e6)return s+'¥'+(n/1e6).toLocaleString('de-DE',{minimumFractionDigits:1,maximumFractionDigits:1})+' Mio';return s+'¥'+Math.round(n).toLocaleString('de-DE');};
-export const fmtN=n=>Math.round(n).toLocaleString('de-DE');
-export const pct=n=>(n*100).toLocaleString('de-DE',{maximumFractionDigits:1})+' %';
+export function dateLabel(d){return language==='en'?d.toLocaleDateString(locale(),{day:'numeric',month:'short',year:'numeric'}):d.getDate()+'. '+MONTHS[d.getMonth()]+' '+d.getFullYear();}
+export const fmtY=n=>{const s=n<0?'−':'';n=Math.abs(n);if(n>=1e6)return s+'¥'+(n/1e6).toLocaleString(locale(),{minimumFractionDigits:1,maximumFractionDigits:1})+(language==='en'?'M':' Mio');return s+'¥'+Math.round(n).toLocaleString(locale());};
+export const fmtN=n=>Math.round(n).toLocaleString(locale());
+export const pct=n=>(n*100).toLocaleString(locale(),{maximumFractionDigits:1})+' %';
 // Whitebeard 8efc3e2/7ed371e (R52): EINE Quelle für den Marktanteil – Markt-Tab, Donut und Zeitung lesen alle hier.
 // Ohne Umsatzwoche in dieser Stadt oder solange eine Kette mit offenen Läden im Bericht noch keinen Umsatz hat, zählen die offenen Läden;
 // ganz ohne offene Läden: kein Markt (null).
@@ -417,15 +419,15 @@ export function auftraege(){
  const P={};for(const s of O)for(const id in s.last.prod||{}){const x=s.last.prod[id];if(x.u>0){(P[id]=P[id]||{name:x.name,u:0}).u+=x.u;}}
  const top=Object.entries(P).sort((a,b)=>b[1].u-a[1].u).slice(0,6);
  if(top.length){const [id,x]=top[Math.floor(R()*top.length)],ziel=Math.max(10,Math.ceil(x.u*(1.08+R()*.06)/10)*10);
-  C.push({typ:'stueck',pid:id,ziel,ref:Math.round(x.u),text:`Verkaufe ${ziel.toLocaleString('de-DE')} × ${x.name}`,info:`letzte Woche ${Math.round(x.u).toLocaleString('de-DE')}`});}
+  C.push({typ:'stueck',pid:id,ziel,ref:Math.round(x.u),text:`Verkaufe ${ziel.toLocaleString(locale())} × ${x.name}`,info:`letzte Woche ${Math.round(x.u).toLocaleString(locale())}`});}
  if(O.length){const k=O.reduce((a,s)=>a+s.last.cust,0)/7,ziel=Math.ceil(k*1.04/5)*5;
-  C.push({typ:'kunden',ziel,ref:Math.round(k),text:`Mindestens ${ziel.toLocaleString('de-DE')} Kunden/Tag in deinen Läden`,info:`letzte Woche ${Math.round(k).toLocaleString('de-DE')}`});}
+  C.push({typ:'kunden',ziel,ref:Math.round(k),text:`Mindestens ${ziel.toLocaleString(locale())} Kunden/Tag in deinen Läden`,info:`letzte Woche ${Math.round(k).toLocaleString(locale())}`});}
  else{const N=mine().filter(s=>!s.build&&DMAP[s.d]);// erste Woche (noch keine Vorwoche): Ziel aus der erwarteten Kundenzahl der Sim (custFor, ohne Zufall)
   if(N.length){const ev=seasonInfo(w),k=N.reduce((a,s)=>a+custFor(s,DMAP[s.d],ev),0)/7,ziel=Math.ceil(k*.97/5)*5;
-   C.push({typ:'kunden',ziel,ref:Math.round(k),text:`Mindestens ${ziel.toLocaleString('de-DE')} Kunden/Tag in deinen Läden`,info:`erwartet rund ${Math.round(k).toLocaleString('de-DE')}`});}}
+   C.push({typ:'kunden',ziel,ref:Math.round(k),text:`Mindestens ${ziel.toLocaleString(locale())} Kunden/Tag in deinen Läden`,info:`erwartet rund ${Math.round(k).toLocaleString(locale())}`});}}
  const h=state.hist&&state.hist[state.hist.length-1];
- if(h&&O.length){const ev=seasonInfo(w);C.push({typ:'besser',ziel:Math.round(h.net),ref:Math.round(h.net),text:`Wochenergebnis besser als letzte Woche${ev.key==='rain'?' – trotz Regenzeit':''}`,info:`letzte Woche ${Math.round(h.net).toLocaleString('de-DE')} ¥`});}
- {const z=Math.min(100,Math.floor(state.rep)+1);C.push({typ:'ruf',ziel:z,ref:Math.round(state.rep*10)/10,text:`Ruf auf mindestens ${z} bringen`,info:`jetzt ${(Math.round(state.rep*10)/10).toLocaleString('de-DE')}`});}
+ if(h&&O.length){const ev=seasonInfo(w);C.push({typ:'besser',ziel:Math.round(h.net),ref:Math.round(h.net),text:`Wochenergebnis besser als letzte Woche${ev.key==='rain'?' – trotz Regenzeit':''}`,info:`letzte Woche ${Math.round(h.net).toLocaleString(locale())} ¥`});}
+ {const z=Math.min(100,Math.floor(state.rep)+1);C.push({typ:'ruf',ziel:z,ref:Math.round(state.rep*10)/10,text:`Ruf auf mindestens ${z} bringen`,info:`jetzt ${(Math.round(state.rep*10)/10).toLocaleString(locale())}`});}
  if(O.length>1){const n=O.filter(s=>s.last.op>0).length;if(n<O.length)C.push({typ:'plus',ziel:n+1,ref:n,text:`${n+1} Läden mit Gewinn (Laden-Ergebnis im Plus)`,info:`letzte Woche ${n} von ${O.length}`});}
  for(let i=C.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[C[i],C[j]]=[C[j],C[i]];}
  const n=Math.min(C.length,AUFTRAG.minN+(R()<.5?1:0));
@@ -521,7 +523,7 @@ export function endWeek(){
  for(const r of aw.res)for(const k in r.cats||{})T[GROUP[k]]+=r.cats[k];
  if(rep.exkl||rep.stores.some(r=>r.prod&&Object.values(r.prod).some(x=>x.ex>0))){const E=rep.exkl=rep.exkl||{rivalVerlust:0};E.mehrUmsatz=0;E.mehrRohertrag=0;E.stueck=0;
   for(const r of rep.stores)for(const x of Object.values(r.prod||{})){E.mehrUmsatz+=x.exRev||0;E.mehrRohertrag+=x.exGross||0;E.stueck+=x.ex||0;}
-  if(E.stueck>0)rep.events.push(`⭐ Exklusivität: ${Math.round(E.stueck)} Stück von Rivalen-Kunden bei uns gekauft (+${Math.round(E.mehrUmsatz).toLocaleString('de-DE')} ¥ Umsatz).`);}
+  if(E.stueck>0)rep.events.push(`⭐ Exklusivität: ${Math.round(E.stueck)} Stück von Rivalen-Kunden bei uns gekauft (+${Math.round(E.mehrUmsatz).toLocaleString(locale())} ¥ Umsatz).`);}
  // Zinsen / Tilgung / Steuer – V6: alle Zinsen (Bank, Privatdarlehen), Privatgehalt und Büro laufen VOR der Steuer durch die GuV (preTaxHooks)
  loanMigrate();// alter Kredit → fz.kredite (nur wenn das Finanzmenü-Konto existiert; sonst alter Weg)
  const intr=state.loan*LOAN.rate/52;let princ=0;
@@ -615,11 +617,11 @@ function konbiniDesJahres(rep,w,cust){kdjUmsWoche(rep,w,cust);if(w%KDJ.alle||!st
  const nm=c=>c==='player'?state.logo.name:CHAINS[c].name;
  const L=Object.entries(state.kdj).filter(([c,e])=>e.n&&kdjAktiv(c)).map(([c,e])=>({chain:c,name:nm(c),avg:Math.round(e.sum/e.n*100)/100})).sort((a,b)=>b.avg-a.avg);
  state.kdj={};if(!L.length)return;const _y=weekDate(w).getFullYear(),jahr=`${_y-1}/${String(_y%100).padStart(2,'0')}`,top=L.slice(0,3);
- const G=v=>'👻'.repeat(Math.round(v))+` ${v.toFixed(1).replace('.',',')}`;
+ const G=v=>'👻'.repeat(Math.round(v))+` ${decimal(v.toFixed(1))}`;
  rep.kdj={jahr,top,rang:L.findIndex(x=>x.chain==='player')+1,n:L.length,wachs:W.slice(0,3),wrang:W.findIndex(x=>x.chain==='player')+1};
  (state.kdjHist=state.kdjHist||[]).push(rep.kdj);
  const wt=W.filter(x=>x.pct>0).slice(0,3);rep.kdj.wachs=wt;rep.kdj.wrang=wt.length?rep.kdj.wrang:0;
- rep.kdjText=`🏆 Konbini-Awards ${jahr} – Konbini des Jahres (Ø BuuHuu): ${top.map((x,i)=>`${i+1}. ${x.name} ${G(x.avg)}`).join(' · ')}. Am schnellsten wachsender Konbini (Umsatzwachstum ggü. Vorjahr): ${!wt.length?'In diesem Jahr nicht vergeben':wt.map((x,i)=>`${i+1}. ${x.name} Umsatz +${x.pct.toFixed(1).replace('.',',')} %`).join(' · ')}.`;
+ rep.kdjText=`🏆 Konbini-Awards ${jahr} – Konbini des Jahres (Ø BuuHuu): ${top.map((x,i)=>`${i+1}. ${x.name} ${G(x.avg)}`).join(' · ')}. Am schnellsten wachsender Konbini (Umsatzwachstum ggü. Vorjahr): ${!wt.length?'In diesem Jahr nicht vergeben':wt.map((x,i)=>`${i+1}. ${x.name} Umsatz +${decimal(x.pct.toFixed(1))} %`).join(' · ')}.`;
  if(wt[0]&&wt[0].chain==='player'&&wt[0].pct>0){state.rep=clamp(state.rep+KDJ.ruf,0,100);rep.events.push(`🐾 Kobo: Wir sind der am schnellsten wachsende Konbini ${jahr}! Ruf +${KDJ.ruf}.`);}
  if(top[0].chain==='player'){state.rep=clamp(state.rep+KDJ.ruf,0,100);rep.events.push(`🐾 Kobo: Wir sind Konbini des Jahres ${jahr}! Die BuuHuu-Gäste lieben uns – Ruf +${KDJ.ruf}.`);}
  else if(rep.kdj.rang)rep.events.push(`🐾 Kobo: Konbini des Jahres ${jahr} wurde ${top[0].name}. Wir sind auf Platz ${rep.kdj.rang} von ${L.length} – bessere BuuHuu-Bewertungen bringen uns nach vorn.`);}
@@ -764,7 +766,7 @@ export function eventView(e=state.event){if(!e)return null;const t=eventText(e.i
  const o={rivale:CHAINS[e.chain]?CHAINS[e.chain].name:'Eight',laden:storeLabel(s),stadtteil:DMAP[s.d].name};
  const cap=v=>evCost(v);
  const eff=opt=>{const x=EVENTS[e.id][opt],p=[];if(x.cash)p.push(`${fmtY(-cap(x.cash))}`);for(const m of x.mods||[]){const v=Math.round((m.cust-1)*100);p.push(`${m.p?Math.round(m.p*100)+' % Chance: ':''}Umsatz ${v>=0?'+':'−'}${Math.abs(v)} % (${m.wk} Wo.)`);}
-  if(x.marge)p.push(`Marge −${String(x.marge.pp).replace('.',',')} % (${x.marge.wk} Wo.)`);if(x.cashWk)p.push(`${fmtY(-x.cashWk.v)}/Wo. (${x.cashWk.wk} Wo.)`);if(x.feeMul)p.push(`Paketprovision ×${String(x.feeMul.m).replace('.',',')} (${x.feeMul.wk} Wo.)`);
+  if(x.marge)p.push(`Marge −${decimal(String(x.marge.pp))} % (${x.marge.wk} Wo.)`);if(x.cashWk)p.push(`${fmtY(-x.cashWk.v)}/Wo. (${x.cashWk.wk} Wo.)`);if(x.feeMul)p.push(`Paketprovision ×${decimal(String(x.feeMul.m))} (${x.feeMul.wk} Wo.)`);
   if(x.rep)p.push(`Ruf ${x.rep>0?'+':''}${x.rep}`);if(x.bh)p.push('BuuHuu '+(Object.values(x.bh).reduce((a,b)=>a+b,0)>0?'besser':'schlechter'));if(x.morale)p.push(`Laune ${x.morale>0?'+':''}${x.morale}`);if(x.salary)p.push(`Gehalt +${Math.round((x.salary-1)*100)} %`);if(x.quit)p.push('Filialleitung geht');return p.join(' · ')||'keine Kosten';};
  return {id:e.id,figur:t.figur||'kobo',text:fill(t.text,o),a:fill(t.option_a,o),b:fill(t.option_b,o),effA:eff('a'),effB:eff('b'),ziel:EVENTS[e.id].ziel,laden:o.laden,done:e.done,hint:EVENTS[e.id].bed==='rival'?rivalHint():''};}
 // Hinweis auf der Event-Karte: Rivalen-Abzug läuft unabhängig von der Wahl (Zahlen aus RIVAL_RULES)

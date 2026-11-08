@@ -1,3 +1,4 @@
+import {html as i18nHTML,t as i18nText} from './i18n.js';
 // Konbini Empire v3 – 3D-Karte (Yukis Stadtplan) von Tokio (Three.js, Low-Poly, mobil-optimiert)
 import * as THREE from '../lib/three.module.min.js';
 import {MapControls} from '../lib/MapControls.js';
@@ -109,7 +110,7 @@ function shibuyaCrossing(){const g=new THREE.Group();const z=M('#FFFFFF');
  g.add(cyl(1.5,1.5,8,12,'#D8DDE3',-8.5,0,-8.5));g.add(cyl(1.55,1.55,.6,12,'#E8452C',-8.5,7.4,-8.5));
  g.add(box(4.5,24,4.5,'#C9DCEE',8.5,0,-8.5));g.add(box(4.9,.6,4.9,'#9BB9D6',8.5,24,-8.5));
  g.add(box(4,9,3.5,'#E9ECEF',-8.3,0,8.3));
- const scr=new THREE.CanvasTexture((()=>{const c=document.createElement('canvas');c.width=128;c.height=96;const x=c.getContext('2d');const gr=x.createLinearGradient(0,0,128,96);gr.addColorStop(0,'#FF6FA8');gr.addColorStop(.5,'#FFC93C');gr.addColorStop(1,'#3D7BD9');x.fillStyle=gr;x.fillRect(0,0,128,96);x.fillStyle='#fff';x.font='bold 30px sans-serif';x.fillText('渋谷',30,60);return c})());scr.colorSpace=THREE.SRGBColorSpace;
+ const scr=new THREE.CanvasTexture((()=>{const c=document.createElement('canvas');c.width=128;c.height=96;const x=c.getContext('2d');const gr=x.createLinearGradient(0,0,128,96);gr.addColorStop(0,'#FF6FA8');gr.addColorStop(.5,'#FFC93C');gr.addColorStop(1,'#3D7BD9');x.fillStyle=gr;x.fillRect(0,0,128,96);x.fillStyle='#fff';x.font='bold 30px sans-serif';x.fillText(i18nText('渋谷'),30,60);return c})());scr.colorSpace=THREE.SRGBColorSpace;
  const sm=new THREE.Mesh(new THREE.PlaneGeometry(3.4,2.6),new THREE.MeshBasicMaterial({map:scr}));sm.position.set(-8.3,6.6,6.52);sm.rotation.y=Math.PI;g.add(sm);
  g.add(box(4,7,3.5,'#F1EEE8',8.3,0,8.3));const sm2=sm.clone();sm2.position.set(8.3,5,6.52);g.add(sm2);
  return g;}
@@ -241,7 +242,7 @@ function svgTex(key,svg,w,h,fallback){
  if(svg)svgImage(svg).then(img=>{ctx.clearRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);t.needsUpdate=true;}).catch(()=>{});
  texCache.set(key,t);if(texCache.size>120){const k=texCache.keys().next().value;texCache.get(k).dispose();texCache.delete(k);}return t;
 }
-function bannerFallback(main,second,name){return (ctx,w,h)=>{ctx.fillStyle=main;ctx.fillRect(0,0,w,h);ctx.fillStyle=second;ctx.font=`bold ${h*.42}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText((name||'').toUpperCase(),w/2,h/2);};}
+function bannerFallback(main,second,name){return (ctx,w,h)=>{ctx.fillStyle=main;ctx.fillRect(0,0,w,h);ctx.fillStyle=second;ctx.font=`bold ${h*.42}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(i18nText((name||'').toUpperCase()),w/2,h/2);};}
 export function chainLook(chain,logo,design){
  if(chain==='player'){const fac=FACADES.find(f=>f.id===design.facade)||FACADES[0];return {main:logo.bg.toLowerCase()==='#ffffff'?logo.fg:logo.bg,second:logo.bg.toLowerCase()==='#ffffff'?'#ffffff':logo.fg,facade:fac.c||shade(logo.bg,.75),name:logo.name,logo};}
  const c=CHAINS[chain];return {main:c.color,second:c.color2,facade:'#FFFFFF',name:c.name,rival:chain};
@@ -329,7 +330,7 @@ function addInterior(g,D,look,w,d,h){
 
 /* ---------- Pins ---------- */
 let _bn=null;
-function bannerTex(){if(_bn)return _bn;const cv=document.createElement('canvas');cv.width=280;cv.height=70;const g=cv.getContext('2d');g.fillStyle='#FFC93C';g.fillRect(6,10,268,50);g.fillStyle='#2B2D42';g.font='bold 26px sans-serif';g.textAlign='center';g.fillText('BALD ERÖFFNET',140,44);_bn=new THREE.CanvasTexture(cv);_bn.colorSpace=THREE.SRGBColorSpace;if(GFX.svg.ban_soon)svgImage(GFX.svg.ban_soon).then(i=>{g.clearRect(0,0,280,70);g.drawImage(i,0,0,280,70);_bn.needsUpdate=true}).catch(()=>{});return _bn;}
+function bannerTex(){if(_bn)return _bn;const cv=document.createElement('canvas');cv.width=280;cv.height=70;const g=cv.getContext('2d');g.fillStyle='#FFC93C';g.fillRect(6,10,268,50);g.fillStyle='#2B2D42';g.font='bold 26px sans-serif';g.textAlign='center';g.fillText(i18nText('BALD ERÖFFNET'),140,44);_bn=new THREE.CanvasTexture(cv);_bn.colorSpace=THREE.SRGBColorSpace;if(GFX.svg.ban_soon)svgImage(GFX.svg.ban_soon).then(i=>{g.clearRect(0,0,280,70);g.drawImage(i,0,0,280,70);_bn.needsUpdate=true}).catch(()=>{});return _bn;}
 const _op=new Map();
 function ownPinTex(logo){const k=LG.logoVer+JSON.stringify(logo);if(_op.has(k))return _op.get(k);const cv=document.createElement('canvas');cv.width=256;cv.height=312;const g=cv.getContext('2d');const main=logo.bg.toLowerCase()==='#ffffff'?logo.fg:logo.bg;g.fillStyle=main;g.strokeStyle='#2B2D42';g.lineWidth=9;g.beginPath();g.moveTo(128,300);g.bezierCurveTo(96,256,28,220,28,128);g.arc(128,128,100,Math.PI,0);g.bezierCurveTo(228,220,160,256,128,300);g.fill();g.stroke();g.fillStyle='#fff';g.beginPath();g.arc(128,124,72,0,7);g.fill();g.stroke();g.drawImage(logoCanvas(logo,120),68,64,120,120);const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;_op.set(k,t);return t;}
 /* ---------- Welt ---------- */
@@ -437,7 +438,7 @@ export function createWorld(container,cb){
   const cv=document.createElement('canvas');cv.width=256;cv.height=330;const g=cv.getContext('2d');
   const draw=()=>{g.clearRect(0,0,256,330);const a=PIN_V2?GFX.img&&GFX.img.pin_lease_v2:GFX.img&&GFX.img.pin_lease,b=GFX.img&&GFX.img['lage_'+tier];if(a)g.drawImage(a,0,0,256,312);if(b)g.drawImage(b,150,170,96,112);t.needsUpdate=true;};
   const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;
-  g.fillStyle='#fff';g.beginPath();g.arc(128,100,90,0,7);g.fill();g.fillStyle='#E94F4F';g.fillRect(60,70,136,80);g.fillStyle='#fff';g.font='bold 44px sans-serif';g.textAlign='center';g.fillText('空き',128,125);t.needsUpdate=true;
+  g.fillStyle='#fff';g.beginPath();g.arc(128,100,90,0,7);g.fill();g.fillStyle='#E94F4F';g.fillRect(60,70,136,80);g.fillStyle='#fff';g.font='bold 44px sans-serif';g.textAlign='center';g.fillText(i18nText('空き'),128,125);t.needsUpdate=true;
   Promise.all([PIN_V2?fetch('grafik/karte/pin-zu-vermieten-v2.svg').then(r=>r.text()).then(svgImage):svgImage(redLease(GFX.svg.pin_lease||'')),svgImage(GFX.svg['lage_'+tier]||'')]).then(([a,b])=>{GFX.img=GFX.img||{};GFX.img[PIN_V2?'pin_lease_v2':'pin_lease']=a;GFX.img['lage_'+tier]=b;draw();}).catch(()=>{});
   return pinTex[tier]=t;
  }
@@ -451,7 +452,7 @@ export function createWorld(container,cb){
   const m=new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false});const sp=new THREE.Sprite(m);sp.scale.set(w,w*140/192,1);sp.center.set(.5,0);sp.position.set(h.x,id==='haneda'?4:6,h.z+(id==='haneda'?-4:3));sp.renderOrder=5;sp.userData={hub:id==='tokyo-st'?'station':'haneda'};hubG.add(sp);landmarkSprites.push(sp);
   if(GFX.svg&&GFX.svg[key])svgImage(GFX.svg[key]).then(img=>{g.drawImage(img,0,0,384,280);t.needsUpdate=true;}).catch(()=>{});
  });
- function emojiPin(emoji,label,bg){const cv=document.createElement('canvas');cv.width=192;cv.height=240;const g=cv.getContext('2d');g.fillStyle=bg;g.strokeStyle='#2B2D42';g.lineWidth=7;g.beginPath();g.moveTo(96,232);g.bezierCurveTo(70,190,14,160,14,94);g.arc(96,94,82,Math.PI,0);g.bezierCurveTo(178,160,122,190,96,232);g.fill();g.stroke();g.fillStyle='#fff';g.beginPath();g.arc(96,92,56,0,7);g.fill();g.font='62px sans-serif';g.textAlign='center';g.fillText(emoji,96,114);const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;return t;}
+ function emojiPin(emoji,label,bg){const cv=document.createElement('canvas');cv.width=192;cv.height=240;const g=cv.getContext('2d');g.fillStyle=bg;g.strokeStyle='#2B2D42';g.lineWidth=7;g.beginPath();g.moveTo(96,232);g.bezierCurveTo(70,190,14,160,14,94);g.arc(96,94,82,Math.PI,0);g.bezierCurveTo(178,160,122,190,96,232);g.fill();g.stroke();g.fillStyle='#fff';g.beginPath();g.arc(96,92,56,0,7);g.fill();g.font='62px sans-serif';g.textAlign='center';g.fillText(i18nText(emoji),96,114);const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;return t;}
  const utility=[{id:'borse',name:'Börse',emoji:'📈',x:58,z:-6,bg:'#8EA6C4'},{id:'immo',name:'Immobilienbüro',emoji:'🏢',x:-4,z:12,bg:'#8EA6C4'},{id:'hq',name:'Hauptquartier',emoji:'🏠',x:-12,z:-30,bg:'#B8A6D9'},{id:'station',name:'Tokio Hbf (Fernreisen)',emoji:'🚄',x:HUBS[0].x,z:HUBS[0].z+3,bg:'#9AD8EE'},{id:'haneda',name:'Haneda (Flüge)',emoji:'✈️',x:HUBS[1].x,z:HUBS[1].z-4,bg:'#9AD8EE'}];
  const HIDE_UTIL={immo:true,hq:!FEATURES.hq,station:!FEATURES.rail,haneda:!FEATURES.haneda};// Tokio Hbf bleibt als Gebäude, ohne Funktion
  const utilSprites=utility.filter(u=>!HIDE_UTIL[u.id]).map(u=>{const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:emojiPin(u.emoji,u.name,u.bg),depthTest:false,transparent:true}));sp.position.set(u.x,u.id==='haneda'?21:u.id==='station'?18:6.5,u.z);sp.scale.set(4.2,5.2,1);sp.renderOrder=4;sp.center.set(.5,0);sp.userData.hub=u.id;scene.add(sp);return sp;});
@@ -528,7 +529,7 @@ export function createWorld(container,cb){
  function frontTex(look){const cv=document.createElement('canvas');cv.width=512;cv.height=256;const g=cv.getContext('2d');
   g.fillStyle='#F4F4F0';g.fillRect(0,0,512,256);g.fillStyle=look.main;g.fillRect(0,0,512,88);g.fillStyle='#FFFFFF';g.fillRect(0,88,512,7);
   try{g.drawImage(logoCanvas(look.logo,128),12,8,72,72);}catch(e){}
-  g.fillStyle=look.main.toLowerCase()==='#ffffff'?'#E94F4F':'#FFFFFF';g.font='900 50px sans-serif';g.textBaseline='middle';g.fillText((look.name||'').toUpperCase().slice(0,14),98,47,400);
+  g.fillStyle=look.main.toLowerCase()==='#ffffff'?'#E94F4F':'#FFFFFF';g.font='900 50px sans-serif';g.textBaseline='middle';g.fillText(i18nText((look.name||'').toUpperCase().slice(0,14)),98,47,400);
   g.fillStyle='#9FD6E8';g.fillRect(14,108,484,136);g.fillStyle='#CDEFF7';g.fillRect(14,108,484,22);
   g.fillStyle='#F4F4F0';for(let i=1;i<5;i++)g.fillRect(14+i*96.8-3,108,6,136);g.fillStyle='#6AB2CC';g.fillRect(212,136,88,108);g.fillStyle='#F4F4F0';g.fillRect(254,136,4,108);
   const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;tx.anisotropy=4;return tx;}
@@ -559,8 +560,8 @@ export function createWorld(container,cb){
  // Labels
  const SHOW_LABELS=new URLSearchParams(location.search).get('beschriftung')==='1';// Erik 21.10.: Stadtteil-/Wahrzeichen-Beschriftung standardmäßig aus
  const labelLayer=document.createElement('div');labelLayer.className='labels';if(!SHOW_LABELS)labelLayer.style.display='none';container.appendChild(labelLayer);
- const labels=DISTRICTS.map(d=>{const el=document.createElement('div');el.className='lbl3d';el.innerHTML=`<i style="background:${TYPES[d.type].color}">${TYPES[d.type].icon}</i><b>${d.name}</b><small>${d.jp}</small>`;labelLayer.appendChild(el);const A=bezirkLabel(d);return {el,p:new THREE.Vector3(A.x,9,A.z)};});
- const lmLabels=LANDMARKS.filter(l=>!['shibuya-crossing','tokyo-station','haneda'].includes(l.id)).concat(FEATURES.rail?[{name:'Yamanote-Linie',x:YM.cx-YM.rx,z:YM.cz+14,h:3}]:[]).map(l=>{const el=document.createElement('div');el.className='lmlbl';el.textContent=l.name;labelLayer.appendChild(el);return {el,p:new THREE.Vector3(l.x,STIL5?.3:(l.h||6)+2,l.z),below:STIL5};});
+ const labels=DISTRICTS.map(d=>{const el=document.createElement('div');el.className='lbl3d';el.innerHTML=i18nHTML(`<i style="background:${TYPES[d.type].color}">${TYPES[d.type].icon}</i><b>${d.name}</b><small>${d.jp}</small>`);labelLayer.appendChild(el);const A=bezirkLabel(d);return {el,p:new THREE.Vector3(A.x,9,A.z)};});
+ const lmLabels=LANDMARKS.filter(l=>!['shibuya-crossing','tokyo-station','haneda'].includes(l.id)).concat(FEATURES.rail?[{name:'Yamanote-Linie',x:YM.cx-YM.rx,z:YM.cz+14,h:3}]:[]).map(l=>{const el=document.createElement('div');el.className='lmlbl';el.textContent=i18nText(l.name);labelLayer.appendChild(el);return {el,p:new THREE.Vector3(l.x,STIL5?.3:(l.h||6)+2,l.z),below:STIL5};});
  const v=new THREE.Vector3();
  const placedLm=[];function placeLabels(){if(!SHOW_LABELS)return;const W=container.clientWidth,H=container.clientHeight,dist=120/camera.zoom;
   // V4: Labels entzerren – Viertel zuerst, Wahrzeichen weichen nach unten aus (bis 3 Stufen), sonst ausblenden
