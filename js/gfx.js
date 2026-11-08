@@ -3,7 +3,7 @@ import {fillCity} from './cities.js';
 import {CATS,SERVICES,SVC_FIX,BUILD,BUILD_CSV,CAMPAIGNS,CAMP_CSV,MGR_TIERS,TIERS,rebuildTierMap} from './data.js';
 export const GFX={svg:{},prices:null,services:null,texte:null,standorte:null,src:{}};
 const FILES={
- logo_eight:'logos/eight.svg',logo_lawsun:'logos/lawsun.svg',logo_familia:'logos/familia.svg',logo_minihalt:'logos/minihalt.svg',logo_zabu:'logos/zabu.svg',
+ logo_eight:'logos/eight.svg',logo_lawsun:'logos/hinata.svg',logo_familia:'logos/kogarashi.svg',logo_minihalt:'logos/minihalt.svg',logo_zabu:'logos/zabu.svg',
   svc_geldautomat:'icons/services/geldautomat.svg',dev_smoothie:'geraete/smoothie-maschine.svg',dev_hot:'geraete/heissgetraenke-vitrine.svg',dev_self:'geraete/selbstbedienungskasse.svg',dev_regal:'geraete/regal.svg',dev_kuehlregal:'geraete/kuehlregal.svg',dev_tiefkuehltruhe:'geraete/tiefkuehltruhe.svg',dev_kaffeemaschine:'geraete/kaffeemaschine.svg',dev_fritteuse:'geraete/fritteuse.svg',dev_oden:'geraete/oden-topf.svg',dev_dampfgarer:'geraete/dampfgarer.svg',dev_kasse:'geraete/kasse.svg',
  icon_onigiri:'icons/onigiri.svg',icon_bento:'icons/bento.svg',icon_sandwich:'icons/sandwich.svg',icon_oden:'icons/oden.svg',icon_kaffee:'icons/kaffee.svg',icon_getraenke:'icons/getraenke.svg',icon_snacks:'icons/snacks.svg',icon_saisonware:'icons/saisonware.svg',icon_alltagsartikel:'icons/alltagsartikel.svg',
  sign0:'laden/schild-leuchtkasten.svg',sign1:'laden/schild-noren.svg',sign2:'laden/schild-pylon.svg',
@@ -18,6 +18,7 @@ const FILES={
  lage_top:'karte/lage-top.svg',lage_city:'karte/lage-city.svg',lage_wohn:'karte/lage-wohngebiet.svg',lage_rand:'karte/lage-stadtrand.svg',hub_station:'karte/wahrzeichen-tokyo-station.svg',hub_haneda:'karte/wahrzeichen-haneda.svg',
  bh_logo:'bewertung/buuhuu-logo.svg',bh_full:'bewertung/geist-voll.svg',bh_half:'bewertung/geist-halb.svg',bh_empty:'bewertung/geist-leer.svg',
 };
+// R112 (Erik 04.11. 21:00 „Ja, Franky soll Lawsun umbenennen“): logo_lawsun = Yukis grafik/logos/hinata.svg (interne id bleibt 'lawsun'); fehlt die Datei, zeigt das Spiel das logo.js-Logo (Sonne, HINATA); R113b (22:18): logo_familia = Yukis grafik/logos/kogarashi.svg, fehlt sie, logo.js-Logo KOGARASHI; familia.svg (FAMILIA) nie laden
 export async function loadGfx(){
  await Promise.all(Object.entries(FILES).map(async([k,f])=>{try{const r=await fetch('grafik/'+f,{cache:'no-cache'});if(r.ok){const t=await r.text();if(t.includes('<svg'))GFX.svg[k]=dedupeAttrs(t);}}catch(e){}}));
  await loadData();

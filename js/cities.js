@@ -22,8 +22,16 @@ const q=new URLSearchParams(globalThis.location?location.search:'').get('stadt')
 export const CITY_ID=CITIES[q]?q:'tokio';
 export const CITY=CITIES[CITY_ID];
 // Lädt den Plan der Stadt; fehlt die Datei (z. B. Yokohama noch nicht geliefert), fällt es auf Tokio zurück.
+// V7 Runde 3 (Erik 08.11. 8:41 „Hinata/Kogarashi plus Yukis neue Kyoto- und Nagoya-Pakete einbauen und auf den Testlink“, R114/R115):
+// Kyoto und Nagoya laden Yukis vollständigen Vorschlagsplan aus kyoto/ bzw. nagoya/ (grafik/ bleibt unverändert). ?kyoto=alt / ?nagoya=alt zeigt den alten Plan.
+// Fehlt die Datei oder ist sie ungültig, gilt der alte Plan aus grafik/ (console.warn).
+export const PLAN_A_PFAD={kyoto:'kyoto/stadtplan-kyoto.json',nagoya:'nagoya/stadtplan-nagoya.json'};
+export let PLAN_A=false;// true, wenn Kyoto/Nagoya mit Yukis R3-Plan laufen (world.js baut dann den Bausatz aus kyoto/ bzw. nagoya/)
 export async function loadCityPlan(base,version){
  const url=c=>new URL('../grafik/stadtplan/'+c.plan(version),base);
+ const _aQ=new URLSearchParams(globalThis.location?location.search:'').get(CITY_ID);
+ if(version===7&&PLAN_A_PFAD[CITY_ID]&&_aQ!=='alt'){try{const r=await fetch(new URL('../'+PLAN_A_PFAD[CITY_ID],base));if(r.ok){const j=await r.json();if(validPlan(j)){PLAN_A=true;return {plan:j,city:CITY};}}}catch(e){}
+  console.warn(CITY.name+' R3-Plan nicht geladen – alter Plan aus grafik/');}
  if(CITY_ID!=='tokio'){try{const r=await fetch(url(CITY));if(r.ok){const j=await r.json();if(validPlan(j))return {plan:j,city:CITY};}}catch(e){}
   console.info('Stadtplan für',CITY.name,'fehlt – Tokio wird geladen');}
  return {plan:await fetch(url(CITIES.tokio)).then(r=>r.json()),city:CITIES.tokio};}

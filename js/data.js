@@ -183,11 +183,11 @@ export const GIVEN_M=['Haruto','Ren','Sōta','Yūto','Kenji','Takumi','Daiki','H
 
 export const CHAINS={
  eight:{name:'Eight',jp:'エイト',color:'#13A89E',color2:'#FFC93C',brand:1.12,aggr:.12,file:'eight'},
- lawsun:{name:'Lawsun',jp:'ローサン',color:'#FF8A3D',color2:'#FFE08A',brand:1.04,aggr:.10,file:'lawsun'},
- familia:{name:'Familia',jp:'ファミリア',color:'#8E5BD1',color2:'#F7A1B5',brand:1.04,aggr:.10,file:'familia'},
+ lawsun:{name:'Hinata',jp:'ひなた',color:'#FF8A3D',color2:'#FFE08A',brand:1.04,aggr:.10,file:'hinata'},
+ familia:{name:'Kogarashi',jp:'こがらし',color:'#8E5BD1',color2:'#F7A1B5',brand:1.04,aggr:.10,file:'kogarashi'},
  minihalt:{name:'Minihalt',jp:'ミニハルト',color:'#2E3A8C',color2:'#5DBB73',brand:.9,aggr:.07,file:'minihalt'},
 };
-export const RIVALS=['eight','lawsun','familia','minihalt'];
+export const RIVALS=['eight','lawsun','familia','minihalt'];// R112 (Erik 04.11. 21:00 „Ja, Franky soll Lawsun umbenennen“): sichtbarer Name Hinata/ひなた (zu nah an einer echten Kette), interne id 'lawsun' bleibt für alte Spielstände/Tests; R113 (Erik 04.11. 21:32): Familia sichtbar Kogarashi/こがらし (zu nah an FamilyMart), id 'familia' bleibt
 
 // Logo-Editor
 export const LOGO_SHAPES=[{id:'circle',label:'Kreis'},{id:'squircle',label:'Quadrat'},{id:'hexagon',label:'Sechseck'},{id:'shield',label:'Wappen'},{id:'diamond',label:'Raute'},{id:'banner',label:'Banner'}];

@@ -106,7 +106,7 @@ export function rvWert(s,c){const fz=ensure(s),r=rvState(s,fz,c),h=r.hist.slice(
 function rvIpoOk(s,r,c){const y1=r.hist.slice(-52),y2=r.hist.slice(-104,-52);return !r.boerse&&year(s)>=C.RIVAL_IPO.abJahr&&rvN(s,c)>=(C.RIVAL_IPO.filialen??C.IPO.filialen)&&y1.reduce((a,x)=>a+x.rev,0)>=(C.RIVAL_IPO.umsatz??C.IPO.umsatz)&&y1.length===52&&y1.reduce((a,x)=>a+x.g,0)>0&&((C.RIVAL_IPO.gewinnJahre??2)<2||y2.length===52&&y2.reduce((a,x)=>a+x.g,0)>0);}
 // Börsennotierte Rivalen erscheinen als Firma im Börse-Tab
 function rvFirma(s,c){const r=(ensure(s).rv||{})[c],ch=H.CHAINS[c]||{name:c};if(!r||!r.boerse)return null;const id=RVK(c);
- if(!FM[id])FM[id]={id,name:ch.name,code:'',branche:'Konbini-Kette',kurs:r.boerse.k,aktien:r.boerse.aktien,logo:`grafik/logos/${ch.file||c}.svg`,desc:'',vol:C.RIVAL_KURS.vol,bank:false,rival:c,rv:true};return FM[id];}
+ if(!FM[id])FM[id]={id,name:ch.name,code:'',branche:'Konbini-Kette',kurs:r.boerse.k,aktien:r.boerse.aktien,logo:H.rvLogo?H.rvLogo(c):`grafik/logos/${ch.file||c}.svg`,/* R112 */desc:'',vol:C.RIVAL_KURS.vol,bank:false,rival:c,rv:true};return FM[id];}
 function rvIPO(s,fz,c,r){const st=C.RIVAL_IPO.streu,rr=rnd(seedOf(c)),streu=Math.round(st[0]+rr()*(st[1]-st[0]))/100,w=rvWert(s,c),A=C.RIVAL_IPO.aktien,k=w/A;
  r.boerse={aktien:A,streu,k,ch:0,h:[k],woche:s.week};fz.ipoN=(fz.ipoN||0)+1;const id=RVK(c);rvFirma(s,c);fz.kurse[id]={k,ch:0,h:[k]};
  news(s,{chain:c,text:`🔔 <b>${H.CHAINS[c].name}</b> geht an die Börse! Bewertung ${fY(w)}, ${Math.round(streu*100)} % Streubesitz – im Börse-Tab kaufbar.`});}

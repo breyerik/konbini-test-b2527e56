@@ -2,9 +2,11 @@
 // Planversion: V6 ist von Erik freigegeben (Standard). V5 bleibt per ?plan=5 erreichbar.
 // V7 (Standard): V6 + Dichte – Parkstreifen/-ringe bebaut (tools/plan_v7.py); ?plan=6 / ?plan=5 bleiben erreichbar.
 const _pq=Number(new URLSearchParams(globalThis.location?location.search:'').get('plan'));export const PLAN_VERSION=_pq===5?5:_pq===6?6:7;
-import {loadCityPlan} from './cities.js';
+import {loadCityPlan,PLAN_A as _PLAN_A_LIVE} from './cities.js';
 const _city=await loadCityPlan(import.meta.url,PLAN_VERSION);
-export const PLAN=_city.plan, CITY=_city.city;// Mehrstadt: cities.js (Tokio Standard, ?stadt=yokohama sobald Yukis Plan da ist)
+export const PLAN=_city.plan, CITY=_city.city;
+// R114/R115 (Erik 08.11. 8:41): Kyoto/Nagoya mit Yukis R3-Plan (cities.js lädt kyoto/ bzw. nagoya/stadtplan-*.json; Tō-ji- und Atsuta-EXTRA unten bleiben wie bisher)
+export const KYOTO_A=CITY.id==='kyoto'&&_PLAN_A_LIVE, NAGOYA_A=CITY.id==='nagoya'&&_PLAN_A_LIVE;// Mehrstadt: cities.js (Tokio Standard, ?stadt=yokohama sobald Yukis Plan da ist)
 // V7 Shibuya-Kreuzung Lage A (Yuki R4b, Whitebeard-Freigabe R4b, Erik 01.11. 14:54 „Genau so machen“, R58): vier angeschlossene Arme.
 // Planänderung zur Laufzeit aus kreuzung/plan_a.json (88 Felder, 14 ladenlose Grundstücke weg, Wahrzeichenfläche neu) – nur Tokio V7.
 // Greift nur, wenn JEDES Feld noch den erwarteten alten Typ hat und alle 14 Grundstücke existieren (sonst alter Plan, Warnung).

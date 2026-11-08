@@ -114,7 +114,7 @@ export function save(){try{if(!state)return;state.savedAt=Date.now();tagLots(sta
 export function slotInfo(n){const s=load(n);return s?{slot:n,lost:!!s.lost,week:s.week,cash:s.cash,savedAt:s.savedAt||null,name:s.logo&&s.logo.name,stores:s.stores.filter(x=>x.chain==='player').length+sum(awayStores(s).map(a=>a.n)),city:s.city}:null;}
 export function listSlots(){return Array.from({length:SLOTS_N},(_,i)=>slotInfo(i+1));}
 export function anySave(){return listSlots().some(Boolean);}
-const NAME_MAP=[[/8-Twelve/g,'Eight'],[/エイト・トゥエルブ/g,'エイト'],[/FamiliaMart/g,'Familia'],[/ファミリアマート/g,'ファミリア'],[/MiniHalt/g,'Minihalt']];
+const NAME_MAP=[[/8-Twelve/g,'Eight'],[/エイト・トゥエルブ/g,'エイト'],[/FamiliaMart/g,'Kogarashi'],[/ファミリアマート/g,'こがらし'],[/MiniHalt/g,'Minihalt']];
 export function migrateNames(raw){return raw==null?raw:NAME_MAP.reduce((t,[r,n])=>t.replace(r,n),raw)}
 // V4: Läden, die wegen der Wolkenkratzer umgezogen sind, bekommen ihren neuen Slot (alte Spielstände laufen weiter)
 // Läden mit gespeicherter Grundstücks-ID (ab V4) folgen ihrem Grundstück, egal mit welcher Turm-Platzierung gespeichert wurde
