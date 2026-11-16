@@ -2,7 +2,7 @@
 // Vorschlag für Frankys Einbau – liest nur die Bauvorlage, ändert keine Spieldatei. Ein Stand für Spiel-Vorschau und Einbau.
 //   baueYokohama(THREE, { basis, vorlage, kamera, schirm1, schatten, zeigeAbZoom, features }) → { gruppe, update(dt), info(), entfernen(), zug }
 //   features = FEATURES aus js/plan.js. Die Hochbahn (Viadukt, Bahnhöfe, Steg, Zug = alle Teile mit gruppe 'hochbahn') wird NUR gebaut,
-//   wenn features.hochbahn === true. Rein optisch: keine Spielfunktion. FEATURES.rail (Yamanote-Ring, Tokio Hbf, Bahnwerbung) wird
+//   wenn features.hochbahn === true. Rein optisch: keine Spielfunktion. FEATURES.rail (Ringbahn, Tokio Hbf, Bahnwerbung) wird
 //   hier bewusst NICHT gelesen und muss AUS bleiben; Hochbahn und rail sind unabhängig.
 //   update(dt) einmal je Frame (dt in s, intern ≤ 0,1 s). Gruppe ohne Versatz direkt in die Szene (Kinder in Welt-Koordinaten).
 // Draw Calls: Boden 1 · Statik 1 · Bildschirme 1 · Steinschüttung 1 · Figuren 1 · Zug 1 = 6 (+1 Statik im Schattenpass); ohne Hochbahn 5.

@@ -171,6 +171,7 @@ body.sheet #sheet{transform:none}
 #boot{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);transition:opacity .5s}
 #boot.hide{opacity:0;pointer-events:none}
 .boot-logo{font-size:56px;font-weight:900;color:var(--red);letter-spacing:5px;animation:bob 1.4s ease-in-out infinite}
+.boot-logo-img{width:min(80vw,520px);height:auto;animation:bob 1.4s ease-in-out infinite}
 .boot-sub{color:var(--mut);font-weight:800;margin-top:8px}
 @keyframes bob{50%{transform:translateY(-8px)}}
 @media (min-width:860px){
