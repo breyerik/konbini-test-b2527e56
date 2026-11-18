@@ -1,0 +1,1 @@
+export const FRANCHISE={ON:!0,ab:{laeden:5,ruf:50},eintritt:2e6,gebuehr:.15,chance:.25,geduld:4,maxFaktor:2,frist:12,rufMalus:.3,uebernahme:.7,sterne:[1.5,2,2.5,3,3,3.5,3.5,4,4,4.5]};

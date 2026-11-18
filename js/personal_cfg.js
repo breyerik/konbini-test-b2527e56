@@ -1,0 +1,1 @@
+export const PERSONAL={bezirk:{abSterne:4,abWochen:52,kunden:1.03,lernen:1.5,gehaltF:1.3},abwerbung:{ON:!0,abJahr:2,chance:.02,abSterne:3.5,frist:2,mitziehen:1.15,laune:10,abstand:39},jubilaeum:{wochen:260,laune:15},elternzeit:{chance:.002,wochen:8,laune:10,maxAlter:42},ldj:{laune:20,geduld:4}};

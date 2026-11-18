@@ -143,3 +143,42 @@ html #fz .fztabs button.on{font-weight:750!important;color:var(--txt)!important;
 html #fz .fzcity .fzrow.t b:first-child{display:flex;align-items:center;gap:8px;font-size:17px}
 html #fz .fzcity .fzrow.t .wico{color:var(--w-accent)}
 html #fz .fzc small{color:var(--mut)!important;font-weight:500}
+/* Playtest 16.11.2026 – Darstellung auf dem Handy */
+#intro:has(.editor) ~ #languagePicker{display:none}/* Sprachschalter verdeckte die Überschrift im Logo-Editor */
+table.fin td:last-child,.fin td+td{white-space:nowrap}/* „+ ¥194.963“ und „¥21,5 Mio“ brachen um */
+.eqb b{hyphens:auto;overflow-wrap:anywhere;max-width:100%}/* „Selbstbedienungskasse“ lief aus der Karte */
+#endWeek{font-size:13px;overflow:hidden}#endWeek .ew i{margin-left:2px}#endWeek.evoffen .ew{font-size:12px}/* Text war links angeschnitten bzw. überlappte die Nachbarn */
+body.sheet #toast{top:calc(env(safe-area-inset-top) + 74px);bottom:auto}/* Meldung verdeckte die Knöpfe unten im Fenster */
+.kreditinfo{display:block;margin-top:6px;font-size:12px;font-weight:600;color:var(--mut);text-align:center}
+/* Barrierefreiheit 16.11.2026 (Design-Prüfung): Textgröße einstellbar, kleinste Schrift 11 px, „Bewegung reduzieren“ */
+#tutor,#panel,#sheet,#pick,#toast,#fz,#bf,#mm,#mmban,#minusBanner{zoom:var(--ui-zoom,1)}/* Lesetext; Karte, Kopfleiste und Navigationsleiste bleiben, sie sind auf 375 px zu eng für mehr */
+body{touch-action:manipulation}/* Zoom mit zwei Fingern erlaubt, kein Doppeltipp-Zoom */
+.tsz{display:inline-flex;gap:3px;padding:3px;border:1px solid var(--line);border-radius:18px;background:var(--card)}
+.tsz button{border:0;border-radius:14px;min-width:44px;min-height:44px;padding:0 10px;background:transparent;color:var(--txt);font:inherit;font-weight:750;cursor:pointer}
+.tsz button[aria-pressed="true"]{background:var(--txt);color:var(--card)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+/* Wochenbericht als Kassenbon (Design-Entwurf 17.11.2026) */
+.bon{position:relative;background:var(--card);border:1px solid var(--line);border-radius:8px 8px 0 0;padding:14px 16px 10px;margin:10px 0 22px}
+.bon::after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:10px;background:linear-gradient(135deg,var(--card) 5px,transparent 0) 0 0/10px 10px repeat-x,linear-gradient(225deg,var(--card) 5px,transparent 0) 0 0/10px 10px repeat-x}
+.bkopf{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--mut);font-weight:750;letter-spacing:.05em;text-transform:uppercase}
+.bon .num{font-size:36px;line-height:1.1;font-weight:750;font-variant-numeric:tabular-nums;margin:8px 70px 2px 0;white-space:nowrap}
+.bunter{font-size:13px;color:var(--mut);padding-right:70px}
+.bstempel{position:absolute;right:14px;top:38px;width:58px;height:58px;border:3px solid var(--w-accent);border-radius:50%;color:var(--w-accent-s);display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(-12deg);font-weight:800;line-height:1}
+.bstempel i{font-style:normal;font-size:21px}.bstempel span{font-size:11px;margin-top:2px}
+.bzeilen{margin-top:12px;border-top:1px dashed var(--line)}
+.bz{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px;font-variant-numeric:tabular-nums}
+.bz b{white-space:nowrap}.bz.sum{border-bottom:0;font-weight:750;font-size:15px}
+.bmehr summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--mut);font-weight:650;cursor:pointer;list-style:none}
+.bmehr summary::-webkit-details-marker{display:none}.bmehr summary::after{content:"›";font-size:18px;transition:transform .15s}.bmehr[open] summary::after{transform:rotate(90deg)}
+.bfort{height:6px;border-radius:3px;background:var(--w-tint);margin:5px 0 3px;overflow:hidden}.bfort i{display:block;height:100%;background:var(--w-accent)}
+.bcta{position:sticky;bottom:0;/* das Fenster hält unten schon Platz für die Navigationsleiste frei */display:flex;gap:8px;margin-top:16px;padding:10px 0 4px;background:linear-gradient(transparent,var(--bg) 30%);z-index:2}
+.bcta .btn{flex:1;min-height:48px}.bcta .btn.primary{flex:1.7}
+/* Einstieg 17.11.2026: Hervorhebung von Omas Laden, Liste für Woche 1, Punkte bis zum Startkredit */
+#spot{position:fixed;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 200vmax rgba(58,54,50,.42);pointer-events:none;z-index:5}
+.zchip{margin-top:6px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 12px;box-shadow:var(--sh);font-size:13px;max-width:min(calc(100vw - 24px),300px);cursor:pointer}
+.zchip b{display:block;font-size:13.5px;margin-bottom:2px}.zchip small{display:block;color:var(--mut);font-size:11.5px;margin-top:5px}
+.zp{display:flex;align-items:center;gap:8px;padding:4px 0}.zp.jetzt{font-weight:750}
+.zp i{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:800;color:#fff}.zp i.ok{background:var(--w-pos-s);border-color:var(--w-pos-s)}
+.zpunkte{display:flex;gap:5px;margin-top:6px}.zpunkte i{flex:1;height:6px;border-radius:3px;background:var(--w-tint)}.zpunkte i.an{background:var(--w-accent)}
+/* Symbole statt Emoji (18.11.2026): Liniensymbole in Textgröße */
+.wico.ei{vertical-align:-.2em;flex:none}.ei-check{color:var(--w-pos-s)}.ei-close,.ei-down,.ei-trenddown{color:var(--w-accent-s)}

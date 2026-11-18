@@ -89,7 +89,7 @@ body.fzopen #fz{display:block}
 #fz .fz3 b{font-size:18px;white-space:nowrap}#fz .fzav{border-radius:50%;width:72px;height:72px}
 #fz .fzhead .fzlogo,#fz .fzhead .logo{width:40px;height:40px}
 #fz .fzstand{padding:7px!important;gap:7px}#fz .fzstand b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#fz .fzstand .fzlogo{width:38px!important;height:38px!important}#fz .fzstand>div{min-width:0}
-#fz .fzstand .fzpill{padding:2px 7px;font-size:11px;margin:2px 0 0}#fz .fzstand small{font-size:10.5px!important}
+#fz .fzstand .fzpill{padding:2px 7px;font-size:11px;margin:2px 0 0}#fz .fzstand small{font-size:11px!important}
 
 /* Eilmeldung neue Kette (Mockup k) */
 #fz .fzneu{background:#3A1426;border:2px solid #FF6B6B;text-align:center;padding:16px 12px}#fz .fzneu small.n{color:#FF8A8A;letter-spacing:1px;font-weight:900}
@@ -115,7 +115,7 @@ body.fzopen #fz{display:block}
 #fz .buper{display:flex;gap:10px;align-items:center}#fz .buper.on{border:1.5px solid #5DBB73}#fz .buper .r{text-align:right;flex:none}#fz .buper .fzav,#fz .buhead .fzav{width:54px;height:54px;background:#fff}
 #fz .buhead{display:flex;gap:10px;align-items:center}
 #fz .buerin .fzg2{margin-top:8px}
-#fz .buauf{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}#fz .buauf .fzc{margin:0;text-align:center;padding:8px 4px;color:inherit;font:inherit}#fz .buauf .fzc.on{background:#FFC93C;color:#2B2D42}#fz .buauf span{font-size:24px;display:block}#fz .buauf b{display:block;font-size:13px}#fz .buauf small{font-size:10.5px}
+#fz .buauf{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}#fz .buauf .fzc{margin:0;text-align:center;padding:8px 4px;color:inherit;font:inherit}#fz .buauf .fzc.on{background:#FFC93C;color:#2B2D42}#fz .buauf span{font-size:24px;display:block}#fz .buauf b{display:block;font-size:13px}#fz .buauf small{font-size:11px}
 #fz .bumarke{display:flex;gap:12px;align-items:center}#fz .bupk{font-size:44px;width:76px;height:96px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none}
 #fz .butog{width:46px;height:26px;border-radius:13px;background:#4A4F7A;border:0;position:relative;flex:none}#fz .butog i{position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s}#fz .butog.on{background:#5DBB73}#fz .butog.on i{left:23px}
 #fz .bul{display:flex!important;gap:8px;align-items:center}#fz .bul>small{flex:1}#fz button.bul{color:inherit;font:inherit;text-align:left}

@@ -8,7 +8,7 @@ body.bfopen #bf{display:block}#bf *{border-radius:0!important;box-sizing:border-
 .bfback{position:absolute;left:0;top:14px;width:52px;height:52px;background:#FFFFFF!important;border:3px solid #2B2D42!important;font-size:34px!important;line-height:1;color:#2B2D42}
 .bfboard{background:#232634;color:#FFFFFF;padding:10px 12px;margin:20px 0 14px}.bft{font-size:14px;margin-bottom:6px;color:#C9CED6}.bft b{color:#FFFFFF;margin-right:10px}
 .bfdep{display:grid;grid-template-columns:62px 54px 1fr 54px 40px;font-size:17px;padding:3px 0;color:#8FE08F}.bfdep.a{color:#FFB547}.bfdep.h{font-size:11px;color:#C9CED6}.bfdep span:nth-child(2),.bfdep span:nth-child(4){color:#FFFFFF;font-size:14px}.bfdep.h span{color:#C9CED6!important;font-size:11px!important}
-.bfboard small{display:block;text-align:center;font-size:10px;color:#C9CED6;margin-top:4px}
+.bfboard small{display:block;text-align:center;font-size:11px;color:#C9CED6;margin-top:4px}
 .bfq{font-weight:900;font-size:18px;margin:6px 0 8px}
 .bfcard{display:flex;align-items:center;gap:10px;background:#FFFFFF;border:3px solid #2B2D42;padding:10px;margin-bottom:10px}.bfcard.here{border-color:#E94F4F}
 .bfic{width:58px;height:58px;background:#BFE6F5;border:3px solid #2B2D42;display:flex;align-items:center;justify-content:center;font-size:32px;flex:none}
