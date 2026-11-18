@@ -376,3 +376,8 @@ body.sheet #tutor *,body.panel #tutor *,body.fzopen #tutor *,body.bfopen #tutor 
 
 /* Punkt 6: Knopf „Herausforderungen“ auf dem Startbild (in der Fußzeile, unter den drei Hauptknöpfen) */
 .scrfoot .szlink{pointer-events:auto;background:rgba(255,255,255,.92);color:#2B2D42;border:0;border-radius:999px;padding:.5em 1.2em;margin-bottom:.5em;font:inherit;font-size:13px;font-weight:800;min-height:44px;cursor:pointer}
+
+/* Erik 18.11.2026: Hinweise im HUD ein- und ausblenden; eingeklappte Hinweise mittig statt mit Leerraum darunter (Mindesthöhe 44px bleibt für den Finger) */
+.achip{display:flex;flex-direction:column;justify-content:center}
+.hudzu{display:block;margin-top:6px;background:var(--card,#fff);border:2px solid var(--line,#ddd);border-radius:999px;padding:4px 14px;font:inherit;font-size:12px;font-weight:750;color:var(--mut,#666);box-shadow:var(--sh);cursor:pointer}
+.hudzu.eilig{color:var(--txt,#222);border-color:var(--w-accent,#c8443c)}
