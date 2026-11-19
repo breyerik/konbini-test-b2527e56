@@ -381,3 +381,7 @@ body.sheet #tutor *,body.panel #tutor *,body.fzopen #tutor *,body.bfopen #tutor 
 .achip{display:flex;flex-direction:column;justify-content:center}
 .hudzu{display:block;margin-top:6px;background:var(--card,#fff);border:2px solid var(--line,#ddd);border-radius:999px;padding:4px 14px;font:inherit;font-size:12px;font-weight:750;color:var(--mut,#666);box-shadow:var(--sh);cursor:pointer}
 .hudzu.eilig{color:var(--txt,#222);border-color:var(--w-accent,#c8443c)}
+
+/* Posteingang (Erik 19.11.2026): ein Hinweis mit Zahl statt vieler einzelner */
+.postchip .postzahl{display:inline-block;min-width:20px;padding:0 6px;border-radius:999px;background:var(--mut,#666);color:#fff;font-size:11.5px;font-weight:800;text-align:center;line-height:20px}
+.postchip.eilig{border:2px solid var(--w-accent,#c8443c)}.postchip.eilig .postzahl{background:var(--w-accent,#c8443c)}
